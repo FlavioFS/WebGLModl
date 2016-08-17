@@ -1,14 +1,17 @@
-var canvas = document.getElementByIdsrc="shaders/vertex-shader"('can');
-var gl = canvas.getContext("webgl");
+var canvas;
+var gl;
 
 // [1]
 function main () {
-	
-};
+	init();
+}
 
 // [2]
 function init ()
 {
+	canvas = document.getElementById('can');
+	gl = canvas.getContext("webgl");
+
 	if (!gl)
 	{
 		alert("WebGL not working!");
@@ -20,14 +23,20 @@ function init ()
 	gl.depthFunc(gl.LEQUAL);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	var vertexShaderSource   = $('#vertex-shader');
-	var fragmentShaderSource = $('#fragment-shader');
+	// Load source codes from files
+	var reader = new FileReader();
+	reader.onload = function (e) {var text = reader.result;}
+
+	var vertexShaderSource   = reader.readAsText("shaders/vertex-shader");
+	var fragmentShaderSource = reader.readAsText("shaders/fragment-shader");
+
+	// var vertexShaderSource   = document.getElementById('vshader').text;
+	// var fragmentShaderSource = document.getElementById('fshader').text;
 
 	var vertexShader   = createShader(gl,   gl.VERTEX_SHADER, vertexShaderSource);
 	var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 	var program = createProgram(gl, vertexShader, fragmentShader);
 }
-
 
 // [3]
 function createShader (gl, type, source)

@@ -13,16 +13,48 @@
 
 	<!-- BODY -->
 	<body>
-		<canvas id="can" width="800" height="600"></canvas>
+		<canvas id="can"></canvas>
 		
 		<table class="shader-container" align="center">
 			<tr>
-				<th>Vertex Shader</th>
-				<th>Fragment Shader</th>
+				<th>Vertex Shader 
+					<div class="signal" id="vlamp"> <!-- The light -->
+						<div></div> <!-- The glow -->
+						<div></div> <!-- The shadow -->
+					</div>
+				</th>
+				<th>Fragment Shader
+					<div class="signal" id="flamp"> <!-- The light -->
+						<div></div> <!-- The glow -->
+						<div></div> <!-- The shadow -->
+					</div>
+				</th>
 			</tr>
+			
 			<tr>
-				<td><textarea id="vshader"></textarea></td>
-				<td><textarea id="fshader"></textarea></td>
+				<td>
+					<textarea id="vshader">
+attribute vec4 a_position;
+
+void main ()
+{
+	gl_Position = a_position;
+}
+					</textarea></td>
+				<td>
+					<textarea id="fshader">
+precision mediump float;
+
+void main ()
+{
+	gl_FragColor = vec4(1, 0, 0.5, 1);
+}
+					</textarea></td>
+			</tr>
+
+			<tr>
+				<td>Load from file: <input type="file" id="vInput"></td>
+				<td>Load from file: <input type="file" id="fInput"></td>
 			</tr>
 		</table>
 	</body>

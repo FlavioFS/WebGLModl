@@ -15,7 +15,7 @@ function main () {
 // [2]
 function init ()
 {
-	canvas = document.getElementById('can');
+	canvas = document.getElementById('glcanvas');
 	gl = canvas.getContext("webgl");
 
 	if (!gl)

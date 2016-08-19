@@ -1,6 +1,12 @@
-attribute vec4 a_position;
+precision mediump float;
+
+attribute vec2 vertPosition;
+attribute vec3 vertColor;
+
+varying fragColor;
 
 void main ()
 {
-	gl_Position = a_position;
+	fragColor = vertColor;
+	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }

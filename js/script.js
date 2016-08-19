@@ -3,13 +3,14 @@ var gl;
 var vertexShader;
 var fragmentShader;
 var program;
-
+var changedShaders = true;
+var positionAttributeLocation;
 
 // [1]
 function main () {
 	init();
+	mainloop();
 }
-
 
 // [2]
 function init ()
@@ -23,18 +24,44 @@ function init ()
 		return;
 	}
 
-	gl.clearColor(0.0, 0.0, 0.3, 1.0);
+	gl.clearColor(0.05, 0.0, 0.2, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
 	initShaderFields();
+	positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+
+	setInterval(mainloop, 0.1);
+}
+
+function mainloop ()
+{
+	if (changedShaders)
+	{
+		initShaderFields();
+		changedShaders = false;
+	}
+	drawSample();
 }
 
 
 // []
 function drawSample () {
-	var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+	var positionBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+	var positions = [
+		0,     0,
+		0,   0.5,
+		0.7,   0
+	];
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+	gl.enableVertexAttribArray(positionAttributeLocation);
+	gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+	gl.useProgram(program);
+	gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
 
@@ -49,8 +76,9 @@ function createShader (gl, type, source)
 	var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
 	if (success)
 	{
+		changedShaders = true;
 		document.getElementById('vlamp').className = "signal";
-		document.getElementById('flamp').className = "signal";		
+		document.getElementById('flamp').className = "signal";
 		return shader;
 	}
 
@@ -83,12 +111,14 @@ function updateVertexShader () {
 	var vertexShaderSource   = document.getElementById('vshader').value;
 	vertexShader   = createShader(gl,   gl.VERTEX_SHADER, vertexShaderSource);
 	program = createProgram(gl, vertexShader, fragmentShader);
+	changedShaders = true;
 }
 // [6]
 function updateFragmentShader () {
 	var fragmentShaderSource = document.getElementById('fshader').value;
 	fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 	program = createProgram(gl, vertexShader, fragmentShader);
+	changedShaders = true;
 }
 
 // [5]

@@ -6,10 +6,10 @@
 
 #can
 {
-	width: 1366px;
-	height: 768px;
+	width: 800px;
+	height: 600px;
 	margin-top: 20px;
-	margin-left: calc(50vw - 683px);
+	margin-left: calc(50vw - 400px);
 }
 
 .shader-container

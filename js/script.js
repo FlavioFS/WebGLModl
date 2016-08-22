@@ -77,8 +77,10 @@ function createShader (gl, type, source)
 	if (success)
 	{
 		changedShaders = true;
-		document.getElementById('vlamp').className = "signal";
-		document.getElementById('flamp').className = "signal";
+
+		if (type == gl.VERTEX_SHADER) document.getElementById('vlamp').className = "signal";
+		else                          document.getElementById('flamp').className = "signal";
+		
 		return shader;
 	}
 

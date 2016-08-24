@@ -64,3 +64,5 @@ function animate ()
 	renderer.render(scene, camera);
 	controls.update();
 }
+
+$(document).ready(main);

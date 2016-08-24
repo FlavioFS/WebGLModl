@@ -37,20 +37,69 @@ function init ()
 	);
 
 	// Lights
-	var light = new THREE.PointLight(0xffffff);
+	var light = new THREE.PointLight(0xFFFFFF);
 	light.position.set(-100,200,100);
 	scene.add(light);
 
-	// Default Mesh
-	var loader = new THREE.JSONLoader();
-	loader.load("models/threehouse_logo.js", // STUDY HOW THIS MODEL IS BUILT AND HOW THREEJS HANDLES MODELS
-		function (geometry)
-		{
-			var material = new THREE.MeshLambertMaterial({color: 0xAAFFAA});
-			mesh = new THREE.Mesh(geometry, material);
-			scene.add(mesh);
-		}
-	);
+	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
+	scene.add(light);	
+
+	// Default Mesh - Geometry, Material, Mesh
+	var geometry = JSONList2Geometry
+	({
+		"vertices":
+		[
+			[ 1, 1, 1],
+			[ 1,-1, 1],
+			[-1,-1, 1],
+			[-1, 1, 1],
+
+			[ 1, 1,-1],
+			[ 1,-1,-1],
+			[-1,-1,-1],
+			[-1, 1,-1]
+		],
+		"faces":
+		[
+			[0, 2, 1],
+			[0, 3, 2],
+
+			[0, 1, 4],
+			[4, 1, 5],
+			[0, 7, 3],
+			[0, 4, 7],
+			[3, 6, 2],
+			[3, 7, 6],
+			[1, 2, 6],
+			[1, 6, 5],
+
+			[4, 5, 6],
+			[4, 6, 7]
+		]
+	});
+
+	var material = new THREE.MeshPhongMaterial
+	({
+		color: 0xAAFFAA,
+		specular: 0x009900,
+		shininess: 30,
+		shading: THREE.FlatShading
+	});
+
+	var cube = new THREE.Mesh(geometry, material);
+	scene.add(cube);
+
+	camera.position.z = 10;
+
+	// var loader = new THREE.JSONLoader();
+	// loader.load("models/threehouse_logo.js", // STUDY HOW THIS MODEL IS BUILT AND HOW THREEJS HANDLES MODELS
+	// 	function (geometry)
+	// 	{
+	// 		var material = new THREE.MeshLambertMaterial({color: 0xAAFFAA});
+	// 		mesh = new THREE.Mesh(geometry, material);
+	// 		scene.add(mesh);
+	// 	}
+	// );
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -63,6 +112,25 @@ function animate ()
 
 	renderer.render(scene, camera);
 	controls.update();
+}
+
+// [3]
+function JSONList2Geometry (jsonlist)
+{
+	var rv = new THREE.Geometry ();
+	var temp;
+
+	for (var i = 0; i < jsonlist.vertices.length; i++) {
+		temp = jsonlist.vertices[i];
+		rv.vertices.push ( new THREE.Vector3(temp[0], temp[1], temp[2]) );
+	}
+
+	for (var i = 0; i < jsonlist.faces.length; i++) {
+		temp = jsonlist.faces[i];
+		rv.faces.push ( new THREE.Face3(temp[0], temp[1], temp[2]) );
+	}
+
+	return rv;
 }
 
 $(document).ready(main);

@@ -11,13 +11,15 @@ function init ()
 {
 	// Resolution
 	scene = new THREE.Scene();
-	var WIDTH = window.innerWidth * 0.8,
-		HEIGHT = window.innerHeight * 0.8;
+	var WIDTH = window.innerWidth * 0.6,
+		HEIGHT = window.innerHeight * 0.6;
 
 	// Creates renderer
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(WIDTH, HEIGHT);
-	document.body.appendChild(renderer.domElement);
+	var glcanvas = renderer.domElement;
+	glcanvas.className = "glcanvas";
+	document.body.appendChild(glcanvas);
 
 	// Camera
 	camera = new THREE.PerspectiveCamera (45, WIDTH / HEIGHT, 0.1, 20000);
@@ -28,8 +30,8 @@ function init ()
 	window.addEventListener('resize',
 		function()
 		{
-			var WIDTH = window.innerWidth * 0.8,
-				HEIGHT = window.innerHeight * 0.8;
+			var WIDTH = window.innerWidth * 0.6,
+				HEIGHT = window.innerHeight * 0.6;
 			renderer.setSize(WIDTH, HEIGHT);
 			camera.aspect = WIDTH / HEIGHT;
 			camera.updateProjectionMatrix();

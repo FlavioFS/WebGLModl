@@ -14,6 +14,7 @@ function init ()
 	var WIDTH = window.innerWidth * 0.6,
 		HEIGHT = window.innerHeight * 0.6;
 
+
 	// Creates renderer
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(WIDTH, HEIGHT);
@@ -21,10 +22,13 @@ function init ()
 	glcanvas.className = "glcanvas";
 	document.body.appendChild(glcanvas);
 
+
 	// Camera
 	camera = new THREE.PerspectiveCamera (45, WIDTH / HEIGHT, 0.1, 20000);
 	camera.position.set(0,6,0);
+	camera.position.z = 10;
 	scene.add(camera);
+
 
 	// Events
 	window.addEventListener('resize',
@@ -38,6 +42,7 @@ function init ()
 		}
 	);
 
+
 	// Lights
 	var light = new THREE.PointLight(0xFFFFFF);
 	light.position.set(-100,200,100);
@@ -46,20 +51,16 @@ function init ()
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
 	scene.add(light);	
 
-	var geometry = JSONList2Geometry(basehead2); // basehead2 is defined in "models" folder
+
+	// Mesh
+	var model = MDL_basehead2;
+	var geometry = JSONList2Geometry(model, 1); // MDL_ variables is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial
-	({
-		color: 0xAAFFAA,
-		specular: 0x009900,
-		shininess: 30,
-		shading: THREE.SmoothShading
-	});
+	(model.material);
 
 	var mesh = new THREE.Mesh(geometry, material);
 	mesh.geometry.computeVertexNormals();
 	scene.add(mesh);
-
-	camera.position.z = 10;
 
 	// var loader = new THREE.JSONLoader();
 	// loader.load("models/threehouse_logo.js", // STUDY HOW THIS MODEL IS BUILT AND HOW THREEJS HANDLES MODELS
@@ -84,8 +85,8 @@ function animate ()
 	controls.update();
 }
 
-// [3]
-function JSONList2Geometry (jsonlist)
+// [3] - Blender uses 1 as offset (first vertex is indexed as 1, not 0)
+function JSONList2Geometry (jsonlist, offset)
 {
 	var rv = new THREE.Geometry ();
 	var temp;
@@ -97,7 +98,7 @@ function JSONList2Geometry (jsonlist)
 
 	for (var i = 0; i < jsonlist.faces.length; i++) {
 		temp = jsonlist.faces[i];
-		rv.faces.push ( new THREE.Face3(temp[0]-1, temp[1]-1, temp[2]-1) );
+		rv.faces.push ( new THREE.Face3(temp[0]-offset, temp[1]-offset, temp[2]-offset) );
 	}
 
 	return rv;

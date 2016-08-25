@@ -1,5 +1,13 @@
-var basecube =
+var MDL_basecube =
 {
+	"material":
+	{
+		color: 0x1DAFD4,
+		specular: 0xBFF5EE,
+		shininess: 30,
+		shading: THREE.FlatShading
+	},
+
 	"vertices":
 	[
 	 		[ 1, 1, 1],

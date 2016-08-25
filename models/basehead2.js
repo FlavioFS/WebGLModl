@@ -1,6 +1,14 @@
 // Subsurf 2
-var basehead2 =
+var MDL_basehead2 =
 {
+	"material":
+	{
+		color: 0xFFD3AA,
+		specular: 0xFFF3E7,
+		shininess: 5,
+		shading: THREE.SmoothShading
+	},
+	
 	"vertices":
 	[
 		[-1.166875, 0.670257, -0.824718],

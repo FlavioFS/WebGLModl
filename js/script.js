@@ -46,50 +46,18 @@ function init ()
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
 	scene.add(light);	
 
-	// Default Mesh - Geometry, Material, Mesh
-	var geometry = JSONList2Geometry
-	({
-		"vertices":
-		[
-			[ 1, 1, 1],
-			[ 1,-1, 1],
-			[-1,-1, 1],
-			[-1, 1, 1],
-
-			[ 1, 1,-1],
-			[ 1,-1,-1],
-			[-1,-1,-1],
-			[-1, 1,-1]
-		],
-		"faces":
-		[
-			[0, 2, 1],
-			[0, 3, 2],
-
-			[0, 1, 4],
-			[4, 1, 5],
-			[0, 7, 3],
-			[0, 4, 7],
-			[3, 6, 2],
-			[3, 7, 6],
-			[1, 2, 6],
-			[1, 6, 5],
-
-			[4, 5, 6],
-			[4, 6, 7]
-		]
-	});
-
+	var geometry = JSONList2Geometry(basehead2); // basehead2 is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial
 	({
 		color: 0xAAFFAA,
 		specular: 0x009900,
 		shininess: 30,
-		shading: THREE.FlatShading
+		shading: THREE.SmoothShading
 	});
 
-	var cube = new THREE.Mesh(geometry, material);
-	scene.add(cube);
+	var mesh = new THREE.Mesh(geometry, material);
+	mesh.geometry.computeVertexNormals();
+	scene.add(mesh);
 
 	camera.position.z = 10;
 
@@ -129,7 +97,7 @@ function JSONList2Geometry (jsonlist)
 
 	for (var i = 0; i < jsonlist.faces.length; i++) {
 		temp = jsonlist.faces[i];
-		rv.faces.push ( new THREE.Face3(temp[0], temp[1], temp[2]) );
+		rv.faces.push ( new THREE.Face3(temp[0]-1, temp[1]-1, temp[2]-1) );
 	}
 
 	return rv;

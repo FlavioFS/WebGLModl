@@ -18,6 +18,7 @@ function init ()
 	// Creates renderer
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(WIDTH, HEIGHT);
+	renderer.setClearColor(0x222233, 1);
 	var glcanvas = renderer.domElement;
 	glcanvas.className = "glcanvas";
 	document.body.appendChild(glcanvas);
@@ -52,14 +53,23 @@ function init ()
 	scene.add(light);	
 
 
-	// Mesh
-	var model = MDL_basehead2;
-	var geometry = JSONList2Geometry(model, 1); // MDL_ variables is defined in "models" folder
-	var material = new THREE.MeshPhongMaterial
-	(model.material);
+	// Meshes
+	// 1
+	var model = MDL_kunai;
+	var geometry = JSONList2Geometry(model, 0); // MDL_ variables is defined in "models" folder
+	var material = new THREE.MeshPhongMaterial (model.material);
 
 	var mesh = new THREE.Mesh(geometry, material);
-	mesh.geometry.computeVertexNormals();
+	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	scene.add(mesh);
+
+	// 2
+	model = MDL_target;
+	geometry = JSONList2Geometry(model); // MDL_ variables is defined in "models" folder
+	material = new THREE.MeshPhongMaterial (model.material);
+
+	mesh = new THREE.Mesh(geometry, material);
+	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
 	scene.add(mesh);
 
 	// var loader = new THREE.JSONLoader();
@@ -86,7 +96,7 @@ function animate ()
 }
 
 // [3] - Blender uses 1 as offset (first vertex is indexed as 1, not 0)
-function JSONList2Geometry (jsonlist, offset)
+function JSONList2Geometry (jsonlist, offset=0)
 {
 	var rv = new THREE.Geometry ();
 	var temp;

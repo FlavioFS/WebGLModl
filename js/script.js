@@ -2,10 +2,12 @@ var scene, camera, renderer;
 var sceneHUD, cameraHUD;
 
 // [0]
-function main () {
-	init();
-	animate();
-}
+// check end of this file
+
+// function main () {
+// 	init();
+// 	animate();
+// }
 
 // [1]
 function init ()
@@ -99,21 +101,31 @@ function init ()
 
 
 	// HUD
+
 	// console.log(WIDTH)
 	// console.log(HEIGHT)
 	HUD.create(WIDTH, HEIGHT);
-	
-	var w = new HUD.Window('Window', {width:200, height:400, backgroundColor:'#AAAAAA'});
+
+	var w = new HUD.Window('Window',
+		{width:200, height:400, backgroundColor:'#AAAAAA'},
+		{resizable: true});
 	var b1 = new HUD.Button('New Cube', {});
 	var b2 = new HUD.Button('New Sphere', {});
 	var b3 = new HUD.Button('New Torus', {});
-
 	w.append(b1);
 	w.append(b2);
 	w.append(b3);
-
 	
 
+	var w2 = new HUD.Window('Another Window',
+		{width:200, height:400, backgroundColor:'#AAAAAA', left: (WIDTH-200)+'px'},
+		{resizable: true});
+	var b4 = new HUD.Button('Render', {});
+	var b5 = new HUD.Button('Animate', {});
+	var b6 = new HUD.Button('Etc.', {});
+	w2.append(b4);
+	w2.append(b5);
+	w2.append(b6);
 }
 
 // [2]
@@ -147,4 +159,10 @@ function JSONList2Geometry (jsonlist, offset=0)
 	return rv;
 }
 
-$(document).ready(main);
+$(document).ready(function() {
+	init();
+	animate();
+
+	$('div').draggable({handle: '.draggable'});
+	$('.resizable').resizable();
+});

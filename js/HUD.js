@@ -58,7 +58,7 @@ var HUD = (function() {
 
 	Window.prototype = new Obj();
 	Window.prototype.constructor = Window;
-	function Window(title, style) {
+	function Window(title, style, options) {
 
 		this.elem = document.createElement('div');
 		document.body.appendChild(this.elem);
@@ -68,17 +68,20 @@ var HUD = (function() {
 			this.elem.style.width = style.width + 'px';
 		if (style.height)
 			this.elem.style.height = style.height + 'px';
-		this.elem.style.top = (style.top||0) + 'px';
-		this.elem.style.left = (style.left||0) + 'px';
+		this.elem.style.top = style.top || '0px';
+		this.elem.style.left = style.left ||'0px';
 
 		this.elem.style.position = 'absolute';
 
 		// creates title
-		this.append(
-			new Button(title, 
-				{display: 'block', backgroundColor: '#000000', border: '1px solid white', margin: '0px'})
-		);
+		var titleButton = new Button(title, 
+				{display: 'block', backgroundColor: '#000000', border: '1px solid white', margin: '0px'});
+		titleButton.elem.className = 'draggable';
+		this.append(titleButton);
 
+		// options
+		if (options.resizable)
+			this.elem.className = 'resizable';
 	}
 	Window.prototype.show = function() {
 		console.log(this.title);
@@ -115,9 +118,9 @@ var HUD = (function() {
 	* Widget
 	*/
 	var Widget = function() {
-		this.group = new THREE.Object3D();
-		this.font = null;
-		this.texture = 'jonas';
+		// this.group = new THREE.Object3D();
+		// this.font = null;
+		// this.texture = 'jonas';
 	}
 
 	/****

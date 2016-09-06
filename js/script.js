@@ -1,4 +1,5 @@
 var scene, camera, renderer;
+var sceneHUD, cameraHUD;
 
 // [0]
 function main () {
@@ -11,17 +12,28 @@ function init ()
 {
 	// Resolution
 	scene = new THREE.Scene();
-	var WIDTH = window.innerWidth * 0.6,
-		HEIGHT = window.innerHeight * 0.6;
+	var WIDTH = window.innerWidth,
+		HEIGHT = window.innerHeight;
 
 
 	// Creates renderer
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(WIDTH, HEIGHT);
 	renderer.setClearColor(0x222233, 1);
+	renderer.autoClear = false;
 	var glcanvas = renderer.domElement;
 	glcanvas.className = "glcanvas";
 	document.body.appendChild(glcanvas);
+
+	// GUI
+	// GUI.publicMethod();
+	// GUI.setCanvas(glcanvas);
+
+	// var tab1 = new GUI.FloatingWindow('Objects', 10, 20);
+	// var tab2 = new GUI.FloatingWindow('Shaders', 50, 200);
+	// tab1.show();
+	// tab2.show();
+	// tab1.show();
 
 
 	// Camera
@@ -84,15 +96,24 @@ function init ()
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+	// HUD
+	console.log(WIDTH)
+	console.log(HEIGHT)
+	HUD.create(WIDTH, HEIGHT);
 }
 
 // [2]
 function animate ()
 {
-	requestAnimationFrame(animate);
-
 	renderer.render(scene, camera);
+
+	renderer.render(HUD.getScene(), HUD.getCamera());
+
 	controls.update();
+
+	requestAnimationFrame(animate);
 }
 
 // [3] - Blender uses 1 as offset (first vertex is indexed as 1, not 0)

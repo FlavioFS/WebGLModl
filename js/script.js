@@ -102,8 +102,18 @@ function init ()
 	// console.log(WIDTH)
 	// console.log(HEIGHT)
 	HUD.create(WIDTH, HEIGHT);
-	var floatingWindow = new HUD.FloatingWindow('Title', 50, 20, 0xff0000);
-	floatingWindow.show();
+	
+	var w = new HUD.Window('Window', {width:200, height:400, backgroundColor:'#AAAAAA'});
+	var b1 = new HUD.Button('New Cube', {});
+	var b2 = new HUD.Button('New Sphere', {});
+	var b3 = new HUD.Button('New Torus', {});
+
+	w.append(b1);
+	w.append(b2);
+	w.append(b3);
+
+	
+
 }
 
 // [2]

@@ -2,12 +2,14 @@
 {
 	color: #AFA;
 	background-color: #222;
+	margin: 0px;
+	padding: 0px;
 }
 
 .glcanvas
 {
-	margin-top: 20px;
-	margin-left: 20px;
+	/*margin-top: 20px;
+	margin-left: 20px;*/
 }
 
 .shader-container

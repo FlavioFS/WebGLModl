@@ -29,6 +29,7 @@ var HUD = (function() {
 		var plane = new THREE.Mesh(planeGeometry, material);
 		scene.add(plane);
 
+
 	}
 
 
@@ -36,7 +37,12 @@ var HUD = (function() {
 	 * Window 
 	 **/
 
-	var FloatingWindow = function(title, x, y) {
+	var FloatingWindow = function(title, x, y, color) {
+		var material = new THREE.MeshBasicMaterial({color: color});
+		var planeGeometry = new THREE.PlaneGeometry(x, y)
+
+		this.mesh = new THREE.Mesh(planeGeometry, material);
+
 		this.title = title || 'New Panel'
 		this.x = x || 50;
 		this.y = y || 50;
@@ -44,8 +50,8 @@ var HUD = (function() {
 
 	FloatingWindow.prototype.show = function() {
 		// alert(this.x);
-		console.log(scene)
-		console.log(camera)
+		scene.add(this.mesh);
+		console.log()
 	}
 
 

@@ -99,9 +99,11 @@ function init ()
 
 
 	// HUD
-	console.log(WIDTH)
-	console.log(HEIGHT)
+	// console.log(WIDTH)
+	// console.log(HEIGHT)
 	HUD.create(WIDTH, HEIGHT);
+	var floatingWindow = new HUD.FloatingWindow('Title', 50, 20, 0xff0000);
+	floatingWindow.show();
 }
 
 // [2]

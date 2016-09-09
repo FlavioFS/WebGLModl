@@ -11,9 +11,12 @@
 	DO NOT use "var", "const" or "let".
 */
 
+// Namespace
+var Primitives = Primitives || {};
+
 // Base class for primitives
 // Every primitive has a center 
-class Primitive
+Primitives.Solid = class
 {
 	constructor (centerJSON)
 	{

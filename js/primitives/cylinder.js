@@ -11,7 +11,10 @@
 	DO NOT use "var", "const" or "let".
 */
 
-class Cylinder extends Primitive
+// Namespace
+var Primitives = Primitives || {};
+
+Primitives.Cylinder = class extends Solid
 {
 	constructor (centerJSON, radius, height)
 	{

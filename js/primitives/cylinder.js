@@ -14,7 +14,8 @@
 // Namespace
 var Primitives = Primitives || {};
 
-Primitives.Cylinder = class extends Solid
+// Class
+Primitives.Cylinder = class extends Primitives.Solid
 {
 	constructor (centerJSON, radius, height)
 	{

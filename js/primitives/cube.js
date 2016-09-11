@@ -14,12 +14,25 @@
 // Namespace
 var Primitives = Primitives || {};
 
-
-Primitives.Cube = class extends Solid
+// Class
+Primitives.Cube = class extends Primitives.Solid
 {
 	constructor (centerJSON, edge)
 	{
 		super (centerJSON);
 		this.edge = edge;
+	}
+
+	get octree ()
+	{
+		if (this.octr) { return this.octr; }
+
+		// Bounding box is the cube itself
+		var bBox = Utils.BoundingBox (this.center, this.edge);
+
+		// Only the root node completely filled
+		// no parent, cube bounding box, filled, no kids
+		this.octr = new Octree.Node(null, bBox, Octree.BLACK, []);
+		return this.octr;
 	}
 }

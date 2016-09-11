@@ -14,7 +14,8 @@
 // Namespace
 var Primitives = Primitives || {};
 
-Primitives.Cone = class extends Solid
+// Class
+Primitives.Cone = class extends Primitives.Solid
 {
 	constructor (centerJSON, radius, height)
 	{

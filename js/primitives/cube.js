@@ -25,7 +25,7 @@ Primitives.Cube = class extends Primitives.Solid
 
 	get octree ()
 	{
-		if (this.octr) { return this.octr; }
+		if (this.octr) return this.octr;
 
 		// Bounding box is the cube itself
 		var bBox = Utils.BoundingBox (this.center, this.edge);

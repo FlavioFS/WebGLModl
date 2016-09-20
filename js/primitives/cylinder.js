@@ -23,4 +23,16 @@ Primitives.Cylinder = class extends Primitives.Solid
 		this.radius = radius;
 		this.height = height;
 	}
+
+	get octree ()
+	{
+		if (this.octr) return this.octr;
+
+
+	}
+
+	octreeRecursion (node)
+	{
+		if (true) {}
+	}
 }

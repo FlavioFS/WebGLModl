@@ -1,12 +1,12 @@
 /** IMPORTANT: How to create instances OUTSIDE of this file
 	
 	Correct:
-		cubeName = new Cube ({"x": 1, "y": 2}, 7);
+		cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
 
 	Wrong:
-		var 	cubeName = new Cube ({"x": 1, "y": 2}, 7);
-		const 	cubeName = new Cube ({"x": 1, "y": 2}, 7);
-		let		cubeName = new Cube ({"x": 1, "y": 2}, 7);
+		var 	cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
+		const 	cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
+		let		cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
 
 	DO NOT use "var", "const" or "let".
 */
@@ -15,7 +15,7 @@
 var Primitives = Primitives || {};
 
 // Class
-Primitives.Cube = class extends Primitives.Solid
+Primitives.SolidCube = class extends Primitives.Solid
 {
 	constructor (centerJSON, edge)
 	{

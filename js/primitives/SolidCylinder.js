@@ -4,9 +4,9 @@
 		cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
 
 	Wrong:
-		var 	cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
-		const 	cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
-		let		cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
+		var   cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
+		const cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
+		let	  cylinderName = new SolidCylinder ({"x": 1, "y": 2}, 7);
 
 	DO NOT use "var", "const" or "let".
 */
@@ -20,6 +20,7 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
+	// This Cylinder is centered at the base, and points to the z-axis (up)
 	constructor (centerJSON, radius, height)
 	{
 		super (centerJSON);
@@ -32,9 +33,11 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
-	octree (precision)
+	octree (precision=5)
 	{
-		return super.octree(precision, 2*this.radius);
+		var 2r = 2*this.radius;
+		var boxEdge = (2r > this.height) ? 2r : this.height; // Chooses the largest value
+		return super.octree(boxEdge, precision);
 	}
 
 
@@ -44,10 +47,14 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	// Implements Solid.contains
 	contains (point)
 	{
-		// Height test: |Z - Zc| > h
-		var halfHeight = this.height / 2;
-		if ( (point.z < this.center.z - halfHeight) || (point.z > this.center.z + halfHeight) ) return false;
-		
+		/* Height test:
+		 *   Z < Zc        ~> below the Cylinder
+		 *     or
+		 *   Z > Zc + h    ~> above the tip of the Cylinder
+		 */
+		if ( (point.z < this.center.z) || (point.z > this.center.z + this.height) ) return false;
+
+
 		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
 		var
 			dx = point.x - this.center.x,

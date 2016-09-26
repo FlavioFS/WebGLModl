@@ -4,9 +4,9 @@
 		cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
 
 	Wrong:
-		var 	cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
-		const 	cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
-		let		cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
+		var   cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
+		const cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
+		let	  cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
 
 	DO NOT use "var", "const" or "let".
 */

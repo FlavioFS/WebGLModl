@@ -4,9 +4,9 @@
 		sphName = new SolidSphere ({x: 1, y: 2}, 7);
 
 	Wrong:
-		var 	sphName = new SolidSphere ({x: 1, y: 2}, 7);
-		const 	sphName = new SolidSphere ({x: 1, y: 2}, 7);
-		let		sphName = new SolidSphere ({x: 1, y: 2}, 7);
+		var   sphName = new SolidSphere ({x: 1, y: 2}, 7);
+		const sphName = new SolidSphere ({x: 1, y: 2}, 7);
+		let	  sphName = new SolidSphere ({x: 1, y: 2}, 7);
 
 	DO NOT use "var", "const" or "let".
 */
@@ -32,9 +32,9 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
-	octree (precision)
+	octree (precision=5)
 	{
-		return super.octree(precision, 2*this.radius);
+		return super.octree(2*this.radius, precision);
 	}
 
 

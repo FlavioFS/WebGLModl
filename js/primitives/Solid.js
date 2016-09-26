@@ -4,9 +4,9 @@
 		primName = new Primitive ({x: 1, y: 2});
 
 	Wrong:
-		var 	primName = new Primitive ({x: 1, y: 2});
-		const 	primName = new Primitive ({x: 1, y: 2});
-		let		primName = new Primitive ({x: 1, y: 2});
+		var   primName = new Primitive ({x: 1, y: 2});
+		const primName = new Primitive ({x: 1, y: 2});
+		let	  primName = new Primitive ({x: 1, y: 2});
 
 	DO NOT use "var", "const" or "let".
 */
@@ -150,7 +150,7 @@ Primitives.Solid = class
 	}
 
 	// Generates Octree
-	octree (precision, bBoxEdge)
+	octree (bBoxEdge, precision=5)
 	{
 		if (this.octr) return this.octr;
 

@@ -17,6 +17,9 @@ var Primitives = Primitives || {};
 // Base class for primitives
 Primitives.Solid = class
 {
+	/* =====================================================================================================
+	 *  CONSTRUCTOR
+	 * ===================================================================================================== */	
 	constructor (centerJSON)
 	{
 		this.center = centerJSON;	// Every Solid has a center
@@ -24,7 +27,9 @@ Primitives.Solid = class
 	}
 
 
-	//// ABSTRACT METHODS
+	/* =====================================================================================================
+	 *  ABSTRACT METHODS
+	 * ===================================================================================================== */
 	// This Solid contains the point?
 	contains (point)
 	{
@@ -32,31 +37,33 @@ Primitives.Solid = class
 		return false;
 	}
 
-	// This solid contains a bounding box
-	inside (vertices, faceCenters)
+
+	/* =====================================================================================================
+	 *  CONCRETE METHODS
+	 * ===================================================================================================== */
+	// This Solid contains all of these vertices
+	inside (vertices)
 	{
-		console.log(new Error ("Abstract method 'inside' of Solid must be implemented in the Subclass."));
-		return false;
+		for (var i = 0; i < vertices.length; i++) {
+			if (!this.contains(vertices[i])) return false;
+		}
+
+		return true;
 	}
 
-	// A bounding box does not intersect this solid
-	outside (vertices, faceCenters)
+	// All of these vertices are outside of this Solid
+	outside (vertices)
 	{
-		console.log(new Error ("Abstract method 'outside' of Solid must be implemented in the Subclass."));
-		return false;
+		for (var i = 0; i < centers.length; i++) {
+			if (this.contains(centers[i])) return false;
+		}
+
+		return true;
 	}
 
-	// Generates octree
-	get octree (precision)
-	{
-		console.log(new Error ("Abstract getter 'octree' of Solid must be implemented in the Subclass."));
-		return null;
-	}
-
-
-	//// CONCRETE METHODS
 	// Decides the color of a node - concrete method
-	decideColor (boundingBox) {
+	decideColor (boundingBox)
+	{
 		var plusHalf = boundingBox + edge/2;
 		var diffHalf = boundingBox - edge/2;
 
@@ -72,20 +79,8 @@ Primitives.Solid = class
 			{ x: diffHalf, y: diffHalf, z: diffHalf }
 		];
 
-		var faceCenters =
-		[
-			{ x: plusHalf, y: boundingBox.center, z: boundingBox.center },
-			{ x: diffHalf, y: boundingBox.center, z: boundingBox.center },
-
-			{ x: boundingBox.center, y: plusHalf, z: boundingBox.center },
-			{ x: boundingBox.center, y: diffHalf, z: boundingBox.center },
-
-			{ x: boundingBox.center, y: boundingBox.center, z: plusHalf },
-			{ x: boundingBox.center, y: boundingBox.center, z: diffHalf }
-		];
-
-		if (this.inside(vertices, faceCenters))  return Octree.BLACK;
-		if (this.outside(vertices, faceCenters)) return Octree.WHITE;
+		if (this.inside(vertices))  return Octree.BLACK;
+		if (this.outside(vertices)) return Octree.WHITE;
 		
 		return Octree.GRAY;
 	}
@@ -152,5 +147,23 @@ Primitives.Solid = class
 				this.octreeRecursion(node.kids[i], precision, level+1);
 			}
 		}
+	}
+
+	// Generates Octree
+	octree (precision, bBoxEdge)
+	{
+		if (this.octr) return this.octr;
+
+		// Bounding box of the SolidSphere
+		var bBox = new Utils.BoundingBox (this.center, bBoxEdge);
+
+		// Only the root node completely filled
+		// no parent, cube bounding box, filled, no kids
+		this.octr = new Octree.Node(null, bBox, Octree.GRAY, []);
+		
+		// octreeRecursion is implemented in the class 'Solid'
+		octreeRecursion (this.octr, precision, 0);
+
+		return this.octr;
 	}
 }

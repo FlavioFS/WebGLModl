@@ -17,6 +17,9 @@ var Primitives = Primitives || {};
 // Class
 Primitives.SolidCylinder = class extends Primitives.Solid
 {
+	/* =====================================================================================================
+	 *  CONSTRUCTOR
+	 * ===================================================================================================== */	
 	constructor (centerJSON, radius, height)
 	{
 		super (centerJSON);
@@ -24,55 +27,31 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		this.height = height;
 	}
 
+
+	/* =====================================================================================================
+	 *  OVERRIDES SOLID
+	 * ===================================================================================================== */
+	// Overrides Solid.octree
+	octree (precision)
+	{
+		return super.octree(precision, 2*this.radius);
+	}
+
+
+	/* =====================================================================================================
+	 *  IMPLEMENTS SOLID
+	 * ===================================================================================================== */
 	// Implements Solid.contains
 	contains (point)
 	{
-		//return <boolean>;
-	}
-
-	// Implements Solid.inside
-	inside(vertices, faceCenters)
-	{
-		for (var i = 0; i < vertices.length; i++) {
-			if (!this.contains(vertices[i])) return false;
-		}
-
-		for (var i = 0; i < centers.length; i++) {
-			if (!this.contains(centers[i])) return false;
-		}
-
-		return true;
-	}
-
-	// Implements Solid.outside
-	outside (vertices, centers)
-	{
-		for (var i = 0; i < vertices.length; i++) {
-			if (this.contains(vertices[i])) return false;
-		}
-
-		for (var i = 0; i < centers.length; i++) {
-			if (this.contains(centers[i])) return false;
-		}
-
-		return true;
-	}
-
-	// Implements Solid.octree
-	get octree (precision)
-	{
-		if (this.octr) return this.octr;
-
-		// Bounding box of the SolidSphere
-		var bBox = new Utils.BoundingBox (this.center, 2*this.radius);
-
-		// Only the root node completely filled
-		// no parent, cube bounding box, filled, no kids
-		this.octr = new Octree.Node(null, bBox, Octree.GRAY, []);
+		// Height test: |Z - Zc| > h
+		var halfHeight = this.height / 2;
+		if ( (point.z < this.center.z - halfHeight) || (point.z > this.center.z + halfHeight) ) return false;
 		
-		// octreeRecursion is implemented in the class 'Solid'
-		octreeRecursion (this.octr, precision, 0);
-
-		return this.octr;
+		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
+		var
+			dx = point.x - this.center.x,
+			dy = point.y - this.center.y,
+		return (dx*dx + dy*dy <= this.radius*this.radius);
 	}
 }

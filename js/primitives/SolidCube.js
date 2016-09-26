@@ -1,4 +1,4 @@
-/** IMPORTANT: How to create instances OUTSIDE of this file
+/** IMPORTANT: How to create instances at the browser console
 	
 	Correct:
 		cubeName = new SolidCube ({"x": 1, "y": 2}, 7);
@@ -10,6 +10,40 @@
 
 	DO NOT use "var", "const" or "let".
 */
+
+/** DOCUMENTATION
+ *
+ *  =====================================================================================================
+ *  Attributes
+ *  =====================================================================================================
+ *      + center
+ *          Description:
+ *              Inherits center from Primitives.Solid.
+ *          
+ *      + edge
+ *          Description:
+ *              A numbers representing the edge value.
+ *          
+ *          Usage:
+ *              var r = cone.edge;
+ *
+ *  =====================================================================================================
+ *  Methods
+ *  =====================================================================================================
+ *      + octree (precision=5)
+ *          Description:
+ *              Overrides the Primitives.Solid method and calculates the octree for this cube.
+ *              The precision level is optional, with default value of 5.
+ *
+ *          Usage:
+ *              var oct = cube.octree(7); // The precision level is set to 9.
+ *
+ *
+ *      - contains (point)
+ *          Description:
+ *              Implements Primitives.Solid.contains (point)
+ *
+ */
 
 // Namespace
 var Primitives = Primitives || {};
@@ -25,6 +59,12 @@ Primitives.SolidCube = class extends Primitives.Solid
 		super (centerJSON);
 		this.edge = edge;
 	}
+
+
+	/* =====================================================================================================
+	 *  GETTERS
+	 * ===================================================================================================== */	
+	get edge () { return this.edge; }
 
 
 	/* =====================================================================================================

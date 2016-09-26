@@ -1,4 +1,4 @@
-/** IMPORTANT: How to create instances OUTSIDE of this file
+/** IMPORTANT: How to create instances at the browser console
 	
 	Correct:
 		sphName = new SolidSphere ({x: 1, y: 2}, 7);
@@ -10,6 +10,40 @@
 
 	DO NOT use "var", "const" or "let".
 */
+
+/** DOCUMENTATION
+ *
+ *  =====================================================================================================
+ *  Attributes
+ *  =====================================================================================================
+ *      + center
+ *          Description:
+ *              Inherits center from Primitives.Solid.
+ *
+ *      + radius
+ *          Description:
+ *              A number representing the radius value.
+ *          
+ *          Usage:
+ *              var r = cone.radius;
+ *
+ *  =====================================================================================================
+ *  Methods
+ *  =====================================================================================================
+ *      + octree (precision=5)
+ *          Description:
+ *              Overrides the Primitives.Solid method and calculates the octree for this sphere.
+ *              The precision level is optional, with default value of 5.
+ *
+ *          Usage:
+ *              var oct = sphere.octree(4); // The precision level is set to 4.
+ *
+ *
+ *      - contains (point)
+ *          Description:
+ *              Implements Primitives.Solid.contains (point)
+ *
+ */
 
 // Namespace
 var Primitives = Primitives || {};
@@ -26,6 +60,12 @@ Primitives.SolidSphere = class extends Primitives.Solid
 		this.radius = radius;
 		this.octree = null;
 	}
+
+
+	/* =====================================================================================================
+	 *  GETTERS
+	 * ===================================================================================================== */	
+	get radius () { return this.radius; }
 
 
 	/* =====================================================================================================

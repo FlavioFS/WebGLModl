@@ -1,4 +1,4 @@
-/** IMPORTANT: How to create instances OUTSIDE of this file
+/** IMPORTANT: How to create instances at the browser console
 	
 	Correct:
 		coneName = new SolidCone ({"x": 1, "y": 2}, 7);
@@ -10,6 +10,40 @@
 
 	DO NOT use "var", "const" or "let".
 */
+
+/** DOCUMENTATION
+ *
+ *  =====================================================================================================
+ *  Attributes
+ *  =====================================================================================================
+ *      + center
+ *          Description:
+ *              Inherits center from Primitives.Solid.
+ *          
+ *      + radius, height
+ *          Description:
+ *              Numbers representing these measures.
+ *          
+ *          Usage:
+ *              var r = cone.radius;
+ *
+ *  =====================================================================================================
+ *  Methods
+ *  =====================================================================================================
+ *      + octree (precision=5)
+ *          Description:
+ *              Overrides the Primitives.Solid method and calculates the octree for this cone.
+ *              The precision level is optional, with default value of 5.
+ *
+ *          Usage:
+ *              var oct = cone.octree(7); // The precision level is set to 9.
+ *
+ *
+ *      - contains (point)
+ *          Description:
+ *              Implements Primitives.Solid.contains (point)
+ *
+ */
 
 // Namespace
 var Primitives = Primitives || {};
@@ -30,13 +64,20 @@ Primitives.SolidCone = class extends Primitives.Solid
 
 
 	/* =====================================================================================================
+	 *  GETTERS
+	 * ===================================================================================================== */	
+	get radius () { return this.radius; }
+	get height () { return this.height; }
+
+
+	/* =====================================================================================================
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
 	octree (precision=5)
 	{
-		var 2r = 2*this.radius;
-		var boxEdge = (2r > this.height) ? 2r : this.height; // Chooses the largest value
+		var Rx2 = 2*this.radius;
+		var boxEdge = (Rx2 > this.height) ? Rx2 : this.height; // Chooses the largest value
 		return super.octree(boxEdge, precision);
 	}
 
@@ -54,7 +95,7 @@ Primitives.SolidCone = class extends Primitives.Solid
 		 */
 		if ( (point.z < this.center.z) || (point.z > this.center.z + this.height) ) return false;
 		
-		
+
 		/* Circle test:
 		 *   |(X,Y) - (Xc,Yc)| <= Rz,   (this one is squared due to performance reasons)
 		 *

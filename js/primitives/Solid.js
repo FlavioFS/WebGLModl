@@ -1,15 +1,56 @@
-/** IMPORTANT: How to create instances OUTSIDE of this file
+/* IMPORTANT: How to create instances at the browser console
 	
 	Correct:
-		primName = new Primitive ({x: 1, y: 2});
+		solidName = new Primitive.Solid ({x: 1, y: 2});
 
 	Wrong:
-		var   primName = new Primitive ({x: 1, y: 2});
-		const primName = new Primitive ({x: 1, y: 2});
-		let	  primName = new Primitive ({x: 1, y: 2});
+		var   solidName = new Primitive.Solid ({x: 1, y: 2});
+		const solidName = new Primitive.Solid ({x: 1, y: 2});
+		let	  solidName = new Primitive.Solid ({x: 1, y: 2});
 
 	DO NOT use "var", "const" or "let".
 */
+
+/** DOCUMENTATION
+ *
+ *  =====================================================================================================
+ *  Attributes
+ *  =====================================================================================================
+ *      + center
+ *          Description:
+ *              Every solid must contain a center.
+ *          
+ *          Usage:
+ *              var coordinates =
+ *              {
+ *                  "x": solid.center.x,
+ *                  "y": solid.center.y,
+ *                  "z": solid.center.z
+ *              }
+ *
+ *  =====================================================================================================
+ *  Methods
+ *  =====================================================================================================
+ *      + octree (bBoxEdge, precision=5)
+ *          Description:
+ *              Calculates and returns the octree given the edge of a bounding box (and optionally the
+ *              precision level).
+ *              The user is advised to NOT CALL this method DIRECTLY from Primitives.Solid, but from the
+ *              inherited concrete classes like Primitive.(Sphere, Cube, Cylinder, Cone).
+ *
+ *          Usage:
+ *              var oct = solid.octree(6, 9); // A bounding box with edge 6, and a precision level of 9.
+ *
+ *
+ *      # The remaining methods are internal, and are used by other primitives. Also there is a brief
+ *        explanation above each method implementation:
+ *          - contains (point)
+ *          - inside (vertices)
+ *          - outside (vertices)
+ *          - decideColor (boundingBox)
+ *          - octreeRecursion (node, precision, level)
+ *
+ */
 
 // Namespace
 var Primitives = Primitives || {};
@@ -28,9 +69,15 @@ Primitives.Solid = class
 
 
 	/* =====================================================================================================
+	 *  GETTERS
+	 * ===================================================================================================== */	
+	get center () { return this.center; }
+
+
+	/* =====================================================================================================
 	 *  ABSTRACT METHODS
 	 * ===================================================================================================== */
-	// This Solid contains the point?
+	// Does this Solid contain the point?
 	contains (point)
 	{
 		console.log(new Error ("Abstract method 'contains' of Solid must be implemented in the Subclass."));
@@ -61,7 +108,7 @@ Primitives.Solid = class
 		return true;
 	}
 
-	// Decides the color of a node - concrete method
+	// Decides the color of a node
 	decideColor (boundingBox)
 	{
 		var plusHalf = boundingBox + edge/2;
@@ -85,7 +132,8 @@ Primitives.Solid = class
 		return Octree.GRAY;
 	}
 
-	// Solid can define the recursion, it does not depend on the primitive
+	// The Primitives.Solid class can define the recursion for the bounding box subdivision!
+	// (It does not depend on the primitive)
 	octreeRecursion (node, precision, level)
 	{
 		var color = this.decideColor(node.boundingBox);

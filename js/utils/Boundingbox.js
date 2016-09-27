@@ -17,8 +17,8 @@ Utils.BoundingBox = class
 	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
 	get center () { return this._center; }
-	get edge () { return this._edge; }
+	get edge ()   { return this._edge;   }
 	
 	set center (centerJSON) { this._center = centerJSON; }
-	set edge (edge) { this._edge = edge; }
+	set edge (edge)         { this._edge = edge;         }
 }

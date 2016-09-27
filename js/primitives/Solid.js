@@ -82,7 +82,7 @@ Primitives.Solid = class
 	// Does this Solid contain the point?
 	contains (point)
 	{
-		console.log(new Error ("Abstract method 'contains' of Solid must be implemented in the Subclass."));
+		console.error(new Error ("Abstract method 'contains' of Solid must be implemented in the Subclass."));
 		return false;
 	}
 
@@ -100,12 +100,35 @@ Primitives.Solid = class
 		return true;
 	}
 
-	// All of these vertices are outside of this Solid
+	// All of these vertices and their center are outside of this Solid
 	outside (vertices)
 	{
+		var center =
+		{
+			"x": 0,
+			"y": 0,
+			"z": 0
+		};
+
+		console.log("vertices:", vertices);
+
 		for (var i = 0; i < vertices.length; i++) {
 			if (this.contains(vertices[i])) return false;
+
+			center.x += vertices[i].x;
+			center.y += vertices[i].y;
+			center.z += vertices[i].z;
+
+			console.log("(", i, ") center:", center);
 		}
+
+		center.x /= vertices.length;
+		center.y /= vertices.length;
+		center.z /= vertices.length;
+
+		console.log("center:", center);
+
+		if (this.contains(center)) return false;
 
 		return true;
 	}
@@ -113,19 +136,19 @@ Primitives.Solid = class
 	// Decides the color of a node
 	decideColor (boundingBox)
 	{
-		var plusHalf = boundingBox + boundingBox.edge/2;
-		var diffHalf = boundingBox - boundingBox.edge/2;
+		var plusHalf = boundingBox.center + boundingBox.edge/2;
+		var diffHalf = boundingBox.center - boundingBox.edge/2;
 
 		var vertices =
 		[
-			{ x: plusHalf, y: plusHalf, z: plusHalf },
-			{ x: plusHalf, y: plusHalf, z: diffHalf },
-			{ x: plusHalf, y: diffHalf, z: plusHalf },
-			{ x: plusHalf, y: diffHalf, z: diffHalf },
-			{ x: diffHalf, y: plusHalf, z: plusHalf },
-			{ x: diffHalf, y: plusHalf, z: diffHalf },
-			{ x: diffHalf, y: diffHalf, z: plusHalf },
-			{ x: diffHalf, y: diffHalf, z: diffHalf }
+			{ "x": plusHalf, "y": plusHalf, "z": plusHalf },
+			{ "x": plusHalf, "y": plusHalf, "z": diffHalf },
+			{ "x": plusHalf, "y": diffHalf, "z": plusHalf },
+			{ "x": plusHalf, "y": diffHalf, "z": diffHalf },
+			{ "x": diffHalf, "y": plusHalf, "z": plusHalf },
+			{ "x": diffHalf, "y": plusHalf, "z": diffHalf },
+			{ "x": diffHalf, "y": diffHalf, "z": plusHalf },
+			{ "x": diffHalf, "y": diffHalf, "z": diffHalf }
 		];
 
 		if (this.inside(vertices))  return Octree.BLACK;
@@ -143,13 +166,15 @@ Primitives.Solid = class
 		// Leafnode
 		if (color == Octree.WHITE || color == Octree.BLACK)
 		{
-			node.value = color;
+			node.color = color;
 		}
 
 		// Recursion
 		else if (level < precision)
 		{
-			node.value = Octree.GRAY;
+			console.log("RECURSION!! P: %d ~ lvl: %d", precision, level);
+
+			node.color = Octree.GRAY;
 
 			var cx = this._center.x;
 			var cy = this._center.y;
@@ -202,7 +227,7 @@ Primitives.Solid = class
 	// Generates Octree
 	octree (bBoxEdge, precision=5)
 	{
-		if (this._octree) return this._octree;
+		if (this._octree != undefined || this._octree != null) return this._octree;
 
 		// Bounding box of the SolidSphere
 		var bBox = new Utils.BoundingBox (this._center, bBoxEdge);

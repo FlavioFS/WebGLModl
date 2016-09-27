@@ -13,11 +13,11 @@ Octree.Node = class Node
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
-	constructor (parent = null, boundingBox = null, value = 0, kidsList = [])
+	constructor (parent = null, boundingBox = null, color = 0, kidsList = [])
 	{
 		this._parent = parent;
 		this._boundingBox = boundingBox;
-		this._value = value;
+		this._color = color;
 		this._kids = kidsList;
 	}
 
@@ -26,12 +26,12 @@ Octree.Node = class Node
 	 * ===================================================================================================== */	
 	get parent ()      { return this._parent;      }
 	get boundingBox () { return this._boundingBox; }
-	get value ()       { return this._value;       }
+	get color ()       { return this._color;       }
 	get kids ()        { return this._kids;        }
 	
 	set parent (parent)           { this._parent = parent;           }
 	set boundingBox (boundingBox) { this._boundingBox = boundingBox; }
-	set value (value)             { this._value = value;             }
+	set color (color)             { this._color = color;             }
 	set kids (kids)               { this._kids = kids;               }
 }
 

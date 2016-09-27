@@ -66,7 +66,8 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
 	get radius () { return this._radius; }
-	set radius () { this._radius = radius; }
+	
+	set radius (radius) { this._radius = radius; }
 
 
 	/* =====================================================================================================

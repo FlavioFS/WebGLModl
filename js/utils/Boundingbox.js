@@ -6,7 +6,7 @@ Utils.BoundingBox = class
 {
 	constructor (centerJSON, edge)
 	{
-		super (centerJSON);
+		this.center = centerJSON;
 		this.edge = edge;
 	}
 }

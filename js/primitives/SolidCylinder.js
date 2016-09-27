@@ -99,7 +99,7 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
 		var
 			dx = point.x - this.center.x,
-			dy = point.y - this.center.y,
+			dy = point.y - this.center.y;
 		return (dx*dx + dy*dy <= this.radius*this.radius);
 	}
 }

@@ -110,23 +110,17 @@ Primitives.Solid = class
 			"z": 0
 		};
 
-		console.log("vertices:", vertices);
-
 		for (var i = 0; i < vertices.length; i++) {
 			if (this.contains(vertices[i])) return false;
 
 			center.x += vertices[i].x;
 			center.y += vertices[i].y;
 			center.z += vertices[i].z;
-
-			console.log("(", i, ") center:", center);
 		}
 
 		center.x /= vertices.length;
 		center.y /= vertices.length;
 		center.z /= vertices.length;
-
-		console.log("center:", center);
 
 		if (this.contains(center)) return false;
 
@@ -136,19 +130,27 @@ Primitives.Solid = class
 	// Decides the color of a node
 	decideColor (boundingBox)
 	{
-		var plusHalf = boundingBox.center + boundingBox.edge/2;
-		var diffHalf = boundingBox.center - boundingBox.edge/2;
+		var halfEdge = boundingBox.edge/2;
+		
+		var
+			xmin = boundingBox.center.x - halfEdge,
+			ymin = boundingBox.center.y - halfEdge,
+			zmin = boundingBox.center.z - halfEdge,
+			
+			xmax = boundingBox.center.x + halfEdge,
+			ymax = boundingBox.center.y + halfEdge,
+			zmax = boundingBox.center.z + halfEdge;
 
 		var vertices =
 		[
-			{ "x": plusHalf, "y": plusHalf, "z": plusHalf },
-			{ "x": plusHalf, "y": plusHalf, "z": diffHalf },
-			{ "x": plusHalf, "y": diffHalf, "z": plusHalf },
-			{ "x": plusHalf, "y": diffHalf, "z": diffHalf },
-			{ "x": diffHalf, "y": plusHalf, "z": plusHalf },
-			{ "x": diffHalf, "y": plusHalf, "z": diffHalf },
-			{ "x": diffHalf, "y": diffHalf, "z": plusHalf },
-			{ "x": diffHalf, "y": diffHalf, "z": diffHalf }
+			{ "x": xmin, "y": ymin, "z": zmin },
+			{ "x": xmax, "y": ymin, "z": zmin },
+			{ "x": xmin, "y": ymax, "z": zmin },
+			{ "x": xmax, "y": ymax, "z": zmin },
+			{ "x": xmin, "y": ymin, "z": zmax },
+			{ "x": xmax, "y": ymin, "z": zmax },
+			{ "x": xmin, "y": ymax, "z": zmax },
+			{ "x": xmax, "y": ymax, "z": zmax }
 		];
 
 		if (this.inside(vertices))  return Octree.BLACK;

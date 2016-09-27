@@ -1,4 +1,4 @@
-/** IMPORTANT: How to create instances at the browser console
+/* IMPORTANT: How to create instances at the browser console
 	
 	Correct:
 		coneName = new SolidCone ({"x": 1, "y": 2}, 7);

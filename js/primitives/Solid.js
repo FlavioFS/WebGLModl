@@ -130,9 +130,9 @@ Primitives.Solid = class
 	// Decides the color of a node
 	decideColor (boundingBox)
 	{
-		var halfEdge = boundingBox.edge/2;
+		const halfEdge = boundingBox.edge/2;
 		
-		var
+		const
 			xmin = boundingBox.center.x - halfEdge,
 			ymin = boundingBox.center.y - halfEdge,
 			zmin = boundingBox.center.z - halfEdge,
@@ -141,7 +141,7 @@ Primitives.Solid = class
 			ymax = boundingBox.center.y + halfEdge,
 			zmax = boundingBox.center.z + halfEdge;
 
-		var vertices =
+		let vertices =
 		[
 			{ "x": xmin, "y": ymin, "z": zmin },
 			{ "x": xmax, "y": ymin, "z": zmin },
@@ -163,7 +163,7 @@ Primitives.Solid = class
 	// (It does not depend on the primitive)
 	octreeRecursion (node, precision, level)
 	{
-		var color = this.decideColor(node.boundingBox);
+		let color = this.decideColor(node.boundingBox);
 		
 		// Leafnode
 		if (color == Octree.WHITE || color == Octree.BLACK)
@@ -221,7 +221,7 @@ Primitives.Solid = class
 
 			// Recursion to each one of them
 			for (var i = 0; i < Octree.EIGHT; i++) {
-				this._octreeRecursion(node.kids[i], precision, level+1);
+				this.octreeRecursion(node.kids[i], precision, level+1);
 			}
 		}
 	}

@@ -57,15 +57,16 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	constructor (centerJSON, radius)
 	{
 		super (centerJSON);
-		this.radius = radius;
-		this.octree = null;
+		this._radius = radius;
+		this._octree = null;
 	}
 
 
 	/* =====================================================================================================
-	 *  GETTERS
+	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
-	get radius () { return this.radius; }
+	get radius () { return this._radius; }
+	set radius () { this._radius = radius; }
 
 
 	/* =====================================================================================================
@@ -74,7 +75,7 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	// Overrides Solid.octree
 	octree (precision=5)
 	{
-		return super.octree(2*this.radius, precision);
+		return super.octree(2*this._radius, precision);
 	}
 
 
@@ -90,6 +91,6 @@ Primitives.SolidSphere = class extends Primitives.Solid
 			dy = point.y - this.center.y,
 			dz = point.z - this.center.z;
 
-		return ( dx*dx + dy*dy + dz*dz <= this.radius * this.radius );
+		return ( dx*dx + dy*dy + dz*dz <= this._radius * this._radius );
 	}
 }

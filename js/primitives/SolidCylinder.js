@@ -58,16 +58,19 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	constructor (centerJSON, radius, height)
 	{
 		super (centerJSON);
-		this.radius = radius;
-		this.height = height;
+		this._radius = radius;
+		this._height = height;
 	}
 
 
 	/* =====================================================================================================
-	 *  GETTERS
+	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
-	get radius () { return this.radius; }
-	get height () { return this.height; }
+	get radius () { return this._radius; }
+	get height () { return this._height; }
+
+	set radius (radius) { this._radius = radius; }
+	set height (height) { this._height = height; }
 
 
 	/* =====================================================================================================
@@ -76,8 +79,8 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	// Overrides Solid.octree
 	octree (precision=5)
 	{
-		var Rx2 = 2*this.radius;
-		var boxEdge = (Rx2 > this.height) ? Rx2 : this.height; // Chooses the largest value
+		var Rx2 = 2*this._radius;
+		var boxEdge = (Rx2 > this._height) ? Rx2 : this._height; // Chooses the largest value
 		return super.octree(boxEdge, precision);
 	}
 
@@ -93,13 +96,13 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		 *     or
 		 *   Z > Zc + h    ~> above the tip of the Cylinder
 		 */
-		if ( (point.z < this.center.z) || (point.z > this.center.z + this.height) ) return false;
+		if ( (point.z < this.center.z) || (point.z > this.center.z + this._height) ) return false;
 
 
 		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
 		var
 			dx = point.x - this.center.x,
 			dy = point.y - this.center.y;
-		return (dx*dx + dy*dy <= this.radius*this.radius);
+		return (dx*dx + dy*dy <= this._radius*this._radius);
 	}
 }

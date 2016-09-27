@@ -57,14 +57,16 @@ Primitives.SolidCube = class extends Primitives.Solid
 	constructor (centerJSON, edge)
 	{
 		super (centerJSON);
-		this.edge = edge;
+		this._edge = edge;
 	}
 
 
 	/* =====================================================================================================
-	 *  GETTERS
+	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
-	get edge () { return this.edge; }
+	get edge () { return this._edge; }
+
+	set edge (edge) { this._edge = edge; }
 
 
 	/* =====================================================================================================
@@ -76,7 +78,7 @@ Primitives.SolidCube = class extends Primitives.Solid
 		if (this.octr) return this.octr;
 
 		// Bounding box is the cube itself
-		var bBox = Utils.BoundingBox (this.center, this.edge);
+		var bBox = Utils.BoundingBox (this.center, this._edge);
 
 		// Only the root node completely filled
 		// no parent, cube bounding box, filled, no kids
@@ -91,7 +93,7 @@ Primitives.SolidCube = class extends Primitives.Solid
 	// Implements Solid.contains
 	contains (point)
 	{
-		var halfEdge = this.edge / 2;
+		var halfEdge = this._edge / 2;
 
 		/* Point exceeds the cube in any axis:
 		 *   ~> |X-Xc| > h

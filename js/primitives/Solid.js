@@ -63,15 +63,17 @@ Primitives.Solid = class
 	 * ===================================================================================================== */	
 	constructor (centerJSON)
 	{
-		this.center = centerJSON;	// Every Solid has a center
-		this.octree = null;			// Every Solid has an Octree (this is abstract)
+		this._center = centerJSON;	// Every Solid has a center
+		this._octree = null;			// Every Solid has an Octree (this is abstract)
 	}
 
 
 	/* =====================================================================================================
-	 *  GETTERS
+	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
-	get center () { return this.center; }
+	get center () { return this._center; }
+
+	set center (centerJSON) { this._center = centerJSON; }
 
 
 	/* =====================================================================================================
@@ -101,8 +103,8 @@ Primitives.Solid = class
 	// All of these vertices are outside of this Solid
 	outside (vertices)
 	{
-		for (var i = 0; i < centers.length; i++) {
-			if (this.contains(centers[i])) return false;
+		for (var i = 0; i < vertices.length; i++) {
+			if (this.contains(vertices[i])) return false;
 		}
 
 		return true;
@@ -111,8 +113,8 @@ Primitives.Solid = class
 	// Decides the color of a node
 	decideColor (boundingBox)
 	{
-		var plusHalf = boundingBox + edge/2;
-		var diffHalf = boundingBox - edge/2;
+		var plusHalf = boundingBox + boundingBox.edge/2;
+		var diffHalf = boundingBox - boundingBox.edge/2;
 
 		var vertices =
 		[
@@ -149,9 +151,9 @@ Primitives.Solid = class
 		{
 			node.value = Octree.GRAY;
 
-			var cx = this.center.x;
-			var cy = this.center.y;
-			var cz = this.center.z;
+			var cx = this._center.x;
+			var cy = this._center.y;
+			var cz = this._center.z;
 
 			var newEdge = node.boundingBox.edge;
 			var newEdgeHalf = newEdge/2;
@@ -180,19 +182,19 @@ Primitives.Solid = class
 			// 8 sub-cubes
 			node.kids = 
 			[
-				new Octree.Node(this.octr, bBoxes[0], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[1], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[2], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[3], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[4], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[5], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[6], Octree.GRAY, []),
-				new Octree.Node(this.octr, bBoxes[7], Octree.GRAY, [])
+				new Octree.Node(this._octree, bBoxes[0], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[1], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[2], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[3], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[4], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[5], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[6], Octree.GRAY, []),
+				new Octree.Node(this._octree, bBoxes[7], Octree.GRAY, [])
 			];
 
 			// Recursion to each one of them
 			for (var i = 0; i < Octree.EIGHT; i++) {
-				this.octreeRecursion(node.kids[i], precision, level+1);
+				this._octreeRecursion(node.kids[i], precision, level+1);
 			}
 		}
 	}
@@ -200,18 +202,18 @@ Primitives.Solid = class
 	// Generates Octree
 	octree (bBoxEdge, precision=5)
 	{
-		if (this.octr) return this.octr;
+		if (this._octree) return this._octree;
 
 		// Bounding box of the SolidSphere
-		var bBox = new Utils.BoundingBox (this.center, bBoxEdge);
+		var bBox = new Utils.BoundingBox (this._center, bBoxEdge);
 
 		// Only the root node completely filled
 		// no parent, cube bounding box, filled, no kids
-		this.octr = new Octree.Node(null, bBox, Octree.GRAY, []);
+		this._octree = new Octree.Node(null, bBox, Octree.GRAY, []);
 		
 		// octreeRecursion is implemented in the class 'Solid'
-		octreeRecursion (this.octr, precision, 0);
+		this.octreeRecursion (this._octree, precision, 0);
 
-		return this.octr;
+		return this._octree;
 	}
 }

@@ -1,12 +1,12 @@
 /* IMPORTANT: How to create instances at the browser console
 	
 	Correct:
-		sphName = new SolidSphere ({x: 1, y: 2, "z": 3}, 7);
+		sphName = new Primitives.SolidSphere ({x: 1, y: 2, z: 3}, 7);
 
 	Wrong:
-		var   sphName = new SolidSphere ({x: 1, y: 2, "z": 3}, 7);
-		const sphName = new SolidSphere ({x: 1, y: 2, "z": 3}, 7);
-		let	  sphName = new SolidSphere ({x: 1, y: 2, "z": 3}, 7);
+		var   sphName = new Primitives.SolidSphere ({x: 1, y: 2, z: 3}, 7);
+		const sphName = new Primitives.SolidSphere ({x: 1, y: 2, z: 3}, 7);
+		let	  sphName = new Primitives.SolidSphere ({x: 1, y: 2, z: 3}, 7);
 
 	DO NOT use "var", "const" or "let".
 */

@@ -30,7 +30,7 @@
  *  =====================================================================================================
  *  Methods
  *  =====================================================================================================
- *      + octree (precision=5)
+ *      + octree (precision=3)
  *          Description:
  *              Overrides the Primitives.Solid method and calculates the octree for this cone.
  *              The precision level is optional, with default value of 5.
@@ -78,7 +78,7 @@ Primitives.SolidCone = class extends Primitives.Solid
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
-	octree (precision=5)
+	octree (precision=3)
 	{
 		var Rx2 = 2*this._radius;
 		var boxEdge = (Rx2 > this._height) ? Rx2 : this._height; // Chooses the largest value

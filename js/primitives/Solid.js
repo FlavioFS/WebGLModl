@@ -31,7 +31,7 @@
  *  =====================================================================================================
  *  Methods
  *  =====================================================================================================
- *      + octree (bBoxEdge, precision=5)
+ *      + octree (bBoxEdge, precision=3)
  *          Description:
  *              Calculates and returns the octree given the edge of a bounding box (and optionally the
  *              precision level).
@@ -110,12 +110,16 @@ Primitives.Solid = class
 	}
 
 	// At some point we need to force a color decision (at the leaves within the precision limit)
-	forceColor (vertices)
+	forceColor (node)
 	{
+		let vertices = node.boundingBox.vertices();
+
+		// So... we are going to vote for colors!
 		let inVote  = 0;
 		let outVote = 0;
 
 		// Topology info: which vertices belong to each face of the cube?
+		// Convention is x->y->z ordered
 		let faceVertices =
 		[
 			[0, 1, 3, 2], // Face 0 - Back
@@ -132,61 +136,77 @@ Primitives.Solid = class
 		let faceCenters = [];
 		for (var i = 0; i < faceVertices.length; i++)
 		{
-			for (var j = 0; j < faceVertices.length; j++)
+			faceCenters.push({ "x": 0, "y": 0, "z": 0 });	// Creates an empty room for the new face
+
+			// Sums all points
+			for (var j = 0; j < faceVertices[i].length; j++)
 			{
-				
+				faceCenters[i].x += vertices[faceVertices[i][j]].x;
+				faceCenters[i].y += vertices[faceVertices[i][j]].y;
+				faceCenters[i].z += vertices[faceVertices[i][j]].z;
 			}
-			faceCenters.push({ "x": , "y":, "z": });
+
+			// Then finishes with the mean (geometric center) of them
+			faceCenters[i].x /= faceVertices[i].length;
+			faceCenters[i].y /= faceVertices[i].length;
+			faceCenters[i].z /= faceVertices[i].length;
+		}
+
+		// Calculates the midpoints of edges
+		let edgeCenters = [];
+		for (var i = 0; i < vertices.length - 1; i++)
+		{
+			for (var j = i+1; j < vertices.length; j++)
+			{
+				edgeCenters.push({
+					"x": (vertices[i].x + vertices[j].x) / 2,
+					"y": (vertices[i].y + vertices[j].y) / 2,
+					"z": (vertices[i].z + vertices[j].z) / 2
+				});
+			}
 		}
 
 		// Votes for centers
-		for (var i = 0; i < faceVertices.length; i++)
+		for (var i = 0; i < faceCenters.length; i++)
+		{
+			if (this.contains(faceCenters[i])) inVote++;
+			else outVote++;
+		}
+
+		// Votes for edges
+		for (var i = 0; i < edgeCenters.length; i++)
+		{
+			if (this.contains(edgeCenters[i])) inVote++;
+			else outVote++;
+		}
 
 		// Votes for vertices
 		for (var i = 0; i < vertices.length; i++)
 		{
 			if (this.contains(vertices[i])) inVote++;
 			else outVote++;
-
-			return
 		}
+
+		// Never returns Octree.GRAY - Remember: Octree.BLACK is a filled node
+		// Note: a TIE returns Octree.BLACK
+		return ((outVote > inVote) ? Octree.WHITE : Octree.BLACK);
 	}
 
 	// Decides the color of a node
 	decideColor (boundingBox)
 	{
-		const halfEdge = boundingBox.edge/2;
+		let vertices = boundingBox.vertices();
 
-		// Center
-		const c = { "x": boundingBox.center.x, "y": boundingBox.center.y, "z": boundingBox.center.z };
-		
-		// Borders
-		const
-			xmin = c.x - halfEdge,
-			ymin = c.y - halfEdge,
-			zmin = c.z - halfEdge,
-			
-			xmax = c.x + halfEdge,
-			ymax = c.y + halfEdge,
-			zmax = c.z + halfEdge;
+		if (this.inside(vertices))  return Octree.BLACK;    // Vertices are totally inside
 
-		let vertices =
-		[
-			{ "x": xmin, "y": ymin, "z": zmin },
-			{ "x": xmax, "y": ymin, "z": zmin },
-			{ "x": xmin, "y": ymax, "z": zmin },
-			{ "x": xmax, "y": ymax, "z": zmin },
-			{ "x": xmin, "y": ymin, "z": zmax },
-			{ "x": xmax, "y": ymin, "z": zmax },
-			{ "x": xmin, "y": ymax, "z": zmax },
-			{ "x": xmax, "y": ymax, "z": zmax }
-		];
-
-
-		if (this.inside(vertices))  return Octree.BLACK;    // Totally inside
-
-		vertices.push({ "x":  c.x, "y":  c.y, "z":  c.z }); // Adds the center
-		if (this.outside(vertices)) return Octree.WHITE;    // Totally outside
+		// Adds the center
+		vertices.push
+		({
+			"x":  boundingBox.center.x,
+			"y":  boundingBox.center.y,
+			"z":  boundingBox.center.z
+		});
+		if (this.outside(vertices)) return Octree.WHITE;    // Vertices are totally outside
 		
 		return Octree.GRAY;
 	}
@@ -200,48 +220,17 @@ Primitives.Solid = class
 		// Recursion
 		if ((color == Octree.GRAY) && (level < precision))
 		{
-			console.log("RECURSION!! P: %d ~ lvl: %d", precision, level);
-
 			node.color = Octree.GRAY;
-
-			let c = { "x": node.boundingBox.center.x, "y": node.boundingBox.center.y, "z": node.boundingBox.center.z };
-
-			let newEdge = node.boundingBox.edge/2;
-			let newEdgeHalf = newEdge/2;
-			
-			let xmin = c.x - newEdgeHalf;
-			let xmax = c.x + newEdgeHalf;
-
-			let ymin = c.y - newEdgeHalf;
-			let ymax = c.y + newEdgeHalf;
-
-			let zmin = c.z - newEdgeHalf;
-			let zmax = c.z + newEdgeHalf;
-
-			let bBoxes =
-			[
-				new Utils.BoundingBox ({ "x": xmin, "y": ymin, "z": zmin}, newEdge),
-				new Utils.BoundingBox ({ "x": xmax, "y": ymin, "z": zmin}, newEdge),
-				new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmin}, newEdge),
-				new Utils.BoundingBox ({ "x": xmax, "y": ymax, "z": zmin}, newEdge),
-				new Utils.BoundingBox ({ "x": xmin, "y": ymin, "z": zmax}, newEdge),
-				new Utils.BoundingBox ({ "x": xmax, "y": ymin, "z": zmax}, newEdge),
-				new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmax}, newEdge),
-				new Utils.BoundingBox ({ "x": xmax, "y": ymax, "z": zmax}, newEdge)
-			];
+			var newBoxes = node.boundingBox.subdivide();
 
 			// 8 sub-cubes
-			node.kids = 
-			[
-				new Octree.Node(node, bBoxes[0], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[1], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[2], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[3], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[4], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[5], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[6], Octree.GRAY, []),
-				new Octree.Node(node, bBoxes[7], Octree.GRAY, [])
-			];
+			node.kids = [];
+			for (var i = 0; i < newBoxes.length; i++)
+			{
+				node.kids.push(
+					new Octree.Node(node, newBoxes[i], Octree.GRAY, [])
+				);
+			}
 
 			// Recursion to each one of them
 			for (var i = 0; i < Octree.EIGHT; i++) {
@@ -250,11 +239,15 @@ Primitives.Solid = class
 		}
 
 		// Leafnode
-		else { node.color = color; }
+		else
+		{
+			if (color == Octree.GRAY) color = this.forceColor(node);
+			node.color = color;
+		}
 	}
 
 	// Generates Octree
-	calcOctree (bBoxEdge, precision=5)
+	calcOctree (bBoxEdge, precision=3)
 	{
 		// Bounding box of the SolidSphere
 		var bBox = new Utils.BoundingBox (this._center, bBoxEdge);
@@ -263,6 +256,8 @@ Primitives.Solid = class
 		// no parent, cube bounding box, filled, no kids
 		this._octree = new Octree.Node(null, bBox, Octree.GRAY, []);
 		
+		console.log("!!!!! PRECISION:", precision);
+
 		// octreeRecursion is implemented in the class 'Solid'
 		this.octreeRecursion (this._octree, precision, 0);
 

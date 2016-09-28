@@ -30,7 +30,7 @@
  *  =====================================================================================================
  *  Methods
  *  =====================================================================================================
- *      + octree (precision=5)
+ *      + octree (precision=3)
  *          Description:
  *              Overrides the Primitives.Solid method and calculates the octree for this sphere.
  *              The precision level is optional, with default value of 5.
@@ -75,7 +75,7 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
-	calcOctree (precision=5)
+	calcOctree (precision=3)
 	{
 		return super.calcOctree(2*this._radius, precision);
 	}

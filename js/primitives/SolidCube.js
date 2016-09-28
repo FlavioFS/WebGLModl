@@ -30,7 +30,7 @@
  *  =====================================================================================================
  *  Methods
  *  =====================================================================================================
- *      + octree (precision=5)
+ *      + octree (precision=3)
  *          Description:
  *              Overrides the Primitives.Solid method and calculates the octree for this cube.
  *              The precision level is optional, with default value of 5.
@@ -74,7 +74,7 @@ Primitives.SolidCube = class extends Primitives.Solid
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
-	octree ()
+	calcOctree ()
 	{
 		if (this.octr) return this.octr;
 

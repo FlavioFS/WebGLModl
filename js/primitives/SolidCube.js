@@ -64,7 +64,8 @@ Primitives.SolidCube = class extends Primitives.Solid
 	/* =====================================================================================================
 	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
-	get edge () { return this._edge; }
+	get edge ()   { return this._edge;   }
+	get octree () { return this._octree; }
 
 	set edge (edge) { this._edge = edge; }
 

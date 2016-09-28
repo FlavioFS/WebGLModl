@@ -66,6 +66,7 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
 	get radius () { return this._radius; }
+	get octree () { return this._octree; }
 	
 	set radius (radius) { this._radius = radius; }
 
@@ -74,9 +75,9 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
 	// Overrides Solid.octree
-	octree (precision=5)
+	calcOctree (precision=5)
 	{
-		return super.octree(2*this._radius, precision);
+		return super.calcOctree(2*this._radius, precision);
 	}
 
 

@@ -64,7 +64,7 @@ Primitives.Solid = class
 	constructor (centerJSON)
 	{
 		this._center = centerJSON;	// Every Solid has a center
-		this._octree = null;			// Every Solid has an Octree (this is abstract)
+		this._octree = null;		// Every Solid has an Octree (this is abstract)
 	}
 
 
@@ -72,6 +72,7 @@ Primitives.Solid = class
 	 *  GETTERS & SETTERS
 	 * ===================================================================================================== */	
 	get center () { return this._center; }
+	get octree () { return this._octree; }
 
 	set center (centerJSON) { this._center = centerJSON; }
 
@@ -93,9 +94,8 @@ Primitives.Solid = class
 	// This Solid contains all of these vertices
 	inside (vertices)
 	{
-		for (var i = 0; i < vertices.length; i++) {
+		for (var i = 0; i < vertices.length; i++)
 			if (!this.contains(vertices[i])) return false;
-		}
 
 		return true;
 	}
@@ -103,43 +103,72 @@ Primitives.Solid = class
 	// All of these vertices and their center are outside of this Solid
 	outside (vertices)
 	{
-		var center =
-		{
-			"x": 0,
-			"y": 0,
-			"z": 0
-		};
-
-		for (var i = 0; i < vertices.length; i++) {
+		for (var i = 0; i < vertices.length; i++)
 			if (this.contains(vertices[i])) return false;
 
-			center.x += vertices[i].x;
-			center.y += vertices[i].y;
-			center.z += vertices[i].z;
+		return true;
+	}
+
+	// At some point we need to force a color decision (at the leaves within the precision limit)
+	forceColor (vertices)
+	{
+		let inVote  = 0;
+		let outVote = 0;
+
+		// Topology info: which vertices belong to each face of the cube?
+		let faceVertices =
+		[
+			[0, 1, 3, 2], // Face 0 - Back
+			[4, 6, 7, 5], // Face 1 - Front
+			
+			[0, 2, 6, 4], // Face 2 - Left
+			[5, 7, 3, 1], // Face 3 - Right
+
+			[2, 3, 7, 6], // Face 4 - Top
+			[0, 1, 5, 4], // Face 5 - Down
+		];
+
+		// Calculates centers
+		let faceCenters = [];
+		for (var i = 0; i < faceVertices.length; i++)
+		{
+			for (var j = 0; j < faceVertices.length; j++)
+			{
+				
+			}
+			faceCenters.push({ "x": , "y":, "z": });
 		}
 
-		center.x /= vertices.length;
-		center.y /= vertices.length;
-		center.z /= vertices.length;
+		// Votes for centers
+		for (var i = 0; i < faceVertices.length; i++)
 
-		if (this.contains(center)) return false;
+		// Votes for vertices
+		for (var i = 0; i < vertices.length; i++)
+		{
+			if (this.contains(vertices[i])) inVote++;
+			else outVote++;
 
-		return true;
+			return
+		}
 	}
 
 	// Decides the color of a node
 	decideColor (boundingBox)
 	{
 		const halfEdge = boundingBox.edge/2;
+
+		// Center
+		const c = { "x": boundingBox.center.x, "y": boundingBox.center.y, "z": boundingBox.center.z };
 		
+		// Borders
 		const
-			xmin = boundingBox.center.x - halfEdge,
-			ymin = boundingBox.center.y - halfEdge,
-			zmin = boundingBox.center.z - halfEdge,
+			xmin = c.x - halfEdge,
+			ymin = c.y - halfEdge,
+			zmin = c.z - halfEdge,
 			
-			xmax = boundingBox.center.x + halfEdge,
-			ymax = boundingBox.center.y + halfEdge,
-			zmax = boundingBox.center.z + halfEdge;
+			xmax = c.x + halfEdge,
+			ymax = c.y + halfEdge,
+			zmax = c.z + halfEdge;
 
 		let vertices =
 		[
@@ -153,8 +182,11 @@ Primitives.Solid = class
 			{ "x": xmax, "y": ymax, "z": zmax }
 		];
 
-		if (this.inside(vertices))  return Octree.BLACK;
-		if (this.outside(vertices)) return Octree.WHITE;
+
+		if (this.inside(vertices))  return Octree.BLACK;    // Totally inside
+
+		vertices.push({ "x":  c.x, "y":  c.y, "z":  c.z }); // Adds the center
+		if (this.outside(vertices)) return Octree.WHITE;    // Totally outside
 		
 		return Octree.GRAY;
 	}
@@ -164,59 +196,51 @@ Primitives.Solid = class
 	octreeRecursion (node, precision, level)
 	{
 		let color = this.decideColor(node.boundingBox);
-		
-		// Leafnode
-		if (color == Octree.WHITE || color == Octree.BLACK)
-		{
-			node.color = color;
-		}
 
 		// Recursion
-		else if (level < precision)
+		if ((color == Octree.GRAY) && (level < precision))
 		{
 			console.log("RECURSION!! P: %d ~ lvl: %d", precision, level);
 
 			node.color = Octree.GRAY;
 
-			var cx = this._center.x;
-			var cy = this._center.y;
-			var cz = this._center.z;
+			let c = { "x": node.boundingBox.center.x, "y": node.boundingBox.center.y, "z": node.boundingBox.center.z };
 
-			var newEdge = node.boundingBox.edge;
-			var newEdgeHalf = newEdge/2;
+			let newEdge = node.boundingBox.edge/2;
+			let newEdgeHalf = newEdge/2;
 			
-			var cxDiff = cx - newEdgeHalf;
-			var cxPlus = cx + newEdgeHalf;
+			let xmin = c.x - newEdgeHalf;
+			let xmax = c.x + newEdgeHalf;
 
-			var cyDiff = cy - newEdgeHalf;
-			var cyPlus = cy + newEdgeHalf;
+			let ymin = c.y - newEdgeHalf;
+			let ymax = c.y + newEdgeHalf;
 
-			var czDiff = cz - newEdgeHalf;
-			var czPlus = cz + newEdgeHalf;
+			let zmin = c.z - newEdgeHalf;
+			let zmax = c.z + newEdgeHalf;
 
-			var bBoxes =
+			let bBoxes =
 			[
-				new Utils.BoundingBox ({cxDiff, cyDiff, czDiff}, newEdge),
-				new Utils.BoundingBox ({cxPlus, cyDiff, czDiff}, newEdge),
-				new Utils.BoundingBox ({cxDiff, cyPlus, czDiff}, newEdge),
-				new Utils.BoundingBox ({cxPlus, cyPlus, czDiff}, newEdge),
-				new Utils.BoundingBox ({cxDiff, cyDiff, czPlus}, newEdge),
-				new Utils.BoundingBox ({cxPlus, cyDiff, czPlus}, newEdge),
-				new Utils.BoundingBox ({cxDiff, cyPlus, czPlus}, newEdge),
-				new Utils.BoundingBox ({cxPlus, cyPlus, czPlus}, newEdge)
+				new Utils.BoundingBox ({ "x": xmin, "y": ymin, "z": zmin}, newEdge),
+				new Utils.BoundingBox ({ "x": xmax, "y": ymin, "z": zmin}, newEdge),
+				new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmin}, newEdge),
+				new Utils.BoundingBox ({ "x": xmax, "y": ymax, "z": zmin}, newEdge),
+				new Utils.BoundingBox ({ "x": xmin, "y": ymin, "z": zmax}, newEdge),
+				new Utils.BoundingBox ({ "x": xmax, "y": ymin, "z": zmax}, newEdge),
+				new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmax}, newEdge),
+				new Utils.BoundingBox ({ "x": xmax, "y": ymax, "z": zmax}, newEdge)
 			];
 
 			// 8 sub-cubes
 			node.kids = 
 			[
-				new Octree.Node(this._octree, bBoxes[0], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[1], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[2], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[3], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[4], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[5], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[6], Octree.GRAY, []),
-				new Octree.Node(this._octree, bBoxes[7], Octree.GRAY, [])
+				new Octree.Node(node, bBoxes[0], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[1], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[2], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[3], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[4], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[5], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[6], Octree.GRAY, []),
+				new Octree.Node(node, bBoxes[7], Octree.GRAY, [])
 			];
 
 			// Recursion to each one of them
@@ -224,13 +248,14 @@ Primitives.Solid = class
 				this.octreeRecursion(node.kids[i], precision, level+1);
 			}
 		}
+
+		// Leafnode
+		else { node.color = color; }
 	}
 
 	// Generates Octree
-	octree (bBoxEdge, precision=5)
+	calcOctree (bBoxEdge, precision=5)
 	{
-		if (this._octree != undefined || this._octree != null) return this._octree;
-
 		// Bounding box of the SolidSphere
 		var bBox = new Utils.BoundingBox (this._center, bBoxEdge);
 

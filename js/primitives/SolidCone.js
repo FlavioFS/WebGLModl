@@ -68,6 +68,7 @@ Primitives.SolidCone = class extends Primitives.Solid
 	 * ===================================================================================================== */	
 	get radius () { return this._radius; }
 	get height () { return this._height; }
+	get octree () { return this._octree; }
 
 	set radius (radius) { this._radius = radius; }
 	set height (height) { this._height = height; }
@@ -81,7 +82,7 @@ Primitives.SolidCone = class extends Primitives.Solid
 	{
 		var Rx2 = 2*this._radius;
 		var boxEdge = (Rx2 > this._height) ? Rx2 : this._height; // Chooses the largest value
-		return super.octree(boxEdge, precision);
+		return super.calcOctree(boxEdge, precision);
 	}
 
 

@@ -256,9 +256,7 @@ Primitives.Solid = class
 		// no parent, cube bounding box, filled, no kids
 		this._octree = new Octree.Node(null, bBox, Octree.GRAY, []);
 		
-		console.log("!!!!! PRECISION:", precision);
-
-		// octreeRecursion is implemented in the class 'Solid'
+		// Starts recursive subdivision
 		this.octreeRecursion (this._octree, precision, 0);
 
 		return this._octree;

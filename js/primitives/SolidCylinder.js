@@ -77,8 +77,8 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	/* =====================================================================================================
 	 *  OVERRIDES SOLID
 	 * ===================================================================================================== */
-	// Overrides Solid.octree
-	octree (precision=3)
+	// Overrides Solid.calcOctree
+	calcOctree (precision=3)
 	{
 		var Rx2 = 2*this._radius;
 		var boxEdge = (Rx2 > this._height) ? Rx2 : this._height; // Chooses the largest value

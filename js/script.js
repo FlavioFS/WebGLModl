@@ -66,35 +66,14 @@ function init ()
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
 	scene.add(light);	
 
+	// addToScene (MDL_kunai);   // 1
+	// addToScene (MDL_target);  // 2
 
-	// Meshes
-	// 1
-	var model = MDL_kunai;
-	var geometry = JSONList2Geometry(model, 0); // MDL_ variables is defined in "models" folder
-	var material = new THREE.MeshPhongMaterial (model.material);
-
-	var mesh = new THREE.Mesh(geometry, material);
-	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	scene.add(mesh);
-
-	// 2
-	model = MDL_target;
-	geometry = JSONList2Geometry(model); // MDL_ variables is defined in "models" folder
-	material = new THREE.MeshPhongMaterial (model.material);
-
-	mesh = new THREE.Mesh(geometry, material);
-	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	scene.add(mesh);
-
-	// var loader = new THREE.JSONLoader();
-	// loader.load("models/threehouse_logo.js", // STUDY HOW THIS MODEL IS BUILT AND HOW THREEJS HANDLES MODELS
-	// 	function (geometry)
-	// 	{
-	// 		var material = new THREE.MeshLambertMaterial({color: 0xAAFFAA});
-	// 		mesh = new THREE.Mesh(geometry, material);
-	// 		scene.add(mesh);
-	// 	}
-	// );
+	// 3
+	var solid = new Primitives.SolidCylinder({x:0, y:0, z:0}, 2, 4);
+	solid.calcOctree(2);
+	var model = solid.model();
+	addToScene(model);
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -132,31 +111,18 @@ function init ()
 function animate ()
 {
 	renderer.render(scene, camera);
-
 	renderer.render(HUD.getScene(), HUD.getCamera());
-
 	controls.update();
-
 	requestAnimationFrame(animate);
 }
 
-// [3] - Blender uses 1 as offset (first vertex is indexed as 1, not 0)
-function JSONList2Geometry (jsonlist, offset=0)
-{
-	var rv = new THREE.Geometry ();
-	var temp;
-
-	for (var i = 0; i < jsonlist.vertices.length; i++) {
-		temp = jsonlist.vertices[i];
-		rv.vertices.push ( new THREE.Vector3(temp[0], temp[1], temp[2]) );
-	}
-
-	for (var i = 0; i < jsonlist.faces.length; i++) {
-		temp = jsonlist.faces[i];
-		rv.faces.push ( new THREE.Face3(temp[0]-offset, temp[1]-offset, temp[2]-offset) );
-	}
-
-	return rv;
+// [3]
+function addToScene (model, offset=0) {
+	var geometry = Utils.JSONList2Geometry(model, offset); // MDL_ variables is defined in "models" folder
+	var material = new THREE.MeshPhongMaterial (model.material);
+	var mesh = new THREE.Mesh(geometry, material);
+	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	scene.add(mesh);
 }
 
 $(document).ready(function() {

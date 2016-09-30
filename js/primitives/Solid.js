@@ -31,7 +31,7 @@
  *  =====================================================================================================
  *  Methods
  *  =====================================================================================================
- *      + octree (bBoxEdge, precision=3)
+ *      + calcOctree (bBoxEdge, precision=3)
  *          Description:
  *              Calculates and returns the octree given the edge of a bounding box (and optionally the
  *              precision level).
@@ -48,7 +48,7 @@
  *          - inside (vertices)
  *          - outside (vertices)
  *          - decideColor (boundingBox)
- *          - octreeRecursion (node, precision, level)
+ *          - calcOctreeRecursion (node, precision, level)
  *
  */
 
@@ -63,8 +63,8 @@ Primitives.Solid = class
 	 * ===================================================================================================== */	
 	constructor (centerJSON)
 	{
-		this._center = centerJSON;	// Every Solid has a center
-		this._octree = null;		// Every Solid has an Octree (this is abstract)
+		this.center = centerJSON; // Every Solid has a center
+		this._octree = null;       // Every Solid has an Octree (this is abstract)
 	}
 
 
@@ -211,9 +211,25 @@ Primitives.Solid = class
 		return Octree.GRAY;
 	}
 
+	// Generates Octree
+	calcOctree (bBoxEdge, precision=3)
+	{
+		// Bounding box of the SolidSphere
+		var bBox = new Utils.BoundingBox (this.center, bBoxEdge);
+
+		// Only the root node completely filled
+		// no parent, cube bounding box, filled, no kids
+		this._octree = new Octree.Node(null, bBox, Octree.GRAY, []);
+		
+		// Starts recursive subdivision
+		this.calcOctreeRecursion (this._octree, precision, 0);
+
+		return this._octree;
+	}
+
 	// The Primitives.Solid class can define the recursion for the bounding box subdivision!
 	// (It does not depend on the primitive)
-	octreeRecursion (node, precision, level)
+	calcOctreeRecursion (node, precision, level)
 	{
 		let color = this.decideColor(node.boundingBox);
 
@@ -234,7 +250,7 @@ Primitives.Solid = class
 
 			// Recursion to each one of them
 			for (var i = 0; i < Octree.EIGHT; i++) {
-				this.octreeRecursion(node.kids[i], precision, level+1);
+				this.calcOctreeRecursion(node.kids[i], precision, level+1);
 			}
 		}
 
@@ -246,19 +262,77 @@ Primitives.Solid = class
 		}
 	}
 
-	// Generates Octree
-	calcOctree (bBoxEdge, precision=3)
+	// Returns model for THREE.js
+	model ()
 	{
-		// Bounding box of the SolidSphere
-		var bBox = new Utils.BoundingBox (this._center, bBoxEdge);
+		if (!this._octree) return; // Octree was not calculated yet
 
-		// Only the root node completely filled
-		// no parent, cube bounding box, filled, no kids
-		this._octree = new Octree.Node(null, bBox, Octree.GRAY, []);
-		
-		// Starts recursive subdivision
-		this.octreeRecursion (this._octree, precision, 0);
+		this.modelRecursion (this._octree);
+	}
 
-		return this._octree;
+	// Generates the model through DIVIDE AND CONQUER
+	modelRecursion (node)
+	{
+		// Leaf node - Conquer
+		if (node.kids.length == 0)
+		{
+			if (node.color != Octree.BLACK) return;
+
+			return node.boundingBox.model();
+		}
+
+		// Branch node - Divide
+		else
+		{
+			var kidsModels = [];
+			for (var i = 0; i < node.kids.length; i++)
+			{
+				var newkid = this.modelRecursion(node.kids[i]);
+				if (newkid) kidsModels.push(newkid);
+			}
+
+			// This node branch is ALL WHITE!
+			if (kidsModels.length == 0) return;
+
+			// Return value (model for this node)
+			var rv = {};
+			rv.material = kidsModels[0].material;
+			rv.vertices = [];
+			rv.faces = [];
+
+
+			//// Offsets faces
+			// For every node (octree, 8 children: this length is always 8)
+			for (var i = 0; i < kidsModels.length; i++) {
+
+				// For every face (cube, 6 faces: this length is always 6)
+				for (var j = 0; j < kidsModels[i].faces.length; j++) {
+					
+					// Offsetts triangle faces (triangle: this length is always 3)
+					for (var k = 0; k < kidsModels[i].faces[j].length; k++) {
+						kidsModels[i].faces[j][k] += 8*i; // Offsets by 8 for every child
+					}
+				}
+
+			}
+
+			//// Now gathers vertices and faces
+			// For every node (octree, 8 children: this length is always 8)
+			for (var i = 0; i < kidsModels.length; i++) {
+				
+				// Gathers vertices (cube, 8 vertices: this length is always 8)
+				for (var j = 0; j < kidsModels[i].vertices.length; j++) {
+					rv.vertices.push(kidsModels[i].vertices[j]);
+				}
+
+				// Gathers faces (cube, 6 faces: this length is always 6)
+				for (var j = 0; j < kidsModels[i].faces.length; j++) {
+					rv.faces.push(kidsModels[i].faces[j]);
+				}				
+
+			}
+
+			return rv;
+		}
 	}
 }

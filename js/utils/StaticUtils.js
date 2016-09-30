@@ -19,3 +19,25 @@ Utils.model2Geometry =  function  (model, offset=0)
 
 	return rv;
 };
+
+Utils.dot = function (v1, v2)
+{
+	return (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
+}
+
+Utils.cross = function (v1, v2)
+{
+	var rv =
+	{
+		x: v1.y*v2.z - v2.y*v1.z,
+		y: v1.z*v2.x - v2.z*v1.x,
+		z: v1.x*v2.y - v2.x*v1.y
+	};
+
+	return rv;
+}
+
+Utils.sqAbs = function (v)
+{
+	return Utils.dot(v, v);
+}

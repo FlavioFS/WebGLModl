@@ -182,3 +182,30 @@ Utils.BoundingBox.edgeTopology =
 	[5, 7],
 	[4, 6]
 ];
+
+Utils.BoundingBox.faceNormals =
+[
+	// Back
+	[ 0, 0,-1],
+	[ 0, 0,-1],
+
+	// Front
+	[ 0, 0, 1],
+	[ 0, 0, 1],
+
+	// Left
+	[-1, 0, 0],
+	[-1, 0, 0],
+
+	// Right
+	[ 1, 0, 0],
+	[ 1, 0, 0],
+
+	// Top
+	[ 0, 1, 0],
+	[ 0, 1, 0],
+
+	// Down
+	[ 0,-1, 0],
+	[ 0,-1, 0]
+];

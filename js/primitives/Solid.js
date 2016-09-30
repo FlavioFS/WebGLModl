@@ -112,81 +112,7 @@ Primitives.Solid = class
 	// At some point we need to force a color decision (at the leaves within the precision limit)
 	forceColor (node)
 	{
-		let vertices = node.boundingBox.vertices();
-
-		// So... we are going to vote for colors!
-		let inVote  = 0;
-		let outVote = 0;
-
-		let inVerts = 0;
-		let inEdges = 0;
-		let inFaces = 0;
-
-		let outVerts = 0;
-		let outEdges = 0;
-		let outFaces = 0;
-
-		// Calculates centers
-		let faceCenters = [];
-		for (var i = 0; i < Utils.BoundingBox.faceTopology.length; i++)
-		{
-			faceCenters.push({ "x": 0, "y": 0, "z": 0 });	// Creates an empty room for the new face
-
-			// Sums all points
-			for (var j = 0; j < Utils.BoundingBox.faceTopology[i].length; j++)
-			{
-				faceCenters[i].x += vertices[Utils.BoundingBox.faceTopology[i][j]].x;
-				faceCenters[i].y += vertices[Utils.BoundingBox.faceTopology[i][j]].y;
-				faceCenters[i].z += vertices[Utils.BoundingBox.faceTopology[i][j]].z;
-			}
-
-			// Then finishes with the mean (geometric center) of them
-			faceCenters[i].x /= Utils.BoundingBox.faceTopology[i].length;
-			faceCenters[i].y /= Utils.BoundingBox.faceTopology[i].length;
-			faceCenters[i].z /= Utils.BoundingBox.faceTopology[i].length;
-		}
-
-		// Calculates the midpoints of edges
-		let edgeCenters = [];
-		for (var i = 0; i < Utils.BoundingBox.edgeTopology.length; i++)
-		{
-			edgeCenters.push
-			({
-				"x": (vertices[Utils.BoundingBox.edgeTopology[i][0]].x + vertices[Utils.BoundingBox.edgeTopology[i][1]].x) / 2,
-				"y": (vertices[Utils.BoundingBox.edgeTopology[i][0]].y + vertices[Utils.BoundingBox.edgeTopology[i][1]].y) / 2,
-				"z": (vertices[Utils.BoundingBox.edgeTopology[i][0]].z + vertices[Utils.BoundingBox.edgeTopology[i][1]].z) / 2
-			});
-		}
-
-		// Votes for centers
-		for (var i = 0; i < faceCenters.length; i++)
-		{
-			if (this.contains(faceCenters[i])) inFaces++;
-			else outFaces++;
-		}
-
-		// Votes for edges
-		for (var i = 0; i < edgeCenters.length; i++)
-		{
-			if (this.contains(edgeCenters[i])) inEdges++;
-			else outEdges++;
-		}
-
-		// Votes for vertices
-		for (var i = 0; i < vertices.length; i++)
-		{
-			if (this.contains(vertices[i])) inVerts++;
-			else outVerts++;
-		}
-
-		inVote = inVerts + inEdges + inFaces;
-		outVote = outVerts + outEdges + outFaces;
-		console.log(edgeCenters);
-		var breakpoint = 7;
-
-		// Never returns Octree.GRAY - Remember: Octree.BLACK is a filled node
-		// Note: a TIE returns Octree.BLACK
-		return ((outVote > inVote) ? Octree.WHITE : Octree.BLACK);
+		return this.contains(node.boundingBox.center) ? Octree.BLACK : Octree.WHITE;
 	}
 
 	// Decides the color of a node
@@ -197,12 +123,7 @@ Primitives.Solid = class
 		if (this.inside(vertices))  return Octree.BLACK;    // Vertices are totally inside
 
 		// Adds the center
-		vertices.push
-		({
-			"x":  boundingBox.center.x,
-			"y":  boundingBox.center.y,
-			"z":  boundingBox.center.z
-		});
+		vertices.push (boundingBox.center);
 		if (this.outside(vertices)) return Octree.WHITE;    // Vertices are totally outside
 		
 		return Octree.GRAY;
@@ -298,20 +219,75 @@ Primitives.Solid = class
 			rv.faces = [];
 
 
-			//// Offsets faces
-			// For every node (octree, 8 children: this length is always 8)
-			for (var i = 0; i < kidsModels.length; i++) {
 
-				// For every face (cube, 6 faces: this length is always 6)
+			/// EDITING HERE --------------------------------------------------------------------
+
+			//// Offsets faces
+			// For every node
+			let offset = 0;
+			for (var i = 1; i < kidsModels.length; i++) {
+				offset += kidsModels[i-1].faces.length;
+
+				// For every face
 				for (var j = 0; j < kidsModels[i].faces.length; j++) {
 					
-					// Offsetts triangle faces (triangle: this length is always 3)
+					// Offsets triangle faces
 					for (var k = 0; k < kidsModels[i].faces[j].length; k++) {
-						kidsModels[i].faces[j][k] += 8*i; // Offsets by 8 for every child
+						kidsModels[i].faces[j][k] += offset; // Offsets by 8 for every child
 					}
 				}
-
 			}
+
+
+			let position = 0;
+			for (const kid of kidsModels)
+			{
+				for (var i = 1; i < kid.vertices.length; i++)
+				{
+					position = rm.vertices.indexOf(kid.vertices[i]);
+
+					if (position == -1)
+					{
+						rv.vertices.push(kid.vertices[i]);
+					}
+
+					else
+					{
+						for (face of kid.faces)
+						{
+							for (facePoint of faces)
+							{
+								if (facePoint >= position) facePoint--;;
+							}
+						}
+					}
+				}
+			}
+
+			
+
+			let position = -1;
+			for (var i = 0; i < kidsModels.length; i++) {
+				for (var j = 0; j < kidsModels[i].vertices.length; j++) {
+					// Is this guy already in list?
+					position = rv.vertices.indexOf(kidsModels[i].vertices[j]);
+
+					// No, then add it
+					if (position == -1)
+					{
+						rv.vertices.push(kidsModels[i].vertices[j]);
+					}
+
+					// Reoffsets everyone after this
+					else
+					{
+						offset++;
+					}
+				}
+			}
+
+			/// EDITING HERE --------------------------------------------------------------------
+			
 
 			//// Now gathers vertices and faces
 			// For every node (octree, 8 children: this length is always 8)

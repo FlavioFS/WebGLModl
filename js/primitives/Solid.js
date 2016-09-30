@@ -267,7 +267,7 @@ Primitives.Solid = class
 	{
 		if (!this._octree) return; // Octree was not calculated yet
 
-		this.modelRecursion (this._octree);
+		return this.modelRecursion (this._octree);
 	}
 
 	// Generates the model through DIVIDE AND CONQUER

@@ -70,8 +70,8 @@ function init ()
 	// addToScene (MDL_target);  // 2
 
 	// 3
-	var solid = new Primitives.SolidCylinder({x:0, y:0, z:0}, 2, 4);
-	solid.calcOctree(2);
+	var solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 4);
+	solid.calcOctree(5);
 	var model = solid.model();
 	addToScene(model);
 
@@ -118,7 +118,7 @@ function animate ()
 
 // [3]
 function addToScene (model, offset=0) {
-	var geometry = Utils.JSONList2Geometry(model, offset); // MDL_ variables is defined in "models" folder
+	var geometry = Utils.model2Geometry(model, offset); // MDL_ variables is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial (model.material);
 	var mesh = new THREE.Mesh(geometry, material);
 	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();

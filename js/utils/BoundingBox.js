@@ -141,8 +141,44 @@ Utils.BoundingBox = class
 			]
 		};
 
-		var piu =3;
-
 		return rmodel;
 	}
 }
+
+/* =====================================================================================================
+ *  Constants
+ * ===================================================================================================== */
+// Topology info: which vertices belong to each face/edge of the cube?
+// Convention is x->y->z ordered
+Utils.BoundingBox.faceTopology =
+[
+	[0, 1, 3, 2], // Face 0 - Back
+	[4, 6, 7, 5], // Face 1 - Front
+	
+	[0, 2, 6, 4], // Face 2 - Left
+	[5, 7, 3, 1], // Face 3 - Right
+
+	[2, 3, 7, 6], // Face 4 - Top
+	[0, 1, 5, 4]  // Face 5 - Down
+];
+
+Utils.BoundingBox.edgeTopology =
+[
+	// Top
+	[2, 3],
+	[3, 7],
+	[7, 6],
+	[6, 2],
+
+	// Bottom
+	[0, 1],
+	[1, 5],
+	[5, 4],
+	[4, 0],
+
+	// Sides
+	[0, 2],
+	[1, 3],
+	[5, 7],
+	[4, 6]
+];

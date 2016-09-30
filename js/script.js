@@ -70,10 +70,12 @@ function init ()
 	// addToScene (MDL_target);  // 2
 
 	// 3
-	var solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 4);
-	solid.calcOctree(5);
+	solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 4);
+	solid.calcOctree(3);
+	console.log(solid.octree);
 	var model = solid.model();
-	addToScene(model);
+	if (model) addToScene(model);
+	else console.log("Empty model!!");
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);

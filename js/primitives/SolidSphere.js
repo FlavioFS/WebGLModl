@@ -77,7 +77,7 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	// Overrides Solid.octree
 	calcOctree (precision=3)
 	{
-		return super.calcOctree(2*this._radius, precision);
+		return super.calcOctree(2*this.radius, precision);
 	}
 
 
@@ -93,6 +93,6 @@ Primitives.SolidSphere = class extends Primitives.Solid
 			dy = point.y - this.center.y,
 			dz = point.z - this.center.z;
 
-		return ( dx*dx + dy*dy + dz*dz <= this._radius * this._radius );
+		return ( dx*dx + dy*dy + dz*dz <= this.radius * this.radius );
 	}
 }

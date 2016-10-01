@@ -120,7 +120,7 @@ function animate ()
 
 // [3]
 function addToScene (model, offset=0) {
-	var geometry = Utils.model2Geometry(model, offset); // MDL_ variables is defined in "models" folder
+	var geometry = Utils.Model.toGeometry(model, offset); // MDL_ variables is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial (model.material);
 	var mesh = new THREE.Mesh(geometry, material);
 	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();

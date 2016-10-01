@@ -212,98 +212,76 @@ Primitives.Solid = class
 			// This node branch is ALL WHITE!
 			if (kidsModels.length == 0) return;
 
-			// Return value (model for this node)
+			// Calculates return value (model for this node)
 			var rv = {};
 			rv.material = kidsModels[0].material;
 			rv.vertices = [];
 			rv.faces = [];
 
 
-
-			/// EDITING HERE --------------------------------------------------------------------
-
-			//// Offsets faces
-			// For every node
-			let offset = 0;
-			for (var i = 1; i < kidsModels.length; i++) {
-				offset += kidsModels[i-1].faces.length;
-
-				// For every face
-				for (var j = 0; j < kidsModels[i].faces.length; j++) {
-					
-					// Offsets triangle faces
-					for (var k = 0; k < kidsModels[i].faces[j].length; k++) {
-						kidsModels[i].faces[j][k] += offset; // Offsets by 8 for every child
-					}
-				}
-			}
-
-
-			let position = 0;
-			for (const kid of kidsModels)
-			{
-				for (var i = 1; i < kid.vertices.length; i++)
-				{
-					position = rm.vertices.indexOf(kid.vertices[i]);
-
-					if (position == -1)
-					{
-						rv.vertices.push(kid.vertices[i]);
-					}
-
-					else
-					{
-						for (face of kid.faces)
-						{
-							for (facePoint of faces)
-							{
-								if (facePoint >= position) facePoint--;;
-							}
-						}
-					}
-				}
-			}
-
-			
-
-			let position = -1;
+			// Gathers vertices in one array list
 			for (var i = 0; i < kidsModels.length; i++) {
-				for (var j = 0; j < kidsModels[i].vertices.length; j++) {
-					// Is this guy already in list?
-					position = rv.vertices.indexOf(kidsModels[i].vertices[j]);
-
-					// No, then add it
-					if (position == -1)
-					{
-						rv.vertices.push(kidsModels[i].vertices[j]);
-					}
-
-					// Reoffsets everyone after this
-					else
-					{
-						offset++;
-					}
-				}
-			}
-
-			/// EDITING HERE --------------------------------------------------------------------
-			
-
-			//// Now gathers vertices and faces
-			// For every node (octree, 8 children: this length is always 8)
-			for (var i = 0; i < kidsModels.length; i++) {
-				
-				// Gathers vertices (cube, 8 vertices: this length is always 8)
 				for (var j = 0; j < kidsModels[i].vertices.length; j++) {
 					rv.vertices.push(kidsModels[i].vertices[j]);
 				}
-
-				// Gathers faces (cube, 6 faces: this length is always 6)
-				for (var j = 0; j < kidsModels[i].faces.length; j++) {
-					rv.faces.push(kidsModels[i].faces[j]);
-				}				
-
 			}
+
+			/* Gathers and offsets (fixes topology of) higher faces:
+			 *  E.g.: at the leaf, each kid is 8 elements long,
+			 *        they they merge into a group of 64, the
+			 *        second now starts at position 8; the third,
+			 *         16... This group will merge into a 8*64 = 512
+			 *        elements group, and this goes on...
+			 *  8 x [0, ..., 8^n] -> 1 x [0, ..., 8^(n+1)]
+			 */
+			let offset = 0;
+			for (var i = 0; i < kidsModels.length; i++) {
+				for (var j = 0; j < kidsModels[i].faces.length; j++) {
+					rv.faces.push(kidsModels[i].faces[j] + offset);
+				}
+
+				offset += kidsModels[i].vertices.length;
+			}
+
+			// for (var i = 0; i < kidsModels.length; i++) {
+			// 	Utils.BoundingBox.offsetFaces(kidsModels[i], offset, 0);
+			// 	offset += kidsModels[i].vertices.length;
+			// }
+
+			// No repetitions
+			let swaps = Utils.Array.removeDuplicates(rv.vertices);
+
+			// Fixes the faces
+			if (result)
+			{
+				// For each repeated element removed...
+				for (var i = 0; i < swaps.length; i++)
+				{
+					// Replaces its value in all faces
+					for (face of rv.faces)
+						Utils.Array.replaceElement(face, swaps[i].oldValue, swaps[i].newValue);
+
+					// Offsets higher faces by 1 to the left
+					for (face of rv.faces)
+						Utils.Array.offset(face, -1, swaps[i].oldValue);
+				}
+			}
+
+			//// Now gathers vertices and faces
+			// For every node (octree, 8 children: this length is always 8)
+			// for (var i = 0; i < kidsModels.length; i++) {
+				
+			// 	// Gathers vertices (cube, 8 vertices: this length is always 8)
+			// 	for (var j = 0; j < kidsModels[i].vertices.length; j++) {
+			// 		rv.vertices.push(kidsModels[i].vertices[j]);
+			// 	}
+
+			// 	// Gathers faces (cube, 6 faces: this length is always 6)
+			// 	for (var j = 0; j < kidsModels[i].faces.length; j++) {
+			// 		rv.faces.push(kidsModels[i].faces[j]);
+			// 	}				
+
+			// }
 
 			return rv;
 		}

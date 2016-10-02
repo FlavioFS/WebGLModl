@@ -79,7 +79,8 @@ Primitives.SolidCube = class extends Primitives.Solid
 		if (this.octr) return this.octr;
 
 		// Bounding box is the cube itself
-		var bBox = Utils.BoundingBox (this.center, this._edge);
+		var bBox = new Utils.BoundingBox (this.center, this._edge);
+		// var bBox = Utils.BoundingBox (this.center, this._edge);
 
 		// Only the root node completely filled
 		// no parent, cube bounding box, filled, no kids
@@ -101,10 +102,10 @@ Primitives.SolidCube = class extends Primitives.Solid
 		 *   ~> |Y-Yc| > h
 		 *   ~> |Z-Zc| > h
 		 */
-		if ( (point.x < this.center.x - halfEdge) || (point.x > this.center.x + halfEdge) ) return false;
-		if ( (point.y < this.center.y - halfEdge) || (point.y > this.center.y + halfEdge) ) return false;
-		if ( (point.z < this.center.z - halfEdge) || (point.z > this.center.z + halfEdge) ) return false;
+		if ( (point.x < this.center.x - halfEdge) || (point.x > this.center.x + halfEdge) ) return Primitives.VERTEX_OUT;
+		if ( (point.y < this.center.y - halfEdge) || (point.y > this.center.y + halfEdge) ) return Primitives.VERTEX_OUT;
+		if ( (point.z < this.center.z - halfEdge) || (point.z > this.center.z + halfEdge) ) return Primitives.VERTEX_OUT;
 		
-		return true;
+		return Primitives.VERTEX_ON;
 	}
 }

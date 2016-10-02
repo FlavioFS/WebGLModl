@@ -55,11 +55,12 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
 	// This Cylinder is centered at the base, and points to the z-axis (up)
-	constructor (centerJSON, radius, height)
+	constructor (centerJSON, radius, height, renderInside = true)
 	{
 		super (centerJSON);
 		this._radius = radius;
 		this._height = height;
+		this._renderInside = renderInside;
 	}
 
 
@@ -97,13 +98,19 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		 *     or
 		 *   Y > Yc + h    ~> above the tip of the Cylinder
 		 */
-		if ( (point.y < this.center.y) || (point.y > this.center.y + this._height) ) return false;
+		if ( (point.y < this.center.y) || (point.y > this.center.y + this._height) ) return Primitives.VERTEX_OUT;
 
 
 		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
-		var
-			dx = point.x - this.center.x,
-			dz = point.z - this.center.z;
-		return (dx*dx + dz*dz <= this._radius*this._radius);
+		
+		var dist = 	  (point.x - this.center.x)*(point.x - this.center.x)
+					+ (point.z - this.center.z)*(point.z - this.center.z)
+		
+		// return (dx*dx + dz*dz <= this._radius*this._radius);
+		if (dist > this._radius*this._radius)
+			return Primitives.VERTEX_OUT;
+		else if (dist == this._radius*this._radius)
+			return Primitives.VERTEX_ON;
+		return Primitives.VERTEX_IN;
 	}
 }

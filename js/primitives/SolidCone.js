@@ -55,11 +55,12 @@ Primitives.SolidCone = class extends Primitives.Solid
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
 	// This Cone is centered at the base, and points to the z-axis (up)
-	constructor (centerJSON, radius, height)
+	constructor (centerJSON, radius, height, renderInside = true)
 	{
 		super (centerJSON);
 		this.radius = radius;
 		this.height = height;
+		this._renderInside = renderInside;
 	}
 
 
@@ -97,7 +98,8 @@ Primitives.SolidCone = class extends Primitives.Solid
 		 *     or
 		 *   Y > Yc + h    ~> above the tip of the Cone
 		 */
-		if ( (point.y < this.center.y) || (point.y > this.center.y + this.height) ) return false;
+		if ( (point.y < this.center.y) || (point.y > this.center.y + this.height) )
+			return Primitives.VERTEX_OUT;
 		
 
 		/* Circle test:
@@ -107,9 +109,16 @@ Primitives.SolidCone = class extends Primitives.Solid
 		 *   Ry = ( 1 + ((Yc - Y)/h) ) * r
 		 */
 		var
-			dx = point.x - this.center.x,
-			dz = point.z - this.center.z,
+			dist =    (point.x - this.center.x)*(point.x - this.center.x) +
+					+ (point.z - this.center.z)*(point.z - this.center.z),
 			Ry = ( 1 + ((this.center.y - point.y)/this.height) ) * this.radius; // this._radius * (this._height - point.y) / this._height;
-		return (dx*dx + dz*dz <= Ry*Ry);
+		
+		// return (dx*dx + dz*dz <= Ry*Ry);
+		
+		if (dist > Ry*Ry)
+			return Primitives.VERTEX_OUT;
+		else if (dist == Ry*Ry)
+			return Primitives.VERTEX_ON;
+		return Primitives.VERTEX_IN;
 	}
 }

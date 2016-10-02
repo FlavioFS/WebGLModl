@@ -77,7 +77,7 @@ function init ()
 	// addToScene (MDL_kunai);   // 1
 	// addToScene (MDL_target);  // 2
 
-	var precision = 0;
+	var precision = 5;
 
 	// 3.1 - Optimized (Takes a LOT to calculate, but once displayed there is no lag!)
 	// solid = new Primitives.SolidCone({x:0, y:-2, z:0}, 2, 4);
@@ -87,7 +87,7 @@ function init ()
 	// else console.log("Empty model!!");
 
 	// 3.2 - Colored (calculates fast, but lags durint display time)
-	solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 4);
+	solid = new Primitives.SolidCone({x:0, y:-3, z:0}, 4, 8);
 	solid.calcOctree(precision);
 	solid.addToSceneColored(scene, precision, 0);
 

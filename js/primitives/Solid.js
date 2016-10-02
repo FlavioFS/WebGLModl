@@ -352,22 +352,22 @@ Primitives.Solid = class
 				break;
 
 				case 1:
-					model.material.color = 0xCC0033;
+					model.material.color = 0x00FF00;
 					model.material.opacity = 0.85;
 				break;
 
 				case 2:
-					model.material.color = 0x990066;
+					model.material.color = 0xFF0000;
 					model.material.opacity = 0.7;
 				break;
 
 				case 3:
-					model.material.color = 0x660099;
+					model.material.color = 0xFF00FF;
 					model.material.opacity = 0.55;
 				break;
 
 				case 4:
-					model.material.color = 0x3300CC;
+					model.material.color = 0xFFFF00;
 					model.material.opacity = 0.4;
 				break;
 

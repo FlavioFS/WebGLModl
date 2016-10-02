@@ -192,7 +192,7 @@ Primitives.Solid = class
 	{
 		if (!this._octree) return; // Octree was not calculated yet
 
-		return this.modelRecursion (this._octree);
+		return this.modelRecursion (this.octree);
 	}
 
 	// Generates the model through DIVIDE AND CONQUER
@@ -202,7 +202,6 @@ Primitives.Solid = class
 		if (node.kids.length == 0)
 		{
 			if (node.color != Octree.BLACK) return;
-
 			return node.boundingBox.model();
 		}
 
@@ -326,6 +325,97 @@ Primitives.Solid = class
 			Utils.BoundingBox.shiftFaces(deletions, rv.faces);
 
 			return rv;
+		}
+	}
+
+	// Adds to scene directly with no optimizations, but colored
+	addToSceneColored (scene, precision, offset=0)
+	{
+		this.addToSceneColoredRecursion (scene, this.octree, precision, offset);
+	}
+
+	// Adds recursively
+	addToSceneColoredRecursion (scene, node, precision, offset)
+	{
+		// Leaf node - Conquer
+		if (node.kids.length == 0)
+		{
+			if (node.color != Octree.BLACK) return;
+
+			var model = node.boundingBox.model();
+
+			switch (node.level)
+			{
+				case 0:
+					model.material.color = 0xFF0000;
+					model.material.opacity = 1.0;
+				break;
+
+				case 1:
+					model.material.color = 0xCC0033;
+					model.material.opacity = 0.85;
+				break;
+
+				case 2:
+					model.material.color = 0x990066;
+					model.material.opacity = 0.7;
+				break;
+
+				case 3:
+					model.material.color = 0x660099;
+					model.material.opacity = 0.55;
+				break;
+
+				case 4:
+					model.material.color = 0x3300CC;
+					model.material.opacity = 0.4;
+				break;
+
+				case 5:
+					model.material.color = 0x0000FF;
+					model.material.opacity = 0.25;
+				break;
+
+				default:
+					model.material.color = 0x0000FF;
+					model.material.opacity = 0.2;
+				break;
+			}
+			
+			// if (precision == 0)
+			// {
+			// 	model.material.color = 0x0000FF;
+			// 	model.material.opacity = 1.0;
+			// }
+			// else if (precision == 1)
+			// {
+			// 	model.material.color = 0x0000FF;
+			// 	model.material.opacity = 0.6;	
+			// }
+			// else
+			// {
+			// 	// model.material.color -= 0xFF0000 * node.level / precision;
+			// 	// model.material.color += 0x0000FF * node.level / precision;
+			// 	model.material.color =
+			// 		0xFF0000 * (1 - (node.level/precision)) + 0x0000FF * (node.level/precision);
+
+			// 	model.material.opacity = 1.0 * (1 - node.level/precision) + 0.2 * node.level;
+			// }
+
+			var geometry = Utils.Model.toGeometry(model, offset);
+			var material = new THREE.MeshPhongMaterial (model.material);
+			var mesh = new THREE.Mesh(geometry, material);
+			if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+			scene.add(mesh);
+		}
+
+		// Branch node - Divide
+		else
+		{
+			for (var i = 0; i < node.kids.length; i++)
+			{
+				this.addToSceneColoredRecursion (scene, node.kids[i], precision, offset);
+			}
 		}
 	}
 }

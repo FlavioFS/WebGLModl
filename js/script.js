@@ -60,22 +60,36 @@ function init ()
 
 	// Lights
 	var light = new THREE.PointLight(0xFFFFFF);
-	light.position.set(-100,200,100);
+	light.position.set(200,200,200);
+	scene.add(light);
+
+	light = new THREE.PointLight(0xFFFFFF, 0.5);
+	light.position.set(-200,-200,-200);
+	scene.add(light);
+
+	light = new THREE.PointLight(0xFFFFFF);
+	light.position.set(-200,0,200);
 	scene.add(light);
 
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
-	scene.add(light);	
+	scene.add(light);
 
 	// addToScene (MDL_kunai);   // 1
 	// addToScene (MDL_target);  // 2
 
-	// 3
-	solid = new Primitives.SolidCone({x:0, y:-2, z:0}, 2, 4);
-	solid.calcOctree(4);
-	console.log(solid.octree);
-	var model = solid.model();
-	if (model) addToScene(model);
-	else console.log("Empty model!!");
+	var precision = 0;
+
+	// 3.1 - Optimized (Takes a LOT to calculate, but once displayed there is no lag!)
+	// solid = new Primitives.SolidCone({x:0, y:-2, z:0}, 2, 4);
+	// solid.calcOctree(precision);
+	// var model = solid.model(true);
+	// if (model) addToScene(model);
+	// else console.log("Empty model!!");
+
+	// 3.2 - Colored (calculates fast, but lags durint display time)
+	solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 4);
+	solid.calcOctree(precision);
+	solid.addToSceneColored(scene, precision, 0);
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);

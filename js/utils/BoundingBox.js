@@ -94,10 +94,15 @@ Utils.BoundingBox = class
 		{
 			"material":
 			{
-				color: 0xAAAADD,
-				specular: 0xDDDDFF,
-				shininess: 30,
-				shading: THREE.FlatShading
+				// color: 0xFFFFFF,
+				// specular: 0xFFFFFF,
+				color: 0xFF0000,
+				specular: 0xFFDDDD,
+				shininess: 2,
+				shading: THREE.FlatShading,
+				wireframe: false,
+				transparent: true,
+				opacity: 1.0
 			},
 
 			"vertices":

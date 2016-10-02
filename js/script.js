@@ -71,7 +71,7 @@ function init ()
 
 	// 3
 	solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 4);
-	solid.calcOctree(1);
+	solid.calcOctree(4);
 	console.log(solid.octree);
 	var model = solid.model();
 	if (model) addToScene(model);

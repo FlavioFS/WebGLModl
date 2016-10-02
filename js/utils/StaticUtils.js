@@ -4,6 +4,8 @@ var Utils = Utils || {};
 /* =====================================================================================================
  *  Model
  * ===================================================================================================== */
+Utils.Model = Utils.Model || {};
+
 // Blender uses 1 as offset (first vertex is indexed as 1, not 0)
 Utils.Model.toGeometry =  function  (model, offset=0)
 {
@@ -26,6 +28,8 @@ Utils.Model.toGeometry =  function  (model, offset=0)
 /* =====================================================================================================
  *  Array
  * ===================================================================================================== */
+Utils.Array = Utils.Array || {};
+
 /* Offsets array to the right by <offset> for
  * every element above a minimum value <min>.
  */
@@ -63,6 +67,8 @@ Utils.Array.removeDuplicates = function (array)
 /* =====================================================================================================
  *  Vector
  * ===================================================================================================== */
+Utils.Vector = Utils.Vector || {};
+
 // Dot product of two vectors
 Utils.Vector.dot = function (v1, v2)
 {

@@ -218,41 +218,38 @@ Primitives.Solid = class
 			rv.vertices = [];
 			rv.faces = [];
 
-
 			// Gathers vertices in one array list
-			for (var i = 0; i < kidsModels.length; i++) {
-				for (var j = 0; j < kidsModels[i].vertices.length; j++) {
+			for (var i = 0; i < kidsModels.length; i++)
+				for (var j = 0; j < kidsModels[i].vertices.length; j++)
 					rv.vertices.push(kidsModels[i].vertices[j]);
-				}
-			}
 
-			/* Gathers and offsets (fixes topology of) higher faces:
-			 *  E.g.: at the leaf, each kid is 8 elements long,
-			 *        they they merge into a group of 64, the
-			 *        second now starts at position 8; the third,
-			 *         16... This group will merge into a 8*64 = 512
-			 *        elements group, and this goes on...
-			 *  8 x [0, ..., 8^n] -> 1 x [0, ..., 8^(n+1)]
+			/* Gathers and offsets (fixes topology of) higher faces.
+			 * E.g.: at the leaf, each kid is 8 elements long,
+			 *       then they merge into a group of 64, the
+			 *       second now starts at position 8; the third,
+			 *       16... This group will merge into a 8*64 = 512
+			 *       elements group, and this goes on...
+			 * 8 x [0, ..., 8^n] -> 1 x [0, ..., 8^(n+1)]
 			 */
 			let offset = 0;
 			for (var i = 0; i < kidsModels.length; i++) {
 				for (var j = 0; j < kidsModels[i].faces.length; j++) {
-					rv.faces.push(kidsModels[i].faces[j] + offset);
+					rv.faces.push
+					([
+						kidsModels[i].faces[j][0] + offset,
+						kidsModels[i].faces[j][1] + offset,
+						kidsModels[i].faces[j][2] + offset,
+					]);
 				}
 
 				offset += kidsModels[i].vertices.length;
 			}
 
-			// for (var i = 0; i < kidsModels.length; i++) {
-			// 	Utils.BoundingBox.offsetFaces(kidsModels[i], offset, 0);
-			// 	offset += kidsModels[i].vertices.length;
-			// }
-
 			// No repetitions
-			let swaps = Utils.Array.removeDuplicates(rv.vertices);
+			var swaps = Utils.Array.removeDuplicates(rv.vertices);
 
 			// Fixes the faces
-			if (result)
+			if (swaps.length > 0)
 			{
 				// For each repeated element removed...
 				for (var i = 0; i < swaps.length; i++)
@@ -267,21 +264,7 @@ Primitives.Solid = class
 				}
 			}
 
-			//// Now gathers vertices and faces
-			// For every node (octree, 8 children: this length is always 8)
-			// for (var i = 0; i < kidsModels.length; i++) {
-				
-			// 	// Gathers vertices (cube, 8 vertices: this length is always 8)
-			// 	for (var j = 0; j < kidsModels[i].vertices.length; j++) {
-			// 		rv.vertices.push(kidsModels[i].vertices[j]);
-			// 	}
-
-			// 	// Gathers faces (cube, 6 faces: this length is always 6)
-			// 	for (var j = 0; j < kidsModels[i].faces.length; j++) {
-			// 		rv.faces.push(kidsModels[i].faces[j]);
-			// 	}				
-
-			// }
+			let hammertime = 0;
 
 			return rv;
 		}

@@ -143,22 +143,6 @@ Utils.BoundingBox = class
 
 		return rmodel;
 	}
-
-	/* Offsets face to the right by <offset> for
-	 * every vertex above a minimum value <min>.
-	 */
-	static offsetFaces (model, offset=-1, min=0)
-	{
-		for (face of model.faces)
-			Utils.Array.offset(face, offset, min);
-	}
-
-	// Replaces <oldValue> of each face with <newValue>.
-	static replaceVertex (model, oldValue, newValue)
-	{
-		for (face of model.faces)
-			Utils.Array.replaceElement (face, oldValue, newValue);
-	}
 }
 
 /* =====================================================================================================

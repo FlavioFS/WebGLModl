@@ -113,35 +113,75 @@ Utils.BoundingBox = class
 				[ VL[7].x, VL[7].y, VL[7].z ]
 			],
 
-			"faces":
-			[
-				// Back
-				[0, 2, 3],
-				[0, 3, 1],
+			"faces": Utils.BoundingBox.triangleFaceTopology,
 
-				// Front
-				[4, 5, 7],
-				[4, 7, 6],
-
-				// Left
-				[0, 4, 6],
-				[0, 6, 2],
-
-				// Right
-				[1, 3, 7],
-				[1, 7, 5],
-
-				// Top
-				[2, 6, 7],
-				[2, 7, 3],
-
-				// Down
-				[0, 1, 5],
-				[0, 5, 4]
-			]
+			"normals": Utils.BoundingBox.faceNormals
 		};
 
 		return rmodel;
+	}
+
+	// Calculates the normal from the topology (even when shifted)
+	// Assumes non-rotated cube faces
+	static simpleNormal (faceVerts)
+	{
+		var rv;
+
+		let diff1 = Math.abs(faceVerts[1] - faceVerts[0]);
+		let diff2 = Math.abs(faceVerts[2] - faceVerts[1]);
+
+		switch (diff1)
+		{
+			case 1:
+				if 		(diff2 == 2) rv = Utils.Vector.FRONT;
+				else if (diff2 == 4) rv = Utils.Vector.DOWN;
+			break;
+
+			case 2:
+				if 		(diff2 == 1) rv = Utils.Vector.BACK;
+				else if (diff2 == 4) rv = Utils.Vector.RIGHT;
+			break;
+
+			case 4:
+				if 		(diff2 == 1) rv = Utils.Vector.UP;
+				else if (diff2 == 2) rv = Utils.Vector.LEFT;
+			break;
+		}
+
+		return rv;
+	}
+
+	// Fixes the faces when vertices are deleted, and the swap log is given
+	static fixFaces (swaps, faceList)
+	{
+		if (swaps.length > 0)
+		{
+			// For each repeated element removed...
+			for (var i = 0; i < swaps.length; i++)
+			{
+				// ... replaces its value in all faces and...
+				for (var j = 0; j < faceList.length; j++)
+					Utils.Array.replaceElement(faceList[j], swaps[i].oldValue, swaps[i].newValue);
+
+				// ... offsets higher faces by 1 to the left
+				for (var j = 0; j < faceList.length; j++)
+					Utils.Array.offset(faceList[j], -1, swaps[i].oldValue);
+			}
+		}
+	}
+
+	static shiftFaces (deletions, faceList)
+	{
+		if (deletions.length > 0)
+		{
+			// For each repeated element removed...
+			for (var i = 0; i < deletions.length; i++)
+			{
+				// ... offsets higher faces by 1 to the left
+				for (var j = 0; j < faceList.length; j++)
+					Utils.Array.offset(faceList[j], -1, deletions[i]);
+			}
+		}	
 	}
 }
 
@@ -150,7 +190,7 @@ Utils.BoundingBox = class
  * ===================================================================================================== */
 // Topology info: which vertices belong to each face/edge of the cube?
 // Convention is x->y->z ordered
-Utils.BoundingBox.faceTopology =
+Utils.BoundingBox.squaredFaceTopology =
 [
 	[0, 1, 3, 2], // Face 0 - Back
 	[4, 6, 7, 5], // Face 1 - Front
@@ -160,6 +200,33 @@ Utils.BoundingBox.faceTopology =
 
 	[2, 3, 7, 6], // Face 4 - Top
 	[0, 1, 5, 4]  // Face 5 - Down
+];
+
+Utils.BoundingBox.triangleFaceTopology =
+[
+	// Back
+	[0, 2, 3],
+	[3, 1, 0],
+
+	// Front
+	[4, 5, 7],
+	[7, 6, 4],
+
+	// Left
+	[0, 4, 6],
+	[6, 2, 0],
+
+	// Right
+	[1, 3, 7],
+	[7, 5, 1],
+
+	// Top
+	[2, 6, 7],
+	[7, 3, 2],
+
+	// Down
+	[0, 1, 5],
+	[5, 4, 0]
 ];
 
 Utils.BoundingBox.edgeTopology =

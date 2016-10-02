@@ -58,8 +58,8 @@ Primitives.SolidCone = class extends Primitives.Solid
 	constructor (centerJSON, radius, height)
 	{
 		super (centerJSON);
-		this._radius = radius;
-		this._height = height;
+		this.radius = radius;
+		this.height = height;
 	}
 
 
@@ -80,9 +80,9 @@ Primitives.SolidCone = class extends Primitives.Solid
 	// Overrides Solid.calcOctree
 	calcOctree (precision=3)
 	{
-		var Rx2 = 2*this._radius;
-		var boxEdge = (Rx2 > this._height) ? Rx2 : this._height; // Chooses the largest value
-		return super.calcOctree(boxEdge, precision);
+		var Rx2 = 2*this.radius;
+		var boxEdge = (Rx2 > this.height) ? Rx2 : this.height; // Chooses the largest value
+		return super.calcOctree(boxEdge, precision, boxEdge/2);
 	}
 
 
@@ -93,23 +93,23 @@ Primitives.SolidCone = class extends Primitives.Solid
 	contains (point)
 	{
 		/* Height test:
-		 *   Z < Zc        ~> below the Cone
+		 *   Y < Yc        ~> below the Cone
 		 *     or
-		 *   Z > Zc + h    ~> above the tip of the Cone
+		 *   Y > Yc + h    ~> above the tip of the Cone
 		 */
-		if ( (point.z < this.center.z) || (point.z > this.center.z + this._height) ) return false;
+		if ( (point.y < this.center.y) || (point.y > this.center.y + this.height) ) return false;
 		
 
 		/* Circle test:
-		 *   |(X,Y) - (Xc,Yc)| <= Rz,   (this one is squared due to performance reasons)
+		 *   |(X,Z) - (Xc,Zc)| <= Ry,   (this one is squared due to performance reasons)
 		 *
-		 * where Rz is the radius at the height z. Thus, from the similar triangles, we find...
-		 *   Rz = r * (h-z)/h
+		 * where Ry is the radius at the height y. Thus, from the similar triangles, we find...
+		 *   Ry = ( 1 + ((Yc - Y)/h) ) * r
 		 */
 		var
 			dx = point.x - this.center.x,
-			dy = point.y - this.center.y,
-			Rz = this._radius * (this._height - point.z) / this._height;
-		return (dx*dx + dy*dy <= Rz*Rz);
+			dz = point.z - this.center.z,
+			Ry = ( 1 + ((this.center.y - point.y)/this.height) ) * this.radius; // this._radius * (this._height - point.y) / this._height;
+		return (dx*dx + dz*dz <= Ry*Ry);
 	}
 }

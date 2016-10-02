@@ -93,17 +93,17 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	contains (point)
 	{
 		/* Height test:
-		 *   Z < Zc        ~> below the Cylinder
+		 *   Y < Yc        ~> below the Cylinder
 		 *     or
-		 *   Z > Zc + h    ~> above the tip of the Cylinder
+		 *   Y > Yc + h    ~> above the tip of the Cylinder
 		 */
-		if ( (point.z < this.center.z) || (point.z > this.center.z + this._height) ) return false;
+		if ( (point.y < this.center.y) || (point.y > this.center.y + this._height) ) return false;
 
 
 		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
 		var
 			dx = point.x - this.center.x,
-			dy = point.y - this.center.y;
-		return (dx*dx + dy*dy <= this._radius*this._radius);
+			dz = point.z - this.center.z;
+		return (dx*dx + dz*dz <= this._radius*this._radius);
 	}
 }

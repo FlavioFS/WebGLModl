@@ -112,7 +112,14 @@ Primitives.Solid = class
 	// At some point we need to force a color decision (at the leaves within the precision limit)
 	forceColor (node)
 	{
-		return this.contains(node.boundingBox.center) ? Octree.BLACK : Octree.WHITE;
+		let vertices = node.boundingBox.vertices();
+
+		if (this.contains(node.boundingBox.center)) return Octree.BLACK;
+
+		for (var i = 0; i < vertices.length; i++)
+			if (this.contains(vertices[i])) return Octree.BLACK;
+
+		return Octree.WHITE;
 	}
 
 	// Decides the color of a node
@@ -130,10 +137,10 @@ Primitives.Solid = class
 	}
 
 	// Generates Octree
-	calcOctree (bBoxEdge, precision=3)
+	calcOctree (bBoxEdge, precision=3, yshift=0)
 	{
 		// Bounding box of the Solid
-		var bBox = new Utils.BoundingBox (this.center, bBoxEdge);
+		var bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:yshift, z:0}), bBoxEdge);
 
 		// Only the root node completely filled
 		// no parent, cube bounding box, filled, no kids
@@ -203,9 +210,10 @@ Primitives.Solid = class
 		else
 		{
 			var kidsModels = [];
+			var newkid;
 			for (var i = 0; i < node.kids.length; i++)
 			{
-				var newkid = this.modelRecursion(node.kids[i]);
+				newkid = this.modelRecursion(node.kids[i]);
 				if (newkid) kidsModels.push(newkid);
 			}
 
@@ -217,11 +225,17 @@ Primitives.Solid = class
 			rv.material = kidsModels[0].material;
 			rv.vertices = [];
 			rv.faces = [];
+			rv.normals = [];
 
 			// Gathers vertices in one array list
 			for (var i = 0; i < kidsModels.length; i++)
 				for (var j = 0; j < kidsModels[i].vertices.length; j++)
 					rv.vertices.push(kidsModels[i].vertices[j]);
+
+			// Gathers normals in one array list
+			for (var i = 0; i < kidsModels.length; i++)
+				for (var j = 0; j < kidsModels[i].normals.length; j++)
+					rv.normals.push(kidsModels[i].normals[j]);
 
 			/* Gathers and offsets (fixes topology of) higher faces.
 			 * E.g.: at the leaf, each kid is 8 elements long,
@@ -244,27 +258,72 @@ Primitives.Solid = class
 
 				offset += kidsModels[i].vertices.length;
 			}
+			
+			var swaps = Utils.Array.removeDuplicates(rv.vertices); // Removes repeated vertices
+			Utils.BoundingBox.fixFaces(swaps, rv.faces);           // Now faces must be fixed too
 
-			// No repetitions
-			var swaps = Utils.Array.removeDuplicates(rv.vertices);
-
-			// Fixes the faces
-			if (swaps.length > 0)
+			// Removes faces pointing inside
+			var A, B, C;
+			var face;
+			var faceCenter;
+			var solid2Face;
+			var normal;
+			for (var i = 0; i < rv.faces.length; i++)
 			{
-				// For each repeated element removed...
-				for (var i = 0; i < swaps.length; i++)
-				{
-					// Replaces its value in all faces
-					for (face of rv.faces)
-						Utils.Array.replaceElement(face, swaps[i].oldValue, swaps[i].newValue);
+				// Working on this face
+				face = rv.faces[i];
 
-					// Offsets higher faces by 1 to the left
-					for (face of rv.faces)
-						Utils.Array.offset(face, -1, swaps[i].oldValue);
+				// Face composed by points A, B, C (right-hand rule to normal)
+				A = rv.vertices[face[0]];
+				B = rv.vertices[face[1]];
+				C = rv.vertices[face[2]];
+
+				// Converts to point structure
+				A = Utils.Vector.pointFromArray(A);
+				B = Utils.Vector.pointFromArray(B);
+				C = Utils.Vector.pointFromArray(C);
+
+				faceCenter = Utils.Vector.centroid(A, B, C);
+				solid2Face = Utils.Vector.diff(faceCenter, this.center);
+				normal     = Utils.Vector.pointFromArray(rv.normals[i]);
+
+				// Face normal oposes to vector that comes from the center of solid. Remove it.
+				if (Utils.Vector.dot(solid2Face, normal) > 0)
+				{
+					rv.faces.splice(i, -1);
+					rv.normals.splice(i, -1);
+				}
+
+				let breakpoint = 0;
+			}
+
+			// Now remove a bunch of vertices without faces
+			var deletions = [];
+			var present;
+			var isHere;
+			for (var i = 0; i < rv.vertices.length; i++)   // Every vertex that...
+			{
+				present = false;
+				for (var j = 0; j < rv.faces.length; j++)  // ... among all faces...
+				{
+					// (this one is present somewhere in face <j>)
+					isHere = (rv.faces[j].indexOf(i) != -1);
+					if ( isHere )
+					{
+						present = true;
+						break;
+					}
+				}
+
+				if (!present) // ... cannot be found...
+				{
+					deletions.push(i);         // ... is logged...
+					rv.vertices.splice(i, -1); // ... and removed
 				}
 			}
 
-			let hammertime = 0;
+			// Faces are wrong again, now... They need a shift
+			Utils.BoundingBox.shiftFaces(deletions, rv.faces);
 
 			return rv;
 		}

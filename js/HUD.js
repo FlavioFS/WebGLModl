@@ -44,6 +44,8 @@ var HUD = (function() {
 		document.body.appendChild(this.elem);
 		this.elem.className = 'window'
 
+		if (options.id)
+			this.elem.id = options.id;
 		if (options.resizable)
 			this.elem.className += ' resizable';
 		if (options.width)
@@ -66,6 +68,9 @@ var HUD = (function() {
 	}
 	Window.prototype.append = function(obj) {
 		this.elem.appendChild(obj.elem);
+	}
+	Window.prototype.appendHtml = function(obj) {
+		this.elem.appendChild(obj);	
 	}
 
 
@@ -107,16 +112,21 @@ var HUD = (function() {
 		return this;
 	};
 
+	Loading.prototype.getTimer = function() {
+		return (new Date().getTime() - this.start);
+	}
+
 	// end and calculate time difference
 	Loading.prototype.endTimer = function() {
-		this.elapsed = new Date().getTime() - this.start;
-		this.elem.innerHTML = 'It took ' + this.elapsed + 'ms';
+		this.elapsed = this.getTimer();
+		this.elem.innerHTML = 'It took ' + (this.elapsed) + 'ms';
 		return this;
 	}
 
+
+
 	Loading.prototype.getElapsedTime = function() {
 		return this.elapsed;
-		return this;
 	}
 
 	Loading.prototype.show = function() {

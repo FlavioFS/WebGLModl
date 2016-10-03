@@ -138,7 +138,7 @@ $(document).ready(function() {
 				this_elem.remove()
 
 				loading.endTimer().hide(5000);
-			}, 10);
+			}, 15);
 	});
 
 	$(document).on('submit', 'form', function() {
@@ -186,6 +186,7 @@ $(document).ready(function() {
 					index = solids.push(new Primitives.SolidCylinder(pos, r, h, renderInside)) - 1;
 					
 				solids[index].calcOctree(precision);
+				console.log('Octree created in ' + loading.getTimer() + 'ms');
 				// console.log(solid.octree);
 				if (boolAddColored)
 					solids[index].addToSceneColored(scene, precision, 0)
@@ -198,7 +199,7 @@ $(document).ready(function() {
 				this_elem.remove()
 
 				loading.endTimer().hide(5000);
-			}, 50);
+			}, 15);
 		}
 
 		return false;
@@ -221,14 +222,15 @@ $(document).ready(function() {
 	/***
 	**** EXPORT AND IMPORT
 	*/
+	var getSelectedSolidIndex = function() {
+		return parseInt($('.solid-selection:disabled').data('index'))
+	}
 
 	// gets index (int) of a selected solid, then solids[index].toString()
 	$(document).on('click', '#export', function() {
 		try {
 			console.log(
-				solids[
-					parseInt($('.solid-selection:disabled').data('index'))
-				].toString());
+				solids[getSelectedSolidIndex()].toString());
 		} catch(e) {
 			alert('Select a solid!');
 		}
@@ -248,7 +250,7 @@ $(document).ready(function() {
 				<label for='code'>Code:</label>
 				<textarea name="code" height='20' size='30'>(bw(bwwwwwwwwbwww</textarea><br />
 				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
-				<input type='submit' value='import solid' />
+				<input type='submit' value='Import solid' />
 			</form>
 		`);
 	});
@@ -283,14 +285,55 @@ $(document).ready(function() {
 			else {
 				var model = solids[index].model();
 				if (model) addToScene(model);
-				else console.log("Empty model!!");	
+				else console.log("Empty model!!");
 			}
 
 			this_elem.remove()
 
 			loading.endTimer().hide(5000);
-		}, 50);
+		}, 15);
 
+	});
+
+	/*****
+	****** TRANSLATE
+	*/
+	$('#window1').append(`
+		<form id='translate-form' action='#'>
+			<label>X: <input type='text' name='x' size='4' value='0' /></label> |
+			<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
+			<label>Z: <input type='text' name='z' size='4' value='0' /></label>
+			<input type='submit' value='Translate' />
+		</form>
+	`);
+
+	$(document).on('submit', '#translate-form', function() {
+		pos = {
+			x: parseFloat($(this).find('input[name=x]').val()),
+			y: parseFloat($(this).find('input[name=y]').val()),
+			z: parseFloat($(this).find('input[name=z]').val())
+		};
+
+		var i = getSelectedSolidIndex();
+		
+		if (isNaN(i))
+			return alert('Select a solid!')
+
+		var loading = new HUD.Loading(
+		'Translating...')
+		.show();
+
+		setTimeout(function() {
+			
+			solids[i].translate(pos)
+			var model = solids[i].model();
+
+			if (model)
+				scene.children[i+5] = generateMesh(model);
+			else console.log("Empty model!!");
+
+			loading.endTimer().hide(5000);
+		}, 15);
 	});
 
 

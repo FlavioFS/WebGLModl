@@ -55,14 +55,15 @@ function init ()
 	HUD.create(WIDTH, HEIGHT);
 
 	var w = new HUD.Window('Primitives',
-		{width:200, height:700, resizable: true});
+		{id: 'window1', width:200, height:700, resizable: true});
 	w.append(new HUD.Button('New Cube', {id: 'new-cube'}));
 	w.append(new HUD.Button('New Sphere', {id: 'new-sphere'}));
 	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));
 	w.append(new HUD.Button('New Cylinder', {id: 'new-cylinder'}));
 	w.append(new HUD.Button('Export', {id: 'export'}));
 	w.append(new HUD.Button('Import', {id: 'import'}));
-	
+
+	w.appendHtml(document.createElement('hr'));
 
 	window_solids = new HUD.Window('Solids in the Scene',
 		{width:200, height:700, left: (WIDTH-200)+'px', resizable: true});
@@ -128,11 +129,16 @@ function animate ()
 	requestAnimationFrame(animate);
 }
 
-// [3]
-function addToScene (model, offset=0) {
+function generateMesh(model, offset=0) {
 	var geometry = Utils.Model.toGeometry(model, offset); // MDL_ variables is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial (model.material);
 	var mesh = new THREE.Mesh(geometry, material);
 	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	scene.add(mesh);
+	return mesh;
 }
+
+// [3]
+function addToScene (model, offset=0) {
+	scene.add(generateMesh(model, offset));
+}
+

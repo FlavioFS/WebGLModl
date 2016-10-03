@@ -160,9 +160,18 @@ Primitives.Solid = class
 
 	// OPERATIONS
 
-	// Calculate (this.center - pos) and move all kids to there
-	translate(pos) {
+	// Move every bounding box's center
+	translate(newPos) {
+		this.translateRecursion(this._octree, newPos)
+	}
 
+	translateRecursion(node, newPos) {
+		node.boundingBox.center.x += newPos.x
+		node.boundingBox.center.y += newPos.y
+		node.boundingBox.center.z += newPos.z
+
+		for (var i = 0; i < node.kids.length; i++) 
+			this.translateRecursion(node.kids[i], newPos)
 	}
 
 	// BOOLEAN OPERATIONS
@@ -415,11 +424,13 @@ Primitives.Solid = class
 	// Adds to scene directly with no optimizations, but colored
 	addToSceneColored (scene, precision, offset=0)
 	{
-		this.addToSceneColoredRecursion (scene, this.octree, precision, offset);
+		let group = new THREE.Object3D();
+		this.addToSceneColoredRecursion (group, this.octree, precision, offset);
+		scene.add(group);
 	}
 
 	// Adds recursively
-	addToSceneColoredRecursion (scene, node, precision, offset)
+	addToSceneColoredRecursion (group, node, precision, offset)
 	{
 		// Leaf node - Conquer
 		if (node.kids.length == 0)
@@ -490,7 +501,7 @@ Primitives.Solid = class
 			var material = new THREE.MeshPhongMaterial (model.material);
 			var mesh = new THREE.Mesh(geometry, material);
 			if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-			scene.add(mesh);
+			group.add(mesh);
 		}
 
 		// Branch node - Divide

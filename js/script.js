@@ -86,27 +86,6 @@ function init ()
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
 	scene.add(light);
 
-	// addToScene (MDL_kunai);   // 1
-	// addToScene (MDL_target);  // 2
-
-	// var loading = new HUD.Loading('Creating Sphere...').show();
-
-	// // reason to use timeout: a solid would be calculated BEFORE showing a loading
-
-	// setTimeout(function() {
-	// 	// solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 3)
-	// 	// solid = new Primitives.SolidCone({x:0, y:0, z:0}, 3, 5, true)
-	// 	solid = new Primitives.SolidCylinder({x:0, y:-3, z:0}, 2, 10, true)
-	// 	// solid = new Primitives.SolidCube({x:0, y:0, z:0}, 3)
-	// 	solid.calcOctree(5);
-	// 	// console.log(solid.octree);
-	// 	var model = solid.model();
-	// 	if (model) addToScene(model);
-	// 	else console.log("Empty model!!");	
-
-	// 	loading.endTimer().hide(5000);
-	// }, 50);
-
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 

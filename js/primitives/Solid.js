@@ -99,6 +99,69 @@ Primitives.Solid = class
 	/* =====================================================================================================
 	 *  CONCRETE METHODS
 	 * ===================================================================================================== */
+	// Return the octree in the string format, ex.: '((bw(bbbbbww(....'
+	toString() {
+		return this.toStringRecursion(this.octree).toLowerCase();
+	}
+
+	toStringRecursion(node) {
+		if (node == null)
+			return '';
+
+		let s = node.color == Octree.GRAY ? '(' : node.color;
+
+		for (var i = 0; i < Octree.EIGHT; i++) 
+			s += this.toStringRecursion(node.kids[i]);
+
+		return s;
+	}
+
+	// Creates octree from a string
+	fromString(str, bBoxEdge = 1) {
+		str = str.toUpperCase().split('');
+		
+		let level = 0;
+		 // we have to pass the index by reference. let i = 0 doesnt work
+		let ref = {i: 0};
+
+		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
+		this._octree = this.fromStringRecursion(bBox, 0, str, ref)
+
+	}
+
+	fromStringRecursion(bBox, level, colorList, ref) {
+		
+			var node = null;
+
+			if (colorList[ref.i] == '(' || colorList[ref.i] == Octree.GRAY)
+			{
+				ref.i++;
+				node = new Octree.Node(
+					null, 
+					bBox,
+					Octree.GRAY, level, []
+				);
+				
+				var newBoxes = node.boundingBox.subdivide();
+				for (let j = 0; j < Octree.EIGHT; j++) {
+					node.kids.push(
+						this.fromStringRecursion(newBoxes[j], level+1, colorList, ref)
+					);
+
+				}
+				
+				return node;
+
+			} else if (colorList[ref.i] == Octree.BLACK) {
+				ref.i++;
+				return new Octree.Node(null, bBox, Octree.BLACK, level, []);
+			} else if (colorList[ref.i] == Octree.WHITE) {
+				ref.i++;
+				return new Octree.Node(null, bBox, Octree.WHITE, level, []);
+			}
+
+	}
+
 	// This Solid contains all of these vertices
 	inside (vertices)
 	{

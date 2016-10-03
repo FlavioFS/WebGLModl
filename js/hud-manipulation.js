@@ -187,5 +187,52 @@ $(document).ready(function() {
 
 		return false;
 	});
+	
+	$(document).on('click', '#export', function() {
+		alert('Coming soon..')
+	});
+
+	$(document).on('click', '#import', function() {
+		$(this).after(`
+			<form id='import-form' action='#'>
+				<label>Bounding box edge: <input type='text' name='bBoxEdge' size='4' value='4' /></label><br />
+				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
+				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
+				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
+				<br />
+				<label for='code'>Code:</label>
+				<textarea name="code" height='20' size='30'>(bw(bwwwwwwwwbwww</textarea><br />
+				<input type='checkbox' name='render-colored' /> Render colored?<br />
+				<input type='submit' value='import solid' />
+			</form>
+		`);
+	});
+
+	$(document).on('submit', '#import-form', function() {
+		var pos, bBoxEdge, boolAddColored = false;
+
+		var this_id = $(this).attr('id'),
+			this_elem = $(this);
+
+		pos = {
+			x: parseFloat($(this).find('input[name=x]').val()),
+			y: parseFloat($(this).find('input[name=y]').val()),
+			z: parseFloat($(this).find('input[name=z]').val())
+		};
+		bBoxEdge = parseFloat($(this).find('input[name=bBoxEdge]').val());
+		code = $(this).find('textarea[name=code]').val()
+		boolAddColored = $(this).find('input[name=render-colored]').prop('checked')
+
+		solid = new Primitives.Solid(pos);
+		solid.fromString(code, bBoxEdge);
+		if (boolAddColored)
+			solid.addToSceneColored(scene, 0, 0)
+		else {
+			var model = solid.model();
+			if (model) addToScene(model);
+			else console.log("Empty model!!");	
+		}
+	});
+
 
 });

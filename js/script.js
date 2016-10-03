@@ -39,6 +39,8 @@ function init ()
 	w.append(new HUD.Button('New Sphere', 'new-sphere', {}));
 	w.append(new HUD.Button('New Cone', 'new-cone', {}));
 	w.append(new HUD.Button('New Cylinder', 'new-cylinder', {}));
+	w.append(new HUD.Button('Export', 'export', {}));
+	w.append(new HUD.Button('Import', 'import', {}));
 	
 
 	// var w2 = new HUD.Window('Another Window',

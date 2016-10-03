@@ -98,6 +98,8 @@ $(document).ready(function() {
 	$(document).on('submit', 'form#cube-form', function() {
 		var
 
+			this_elem = $(this),
+
 			pos = {
 				x: parseFloat($(this).find('input[name=x]').val()),
 				y: parseFloat($(this).find('input[name=y]').val()),
@@ -107,6 +109,7 @@ $(document).ready(function() {
 
 			// rendering
 			var loading = new HUD.Loading('Creating cube...').show();
+
 
 			// reason to use timeout: a solid would be calculated BEFORE showing a loading
 			setTimeout(function() {
@@ -120,7 +123,7 @@ $(document).ready(function() {
 				this_elem.remove()
 
 				loading.endTimer().hide(5000);
-			}, 50);
+			}, 10);
 	});
 
 	$(document).on('submit', 'form', function() {
@@ -146,8 +149,7 @@ $(document).ready(function() {
 			precision = parseInt($(this).find('select[name=precision]').val());
 			renderInside = $(this).find('input[name=render-inside]').prop('checked');
 
-			if ($(this).find('input[name=render-colored]'))
-				boolAddColored = $(this).find('input[name=render-colored]')
+			boolAddColored = $(this).find('input[name=render-colored]').prop('checked')
 
 			// rendering
 			var loading = new HUD.Loading(

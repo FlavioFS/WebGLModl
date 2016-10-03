@@ -1,7 +1,7 @@
-*
+body
 {
-	color: #AFA;
-	background-color: #222;
+	color: black;
+	background-color: black;
 	margin: 0px;
 	padding: 0px;
 }
@@ -31,6 +31,53 @@
 	width: 95%;
 	height: 300px;
 	resize: none;
+}
+
+/** HUD **/
+div.loading {
+	position: absolute;
+	left: 50%;
+	top: 0%;
+	background-color: orange;
+	color: black;
+	padding: 0 5px 0 5px;
+}
+
+div.menu-button {
+	cursor: pointer;
+}
+
+div.window {
+	position: absolute;
+	background-color: #AAAAAA;
+	top: 0px;
+	left: 0px;
+}
+div.window input[type=button] {
+	display: block;
+	margin: 0 auto;
+	margin-top: 10px;
+	font-size: 14pt;
+}
+
+div.window form {
+	margin: 10px 0 20px 0;
+	text-align: center;
+	border: 1px solid black;
+	padding: 4px;
+}
+
+/* always a window title  */
+div.window div.label:first-child {
+	text-align: center;
+	color: black;
+	font: 18pt arial, sans-serif;
+	padding: 8px;
+	border-bottom: 1px solid black;
+}
+
+div.window div.draggable {
+	cursor: move;
 }
 
 /* Regarding the signal lamp */

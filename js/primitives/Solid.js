@@ -55,6 +55,13 @@
 // Namespace
 var Primitives = Primitives || {};
 
+// var totalRenderFalse = 0;
+
+// when an solid vertex is calculated against a primitive, it can be
+Primitives.VERTEX_OUT = 0;
+Primitives.VERTEX_ON = 1;
+Primitives.VERTEX_IN = 2;
+
 // Base class for primitives
 Primitives.Solid = class
 {
@@ -65,6 +72,7 @@ Primitives.Solid = class
 	{
 		this.center = centerJSON; // Every Solid has a center
 		this._octree = null;       // Every Solid has an Octree (this is abstract)
+		this._boolRenderInside = true;
 	}
 
 
@@ -95,7 +103,7 @@ Primitives.Solid = class
 	inside (vertices)
 	{
 		for (var i = 0; i < vertices.length; i++)
-			if (!this.contains(vertices[i])) return false;
+			if (this.contains(vertices[i]) != Primitives.VERTEX_IN) return false;
 
 		return true;
 	}
@@ -104,7 +112,7 @@ Primitives.Solid = class
 	outside (vertices)
 	{
 		for (var i = 0; i < vertices.length; i++)
-			if (this.contains(vertices[i])) return false;
+			if (this.contains(vertices[i]) != Primitives.VERTEX_OUT) return false;
 
 		return true;
 	}
@@ -126,6 +134,7 @@ Primitives.Solid = class
 	decideColor (boundingBox)
 	{
 		let vertices = boundingBox.vertices();
+
 
 		if (this.inside(vertices))  return Octree.BLACK;    // Vertices are totally inside
 
@@ -157,6 +166,11 @@ Primitives.Solid = class
 	calcOctreeRecursion (node, precision, level)
 	{
 		let color = this.decideColor(node.boundingBox);
+
+		if (color == Octree.BLACK) {
+			node.willBeRendered = false;
+			// totalRenderFalse++;
+		}
 
 		// Recursion
 		if ((color == Octree.GRAY) && (level < precision))
@@ -201,7 +215,9 @@ Primitives.Solid = class
 		// Leaf node - Conquer
 		if (node.kids.length == 0)
 		{
-			if (node.color != Octree.BLACK) return;
+			// ... OR if a node is to be rendered or we have chosen to render internal nodes, jumps this if
+			if (node.color != Octree.BLACK || !(node.willBeRendered || this._renderInside))
+				return;
 			return node.boundingBox.model();
 		}
 

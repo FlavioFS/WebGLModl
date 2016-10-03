@@ -12,26 +12,6 @@ var HUD = (function() {
 
 		scene = new THREE.Scene();
 
-
-		// var hudBitmap = canvas.getContext('2d');
-		// hudBitmap.font = 'Normal 40px Arial';
-		// hudBitmap.textAlign = 'center';
-		// hudBitmap.fillStyle = 'rgba(245,245,245,0.75)';
-		// hudBitmap.fillText('Initializing...', width/2, height/2);
-
-		// var hudTexture = new THREE.Texture(canvas);
-		// hudTexture.needsUpdate = true;
-		// hudTexture.minFilter = THREE.LinearFilter;
-
-
-		// var material = new THREE.MeshBasicMaterial({map: hudTexture});
-		// material.transparent = true;
-
-		// var planeGeometry = new THREE.PlaneGeometry(width, height);
-		// var plane = new THREE.Mesh(planeGeometry, material);
-		// scene.add(plane);
-
-
 	}
 
 	/*****
@@ -58,30 +38,25 @@ var HUD = (function() {
 
 	Window.prototype = new Obj();
 	Window.prototype.constructor = Window;
-	function Window(title, style, options) {
+	function Window(title, options) {
 
 		this.elem = document.createElement('div');
 		document.body.appendChild(this.elem);
+		this.elem.className = 'window'
 
-		this.elem.style.backgroundColor = style.backgroundColor || "blue";
-		if (style.width)
-			this.elem.style.width = style.width + 'px';
-		if (style.height)
-			this.elem.style.height = style.height + 'px';
-		this.elem.style.top = style.top || '0px';
-		this.elem.style.left = style.left ||'0px';
+		if (options.resizable)
+			this.elem.className += ' resizable';
+		if (options.width)
+			this.elem.style.width = options.width + 'px';
+		if (options.height)
+			this.elem.style.height = options.height + 'px';
+		this.elem.style.top = options.top || '0px';
+		this.elem.style.left = options.left ||'0px';
 
-		this.elem.style.position = 'absolute';
 
 		// creates title
-		var titleButton = new Button(title, 
-				{display: 'block', backgroundColor: '#000000', border: '1px solid white', margin: '0px'});
-		titleButton.elem.className = 'draggable';
-		this.append(titleButton);
+		this.append(new Label(title, 'draggable', {}))
 
-		// options
-		if (options.resizable)
-			this.elem.className = 'resizable';
 	}
 	Window.prototype.show = function() {
 		console.log(this.title);
@@ -113,6 +88,51 @@ var HUD = (function() {
 		console.log()
 	}
 
+	/***
+	* Obj > Loading
+	*/
+	Loading.prototype = new Obj();
+	Loading.prototype.constructor = Loading;
+	function Loading(text = '') {
+		this.start = new Date().getTime(),
+		this.elapsed = '0.0';
+		this.text = text;
+
+		// creating element
+		this.elem = document.createElement('div');
+		this.elem.className = 'loading';
+		this.elem.innerHTML = text;
+
+
+		return this;
+	};
+
+	// end and calculate time difference
+	Loading.prototype.endTimer = function() {
+		this.elapsed = new Date().getTime() - this.start;
+		this.elem.innerHTML = 'It took ' + this.elapsed + 'ms';
+		return this;
+	}
+
+	Loading.prototype.getElapsedTime = function() {
+		return this.elapsed;
+		return this;
+	}
+
+	Loading.prototype.show = function() {
+		document.body.appendChild(this.elem);
+
+		return this;
+	}
+
+	Loading.prototype.hide = function(hideAfterMs = 0) {
+		var elem = this.elem
+		setTimeout(function() {
+			elem.parentNode.removeChild(elem);
+		},hideAfterMs);
+		return this;
+	}
+
 
 	/***
 	* Widget
@@ -124,35 +144,46 @@ var HUD = (function() {
 	}
 
 	/****
+	* Widget > Label
+	****/
+	Button.prototype = new Widget();
+	Button.prototype.constructor = Label;
+	function Label(text, classE, style) {
+		this.elem = document.createElement('div');
+		this.elem.className = 'label'
+		if (classE != null)
+			this.elem.className += ' '+classE;
+		this.elem.innerHTML = text;
+	}
+
+	/****
 	* Widget > Button
 	****/
 	Button.prototype = new Widget();
 	Button.prototype.constructor = Button;
-	function Button(text, style) {
-		// var background = new THREE.Mesh(
-		// 	new THREE.PlaneGeometry(width, height),
-		// 	new THREE.MeshBasicMaterial({color: 0x00ffff}));
-		// this.group.add(background);
+	function Button(text, id, style) {
 
+		this.elem = document.createElement('input');
+		this.elem.setAttribute('type', 'button');
+		this.elem.id = id;
+		this.elem.value = text;
 		
-		this.elem = document.createElement('div');
-		
-		this.elem.style.color = '#FFFFFF';
-		this.elem.style.border = style.border || '0px solid white';
-		this.elem.style.display = style.display || 'block';
-		this.elem.style.padding = style.padding || '4px';
-		this.elem.style.margin = style.margin || '4px';
-		//this.elem.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+		// this.elem.style.color = '#FFFFFF';
+		// this.elem.style.border = style.border || '0px solid white';
+		// this.elem.style.display = style.display || 'block';
+		// this.elem.style.padding = style.padding || '4px';
+		// this.elem.style.margin = style.margin || '4px';
+		// //this.elem.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
 
-		this.elem.style.backgroundColor = style.backgroundColor || '#666666';
-		if (style.width)
-			this.elem.style.width = style.width + 'px';
-		if (style.height)
-			this.elem.style.height = style.height + 'px';
-		this.elem.style.top = style.top || '0px';
-		this.elem.style.left = style.left || '0px';
+		// this.elem.style.backgroundColor = style.backgroundColor || '#666666';
+		// if (style.width)
+		// 	this.elem.style.width = style.width + 'px';
+		// if (style.height)
+		// 	this.elem.style.height = style.height + 'px';
+		// this.elem.style.top = style.top || '0px';
+		// this.elem.style.left = style.left || '0px';
 		
-		this.elem.innerHTML = text;
+		
 	}
 
 
@@ -169,6 +200,7 @@ var HUD = (function() {
 		Window: Window,
 		FloatingWindow: FloatingWindow,
 
+		Loading: Loading,
 		
 		Widget: Widget,
 		Button: Button,

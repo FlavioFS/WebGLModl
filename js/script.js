@@ -27,15 +27,26 @@ function init ()
 	glcanvas.className = "glcanvas";
 	document.body.appendChild(glcanvas);
 
-	// GUI
-	// GUI.publicMethod();
-	// GUI.setCanvas(glcanvas);
 
-	// var tab1 = new GUI.FloatingWindow('Objects', 10, 20);
-	// var tab2 = new GUI.FloatingWindow('Shaders', 50, 200);
-	// tab1.show();
-	// tab2.show();
-	// tab1.show();
+	/******
+	* HUD 
+	*/
+	HUD.create(WIDTH, HEIGHT);
+
+	var w = new HUD.Window('Primitives',
+		{width:200, height:400, resizable: true});
+	w.append(new HUD.Button('New Cube', 'new-cube', {}));
+	w.append(new HUD.Button('New Sphere', 'new-sphere', {}));
+	w.append(new HUD.Button('New Cone', 'new-cone', {}));
+	w.append(new HUD.Button('New Cylinder', 'new-cylinder', {}));
+	
+
+	// var w2 = new HUD.Window('Another Window',
+	// 	{width:200, height:400, left: (WIDTH-200)+'px', resizable: true});
+	// w2.append(new HUD.Button('Render', 'render', {}));
+	// w2.append(new HUD.Button('Animate', 'animate', {}));
+	// w2.append(new HUD.Button('Etc.', 'etc', {}));
+
 
 
 	// Camera
@@ -43,6 +54,7 @@ function init ()
 	camera.position.set(0,6,0);
 	camera.position.z = 10;
 	scene.add(camera);
+
 
 
 	// Events
@@ -77,50 +89,27 @@ function init ()
 	// addToScene (MDL_kunai);   // 1
 	// addToScene (MDL_target);  // 2
 
-	var precision = 5;
+	// var loading = new HUD.Loading('Creating Sphere...').show();
 
-	// 3.1 - Optimized (Takes a LOT to calculate, but once displayed there is no lag!)
-	// solid = new Primitives.SolidCone({x:0, y:-2, z:0}, 2, 4);
-	// solid.calcOctree(precision);
-	// var model = solid.model(true);
-	// if (model) addToScene(model);
-	// else console.log("Empty model!!");
+	// // reason to use timeout: a solid would be calculated BEFORE showing a loading
 
-	// 3.2 - Colored (calculates fast, but lags durint display time)
-	solid = new Primitives.SolidCone({x:0, y:-3, z:0}, 4, 8);
-	solid.calcOctree(precision);
-	solid.addToSceneColored(scene, precision, 0);
+	// setTimeout(function() {
+	// 	// solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 3)
+	// 	// solid = new Primitives.SolidCone({x:0, y:0, z:0}, 3, 5, true)
+	// 	solid = new Primitives.SolidCylinder({x:0, y:-3, z:0}, 2, 10, true)
+	// 	// solid = new Primitives.SolidCube({x:0, y:0, z:0}, 3)
+	// 	solid.calcOctree(5);
+	// 	// console.log(solid.octree);
+	// 	var model = solid.model();
+	// 	if (model) addToScene(model);
+	// 	else console.log("Empty model!!");	
+
+	// 	loading.endTimer().hide(5000);
+	// }, 50);
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-
-	// HUD
-
-	// console.log(WIDTH)
-	// console.log(HEIGHT)
-	HUD.create(WIDTH, HEIGHT);
-
-	var w = new HUD.Window('Window',
-		{width:200, height:400, backgroundColor:'#AAAAAA'},
-		{resizable: true});
-	var b1 = new HUD.Button('New Cube', {});
-	var b2 = new HUD.Button('New Sphere', {});
-	var b3 = new HUD.Button('New Torus', {});
-	w.append(b1);
-	w.append(b2);
-	w.append(b3);
-	
-
-	var w2 = new HUD.Window('Another Window',
-		{width:200, height:400, backgroundColor:'#AAAAAA', left: (WIDTH-200)+'px'},
-		{resizable: true});
-	var b4 = new HUD.Button('Render', {});
-	var b5 = new HUD.Button('Animate', {});
-	var b6 = new HUD.Button('Etc.', {});
-	w2.append(b4);
-	w2.append(b5);
-	w2.append(b6);
 }
 
 // [2]
@@ -140,11 +129,3 @@ function addToScene (model, offset=0) {
 	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
 	scene.add(mesh);
 }
-
-$(document).ready(function() {
-	init();
-	animate();
-
-	$('div').draggable({handle: '.draggable'});
-	$('.resizable').resizable();
-});

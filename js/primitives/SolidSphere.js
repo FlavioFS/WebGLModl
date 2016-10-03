@@ -54,11 +54,12 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
-	constructor (centerJSON, radius)
+	constructor (centerJSON, radius, renderInside = false)
 	{
 		super (centerJSON);
 		this._radius = radius;
 		this._octree = null;
+		this._renderInside = renderInside;
 	}
 
 
@@ -88,11 +89,16 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	contains (point)
 	{
 		// Sphere equation test: |(X,Y,Z) - (Xc,Yc,Zc)| <= r    (squared due to performance reasons)
-		var
-			dx = point.x - this.center.x,
-			dy = point.y - this.center.y,
-			dz = point.z - this.center.z;
+		var dist =    (point.x - this.center.x)*(point.x - this.center.x)
+					+ (point.y - this.center.y)*(point.y - this.center.y)
+					+ (point.z - this.center.z)*(point.z - this.center.z)
 
-		return ( dx*dx + dy*dy + dz*dz <= this.radius * this.radius );
+
+		// return ( dist <= this.radius * this.radius );
+		if (dist > this.radius*this.radius)
+			return Primitives.VERTEX_OUT;
+		else if (dist == this.radius*this.radius)
+			return Primitives.VERTEX_ON;
+		return Primitives.VERTEX_IN;
 	}
 }

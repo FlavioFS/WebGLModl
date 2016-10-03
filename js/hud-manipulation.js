@@ -130,6 +130,8 @@ $(document).ready(function() {
 			setTimeout(function() {
 				var index = solids.push(new Primitives.SolidSphere(pos, e/2, true)) - 1;
 				solids[index].calcOctree(1);
+				// console.log(solids[index].octree.boundingBox.center)
+				// console.log(solids[index].octree.boundingBox.edge)
 				// console.log(solids[index].octree);
 				var model = solids[index].model();
 				if (model) addToScene(model);
@@ -315,7 +317,7 @@ $(document).ready(function() {
 		};
 
 		var i = getSelectedSolidIndex();
-		
+
 		if (isNaN(i))
 			return alert('Select a solid!')
 
@@ -334,6 +336,29 @@ $(document).ready(function() {
 
 			loading.endTimer().hide(5000);
 		}, 15);
+	});
+
+	/*****
+	****** BOOLEAN OPERATIONS
+	*/
+	// $('#window1').append(`
+	// 	<form id='union-form' action='#'>
+	// 		<label>Obj1: <input type='text' name='a' size='4' value='0' /></label> |
+	// 		<label>Obj2: <input type='text' name='b' size='4' value='1' /></label> |
+	// 		<input type='submit' value='Union' />
+	// 	</form>
+	// `);
+
+	$(document).on('submit', '#union-form', function() {
+		var
+			a = parseInt($(this).find('input[name=a]').val()),
+			b = parseInt($(this).find('input[name=b]').val());
+
+		// solid = new Primitives.Solid({x:0,y:0,z:0});
+		// solid.union(solids[a], solids[b], 4, 2)
+		// console.log(solid.toString());
+		// world.placeNodeInWorld(solids[a].octree, world.octree)
+
 	});
 
 

@@ -158,23 +158,6 @@ Primitives.Solid = class
 
 	}
 
-	// OPERATIONS
-
-	// Move every bounding box's center
-	translate(newPos) {
-		this.translateRecursion(this._octree, newPos)
-	}
-
-	translateRecursion(node, newPos) {
-		node.boundingBox.center.x += newPos.x
-		node.boundingBox.center.y += newPos.y
-		node.boundingBox.center.z += newPos.z
-
-		for (var i = 0; i < node.kids.length; i++) 
-			this.translateRecursion(node.kids[i], newPos)
-	}
-
-	// BOOLEAN OPERATIONS
 
 	// This Solid contains all of these vertices
 	inside (vertices)
@@ -513,4 +496,99 @@ Primitives.Solid = class
 			}
 		}
 	}
+
+	// OPERATIONS
+
+	// Move every bounding box's center
+	translate(newPos) 
+	{
+		this.translateRecursion(this._octree, newPos)
+	}
+
+	translateRecursion(node, newPos) 
+	{
+		node.boundingBox.center.x += newPos.x
+		node.boundingBox.center.y += newPos.y
+		node.boundingBox.center.z += newPos.z
+
+		for (var i = 0; i < node.kids.length; i++) 
+			this.translateRecursion(node.kids[i], newPos)
+	}
+
+	/*************************/
+	// BOOLEAN OPERATIONS
+	// NOT FINISHED
+	union(node1, node2, bBoxEdge, precision=3)
+	{
+		let level = 0;
+		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
+		// this._octree = this.fromStringRecursion(bBox, 0, str, ref)
+		this._octree = new Octree.Node(null, bBox, Octree.GRAY, level, []);		
+
+		this.calcEmptyOctree(this._octree, precision, level+1, bBoxEdge);
+
+		// once we have a empty octree, we can calculate the union
+
+	}
+
+	createWorldOctree(bBoxEdge, precision) {
+		let level = 0;
+		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
+		// this._octree = this.fromStringRecursion(bBox, 0, str, ref)
+		this._octree = new Octree.Node(null, bBox, Octree.GRAY, level, []);		
+
+		this.calcEmptyOctree(this._octree, precision, level+1, bBoxEdge);
+	}
+
+	calcEmptyOctree(node, precision, level)
+	{
+		if (level < precision) {
+			var newBoxes = node.boundingBox.subdivide();
+
+			node.kids = [];
+			for (var i = 0; i < newBoxes.length; i++)
+			{
+				node.kids.push(
+					new Octree.Node(node, newBoxes[i],
+						(level+1 < precision) ? Octree.GRAY : Octree.WHITE,
+						level+1, [])
+				);
+			}
+
+			// Recursion to each one of them
+			for (var i = 0; i < Octree.EIGHT; i++) {
+				this.calcEmptyOctree(node.kids[i], precision, level+1);
+			}
+		}
+	}
+
+	placeNodeInWorld(node, worldSubnode) {
+		// console.log(node);
+		// console.log(worldSubnode);
+		// console.log(node.boundingBox.center)
+		// console.log(node.boundingBox.edge)
+		// console.log(worldSubnode.boundingBox.center)
+		// console.log(worldSubnode.boundingBox.edge)
+		// console.log('oi')
+		// if (node.boundingBox.center == worldSubnode.boundingBox.center
+		// 	&& node.boundingBox.edge == worldSubnode.boundingBox.edge) {
+		// 	worldSubnode = node;
+		// 	console.log('consegui')
+		// 	return;
+		// }
+		// else {
+		// 	// Recursion to each one of them
+		// 	for (var i = 0; i < worldSubnode.kids.length; i++) {
+		// 		this.placeNodeInWorld(node, worldSubnode.kids[i]);
+		// 	}
+		// }
+	}
+
+	searchBBox(emptyNode, node) {
+		// res = {node: null, dist: 0}
+		
+
+	}
+
+
 }

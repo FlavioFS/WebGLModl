@@ -3,6 +3,7 @@ var sceneHUD, cameraHUD;
 
 // contains all solids created in the scene
 var solids = [];
+var world = null;
 
 // window for solids in the scene
 var window_solids = null;
@@ -117,6 +118,11 @@ function init ()
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+	// world = new Primitives.Solid({x:0,y:0,z:0});
+	// world.createWorldOctree(16, 5);
+	// console.log(world.toString())
 
 }
 

@@ -1,13 +1,34 @@
 var scene, camera, renderer;
 var sceneHUD, cameraHUD;
 
-// [0]
-// check end of this file
+// contains all solids created in the scene
+var solids = [];
 
-// function main () {
-// 	init();
-// 	animate();
-// }
+// window for solids in the scene
+var window_solids = null;
+
+
+// Utilities
+
+// Makes some array trigger a callback function when pushed by overriding push()
+var afterPushingTo = function(arr, callback) {
+	arr.push = function(elem) {
+		Array.prototype.push.call(arr, elem);
+		callback();
+		return arr.length;
+	}
+}
+
+afterPushingTo(solids, function() {
+	// console.log(solids[0].constructor.name)
+	// console.log(Primitives.Solid.name)
+	if (window_solids != null)
+		window_solids.append(new HUD.Button(
+			'Solid ' + solids.length/* + ' - ' solids[solids.length-1].className*/,
+			{className: 'solid-selection', dataset: {index: solids.length-1}}
+		));
+})
+
 
 // [1]
 function init ()
@@ -34,17 +55,22 @@ function init ()
 	HUD.create(WIDTH, HEIGHT);
 
 	var w = new HUD.Window('Primitives',
-		{width:200, height:400, resizable: true});
-	w.append(new HUD.Button('New Cube', 'new-cube', {}));
-	w.append(new HUD.Button('New Sphere', 'new-sphere', {}));
-	w.append(new HUD.Button('New Cone', 'new-cone', {}));
-	w.append(new HUD.Button('New Cylinder', 'new-cylinder', {}));
-	w.append(new HUD.Button('Export', 'export', {}));
-	w.append(new HUD.Button('Import', 'import', {}));
+		{width:200, height:700, resizable: true});
+	w.append(new HUD.Button('New Cube', {id: 'new-cube'}));
+	w.append(new HUD.Button('New Sphere', {id: 'new-sphere'}));
+	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));
+	w.append(new HUD.Button('New Cylinder', {id: 'new-cylinder'}));
+	w.append(new HUD.Button('Export', {id: 'export'}));
+	w.append(new HUD.Button('Import', {id: 'import'}));
 	
 
-	// var w2 = new HUD.Window('Another Window',
-	// 	{width:200, height:400, left: (WIDTH-200)+'px', resizable: true});
+	window_solids = new HUD.Window('Solids in the Scene',
+		{width:200, height:700, left: (WIDTH-200)+'px', resizable: true});
+	window_solids.append(new HUD.Label('Click to select:', null, null))
+	window_solids.append(new HUD.Button(
+			'     Deselect     ', {id: 'solid-deselection'}
+		));
+	
 	// w2.append(new HUD.Button('Render', 'render', {}));
 	// w2.append(new HUD.Button('Animate', 'animate', {}));
 	// w2.append(new HUD.Button('Etc.', 'etc', {}));
@@ -87,27 +113,6 @@ function init ()
 
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
 	scene.add(light);
-
-	// addToScene (MDL_kunai);   // 1
-	// addToScene (MDL_target);  // 2
-
-	// var loading = new HUD.Loading('Creating Sphere...').show();
-
-	// // reason to use timeout: a solid would be calculated BEFORE showing a loading
-
-	// setTimeout(function() {
-	// 	// solid = new Primitives.SolidSphere({x:0, y:0, z:0}, 3)
-	// 	// solid = new Primitives.SolidCone({x:0, y:0, z:0}, 3, 5, true)
-	// 	solid = new Primitives.SolidCylinder({x:0, y:-3, z:0}, 2, 10, true)
-	// 	// solid = new Primitives.SolidCube({x:0, y:0, z:0}, 3)
-	// 	solid.calcOctree(5);
-	// 	// console.log(solid.octree);
-	// 	var model = solid.model();
-	// 	if (model) addToScene(model);
-	// 	else console.log("Empty model!!");	
-
-	// 	loading.endTimer().hide(5000);
-	// }, 50);
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);

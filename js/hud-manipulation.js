@@ -5,8 +5,14 @@ $(document).ready(function() {
 	$('div').draggable({handle: '.draggable'});
 	$('.resizable').resizable();
 
+	// It is possible to exist only one form for each 'new' button
+	// if it exists already, it is deleted (like 'toggle')
+
 	/** CUBE **/
 	$('#new-cube').click(function() {
+		if ($('#cube-form').length)
+			return $('#cube-form').remove();
+
 		$(this).after(`
 			<form id='cube-form' action='#'>
 				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
@@ -21,6 +27,9 @@ $(document).ready(function() {
 
 	/** SPHERE **/
 	$('#new-sphere').click(function() {
+		if ($('#sphere-form').length)
+			return $('#sphere-form').remove();
+
 		$(this).after(`
 			<form id='sphere-form' action='#'>
 				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
@@ -36,8 +45,8 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<input type='checkbox' name='render-inside' /> Render inside?<br />
-				<input type='checkbox' name='render-colored' /> Render colored?<br />
+				<label><input type='checkbox' name='render-inside' /> Render inside?<label><br />
+				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
 			`);
@@ -46,6 +55,9 @@ $(document).ready(function() {
 
 	/** CONE **/
 	$('#new-cone').click(function() {
+		if ($('#cone-form').length)
+			return $('#cone-form').remove();
+
 		$(this).after(`
 			<form id='cone-form' action='#'>
 				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
@@ -62,8 +74,8 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<input type='checkbox' name='render-inside' /> Render inside?<br />
-				<input type='checkbox' name='render-colored' /> Render colored?<br />
+				<label><input type='checkbox' name='render-inside' /> Render inside?</label><br />
+				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
 			`);
@@ -71,6 +83,9 @@ $(document).ready(function() {
 
 	/** Cylinder **/
 	$('#new-cylinder').click(function() {
+		if ($('#cylinder-form').length)
+			return $('#cylinder-form').remove();
+
 		$(this).after(`
 			<form id='cylinder-form' action='#'>
 				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
@@ -87,8 +102,8 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<input type='checkbox' name='render-inside' /> Render inside?<br />
-				<input type='checkbox' name='render-colored' /> Render colored?<br />
+				<label><input type='checkbox' name='render-inside' /> Render inside?<label><br />
+				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
 			`);
@@ -113,10 +128,10 @@ $(document).ready(function() {
 
 			// reason to use timeout: a solid would be calculated BEFORE showing a loading
 			setTimeout(function() {
-				solid = new Primitives.SolidSphere(pos, e/2, true)
-				solid.calcOctree(1);
-				// console.log(solid.octree);
-				var model = solid.model();
+				var index = solids.push(new Primitives.SolidSphere(pos, e/2, true)) - 1;
+				solids[index].calcOctree(1);
+				// console.log(solids[index].octree);
+				var model = solids[index].model();
 				if (model) addToScene(model);
 				else console.log("Empty model!!");	
 
@@ -162,19 +177,20 @@ $(document).ready(function() {
 				if (boolAddColored)
 					renderInside = true;
 
+				var index;
 				if (this_id == 'sphere-form')
-					solid = new Primitives.SolidSphere(pos, r, renderInside)
+					index = solids.push(new Primitives.SolidSphere(pos, r, renderInside)) - 1;
 				else if (this_id == 'cone-form')
-					solid = new Primitives.SolidCone(pos, r, h, renderInside)
+					index = solids.push(new Primitives.SolidCone(pos, r, h, renderInside)) - 1;
 				if (this_id == 'cylinder-form')
-					solid = new Primitives.SolidCylinder(pos, r, h, renderInside)
+					index = solids.push(new Primitives.SolidCylinder(pos, r, h, renderInside)) - 1;
 					
-				solid.calcOctree(precision);
+				solids[index].calcOctree(precision);
 				// console.log(solid.octree);
 				if (boolAddColored)
-					solid.addToSceneColored(scene, precision, 0)
+					solids[index].addToSceneColored(scene, precision, 0)
 				else {
-					var model = solid.model();
+					var model = solids[index].model();
 					if (model) addToScene(model);
 					else console.log("Empty model!!");	
 				}
@@ -188,11 +204,40 @@ $(document).ready(function() {
 		return false;
 	});
 	
+
+	/***
+	**** SOLID SELECTION
+	*/
+	$(document).on('click', '#solid-deselection', function() {
+		$('.solid-selection:disabled').prop('disabled', false)
+	})
+	$(document).on('click', '.solid-selection', function() {
+		$('.solid-selection:disabled').prop('disabled', false)
+		$(this).prop('disabled', true)
+
+		var index = parseInt($(this).data('index'))
+	})
+
+	/***
+	**** EXPORT AND IMPORT
+	*/
+
+	// gets index (int) of a selected solid, then solids[index].toString()
 	$(document).on('click', '#export', function() {
-		alert('Coming soon..')
+		try {
+			console.log(
+				solids[
+					parseInt($('.solid-selection:disabled').data('index'))
+				].toString());
+		} catch(e) {
+			alert('Select a solid!');
+		}
 	});
 
 	$(document).on('click', '#import', function() {
+		if ($('#import-form').length)
+			return $('#import-form').remove();
+
 		$(this).after(`
 			<form id='import-form' action='#'>
 				<label>Bounding box edge: <input type='text' name='bBoxEdge' size='4' value='4' /></label><br />
@@ -202,7 +247,7 @@ $(document).ready(function() {
 				<br />
 				<label for='code'>Code:</label>
 				<textarea name="code" height='20' size='30'>(bw(bwwwwwwwwbwww</textarea><br />
-				<input type='checkbox' name='render-colored' /> Render colored?<br />
+				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='import solid' />
 			</form>
 		`);
@@ -223,15 +268,29 @@ $(document).ready(function() {
 		code = $(this).find('textarea[name=code]').val()
 		boolAddColored = $(this).find('input[name=render-colored]').prop('checked')
 
-		solid = new Primitives.Solid(pos);
-		solid.fromString(code, bBoxEdge);
-		if (boolAddColored)
-			solid.addToSceneColored(scene, 0, 0)
-		else {
-			var model = solid.model();
-			if (model) addToScene(model);
-			else console.log("Empty model!!");	
-		}
+		// rendering
+		var loading = new HUD.Loading(
+			'Importing solid...')
+			.show();
+
+		// reason to use timeout: a solid would be calculated BEFORE showing a loading
+		setTimeout(function() {
+
+			var index = solids.push(new Primitives.Solid(pos)) - 1;
+			solids[index].fromString(code, bBoxEdge);
+			if (boolAddColored)
+				solids[index].addToSceneColored(scene, 0, 0)
+			else {
+				var model = solids[index].model();
+				if (model) addToScene(model);
+				else console.log("Empty model!!");	
+			}
+
+			this_elem.remove()
+
+			loading.endTimer().hide(5000);
+		}, 50);
+
 	});
 
 

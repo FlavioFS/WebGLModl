@@ -161,29 +161,26 @@ var HUD = (function() {
 	****/
 	Button.prototype = new Widget();
 	Button.prototype.constructor = Button;
-	function Button(text, id, style) {
+	function Button(text, options) {
 
 		this.elem = document.createElement('input');
 		this.elem.setAttribute('type', 'button');
-		this.elem.id = id;
 		this.elem.value = text;
-		
-		// this.elem.style.color = '#FFFFFF';
-		// this.elem.style.border = style.border || '0px solid white';
-		// this.elem.style.display = style.display || 'block';
-		// this.elem.style.padding = style.padding || '4px';
-		// this.elem.style.margin = style.margin || '4px';
-		// //this.elem.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
 
-		// this.elem.style.backgroundColor = style.backgroundColor || '#666666';
-		// if (style.width)
-		// 	this.elem.style.width = style.width + 'px';
-		// if (style.height)
-		// 	this.elem.style.height = style.height + 'px';
-		// this.elem.style.top = style.top || '0px';
-		// this.elem.style.left = style.left || '0px';
+		if (options.id)
+			this.elem.id = options.id;
+
+		if (options.className)
+			this.elem.className = options.className;
 		
-		
+		if (options.dataset) {
+			for (var key in options.dataset) {
+				if (options.dataset.hasOwnProperty(key))
+					this.elem.dataset[key] = options.dataset[key];
+			}
+			// this.elem.dataset = options.dataset;// not working
+			// console.log(this.elem.dataset)
+		}
 	}
 
 
@@ -199,6 +196,7 @@ var HUD = (function() {
 		Obj: Obj,
 		Window: Window,
 		FloatingWindow: FloatingWindow,
+		Label: Label,
 
 		Loading: Loading,
 		

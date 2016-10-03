@@ -59,8 +59,8 @@ var Primitives = Primitives || {};
 
 // when an solid vertex is calculated against a primitive, it can be
 Primitives.VERTEX_OUT = 0;
-Primitives.VERTEX_ON = 1;
-Primitives.VERTEX_IN = 2;
+Primitives.VERTEX_ON  = 1;
+Primitives.VERTEX_IN  = 2;
 
 // Base class for primitives
 Primitives.Solid = class
@@ -100,11 +100,13 @@ Primitives.Solid = class
 	 *  CONCRETE METHODS
 	 * ===================================================================================================== */
 	// Return the octree in the string format, ex.: '((bw(bbbbbww(....'
-	toString() {
+	toString()
+	{
 		return this.toStringRecursion(this.octree).toLowerCase();
 	}
 
-	toStringRecursion(node) {
+	toStringRecursion(node)
+	{
 		if (node == null)
 			return '';
 
@@ -116,8 +118,9 @@ Primitives.Solid = class
 		return s;
 	}
 
-	// Creates octree from a string
-	fromString(str, bBoxEdge = 1) {
+	// Creates octree from a string ex.: '((bw(bbbbbww(....'
+	fromString(str, bBoxEdge = 1)
+	{
 		str = str.toUpperCase().split('');
 		
 		let level = 0;
@@ -126,7 +129,6 @@ Primitives.Solid = class
 
 		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
 		this._octree = this.fromStringRecursion(bBox, 0, str, ref)
-
 	}
 
 	fromStringRecursion(bBox, level, colorList, ref) {
@@ -136,19 +138,13 @@ Primitives.Solid = class
 			if (colorList[ref.i] == '(' || colorList[ref.i] == Octree.GRAY)
 			{
 				ref.i++;
-				node = new Octree.Node(
-					null, 
-					bBox,
-					Octree.GRAY, level, []
-				);
+				node = new Octree.Node(null, bBox, Octree.GRAY, level, []);
 				
 				var newBoxes = node.boundingBox.subdivide();
-				for (let j = 0; j < Octree.EIGHT; j++) {
+				for (let j = 0; j < Octree.EIGHT; j++)
 					node.kids.push(
 						this.fromStringRecursion(newBoxes[j], level+1, colorList, ref)
 					);
-
-				}
 				
 				return node;
 
@@ -161,6 +157,15 @@ Primitives.Solid = class
 			}
 
 	}
+
+	// OPERATIONS
+
+	// Calculate (this.center - pos) and move all kids to there
+	translate(pos) {
+
+	}
+
+	// BOOLEAN OPERATIONS
 
 	// This Solid contains all of these vertices
 	inside (vertices)

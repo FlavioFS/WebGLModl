@@ -83,7 +83,7 @@ Primitives.SolidCone = class extends Primitives.Solid
 	{
 		var Rx2 = 2*this.radius;
 		var boxEdge = (Rx2 > this.height) ? Rx2 : this.height; // Chooses the largest value
-		return super.calcOctree(boxEdge, precision, boxEdge/2);
+		return super.calcOctree(boxEdge, precision, 0, boxEdge/2);
 	}
 
 

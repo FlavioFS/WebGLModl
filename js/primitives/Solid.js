@@ -68,7 +68,7 @@ Primitives.Solid = class
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
-	constructor (centerJSON)
+	constructor (centerJSON={x:0, y:0, z:0})
 	{
 		this.center = centerJSON; // Every Solid has a center
 		this._octree = null;       // Every Solid has an Octree (this is abstract)
@@ -146,7 +146,7 @@ Primitives.Solid = class
 	}
 
 	// Generates Octree
-	calcOctree (bBoxEdge, precision=3, yshift=0)
+	calcOctree (bBoxEdge, precision=3, minDivision=0, yshift=0)
 	{
 		// Bounding box of the Solid
 		var bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:yshift, z:0}), bBoxEdge);
@@ -156,14 +156,14 @@ Primitives.Solid = class
 		this._octree = new Octree.Node(null, bBox, Octree.GRAY, 0, []);
 		
 		// Starts recursive subdivision
-		this.calcOctreeRecursion (this._octree, precision, 0);
+		this.calcOctreeRecursion (this._octree, precision, 0, minDivision);
 
 		return this._octree;
 	}
 
 	// The Primitives.Solid class can define the recursion for the bounding box subdivision!
 	// (It does not depend on the primitive)
-	calcOctreeRecursion (node, precision, level)
+	calcOctreeRecursion (node, precision, level, minDivision=0)
 	{
 		let color = this.decideColor(node.boundingBox);
 
@@ -173,7 +173,7 @@ Primitives.Solid = class
 		}
 
 		// Recursion
-		if ((color == Octree.GRAY) && (level < precision))
+		if ((level < minDivision) || ((color == Octree.GRAY) && (level < precision)))
 		{
 			node.color = Octree.GRAY;
 			var newBoxes = node.boundingBox.subdivide();
@@ -189,7 +189,7 @@ Primitives.Solid = class
 
 			// Recursion to each one of them
 			for (var i = 0; i < Octree.EIGHT; i++) {
-				this.calcOctreeRecursion(node.kids[i], precision, level+1);
+				this.calcOctreeRecursion(node.kids[i], precision, level+1, minDivision);
 			}
 		}
 

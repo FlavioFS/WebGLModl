@@ -83,7 +83,7 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	{
 		var Rx2 = 2*this._radius;
 		var boxEdge = (Rx2 > this._height) ? Rx2 : this._height; // Chooses the largest value
-		return super.calcOctree(boxEdge, precision);
+		return super.calcOctree(boxEdge, precision, 0, boxEdge/2);
 	}
 
 

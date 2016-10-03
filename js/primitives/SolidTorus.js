@@ -81,9 +81,7 @@ Primitives.SolidTorus = class extends Primitives.Solid
 	// Overrides Solid.calcOctree
 	calcOctree (precision=3)
 	{
-		var Rx2 = 2*this.radius;
-		var boxEdge = (Rx2 > this.tubeRadius) ? Rx2 : this.tubeRadius; // Chooses the largest value
-		return super.calcOctree(boxEdge, precision, boxEdge/2);
+		return super.calcOctree(2*(this.radius + this.tubeRadius), precision, 1);
 	}
 
 
@@ -112,31 +110,27 @@ Primitives.SolidTorus = class extends Primitives.Solid
 		if ( (point.y < this.center.y - this.tubeRadius) || (point.y > this.center.y + this.tubeRadius) )
 			return Primitives.VERTEX_OUT;
 
-
-		/* This comment is under develpment, do not trust it
-		 * Torus equation test split in 2 parts:		 
-		 * 
-		 * Part 1: outside of shorter ring
-		 *   
-		 *   ( R² + t² - (X-Xc)² - (Y-Yc)² - (Z-Zc)² )² <= 4R².(t² - (Y-Yc)²)
-		 *
-		 * Part 2: inside of larger ring
-		 *   ( R² + t² - Xl² - Yl² - Zl² )² <= 4R².(t² - Yl²)
-		 *
-		 * where Ry is the radius at the tubeRadius y. Thus, from the similar triangles, we find...
-		 *   Ry = ( 1 + ((Yc - Y)/h) ) * r
-		 */
+		// Point is too far away to the sides
 		let
 			Xl = (point.x - this.center.x),
 			Yl = (point.y - this.center.y),
 			Zl = (point.z - this.center.z),
+			hDist2 = Xl*Xl + Zl*Zl,
+			Rmax = this.radius + this.tubeRadius;
+		if ( hDist2 > Rmax*Rmax )
+			return Primitives.VERTEX_OUT;
+
+
+		/* Torus equation:
+		 *   ( R² + t² - (X-Xc)² - (Y-Yc)² - (Z-Zc)² )² = 4R².(t² - (Y-Yc)²)
+		 * Replacing the equality sign (=) with an inequality sign (>), when get the subpaces
+		 */
+		 let
 			Ry = Math.sqrt(this.tubeRadius*this.tubeRadius - Yl*Yl),
-			Rp = Math.sqrt(Xl*Xl + Zl*Zl); // Radius of slice at the point
+			Rp = Math.sqrt(Xl*Xl + Zl*Zl), // Radius of slice at the point
+			lside = this.radius*this.radius + this.tubeRadius*this.tubeRadius - hDist2 - Yl*Yl,
+			rside = 4*this.radius*this.radius*(this.tubeRadius*this.tubeRadius - Yl*Yl);
 
-		// Square root cannot be removed due to Mathematical issues
-		if (this.radius - Ry > Rp) return Primitives.VERTEX_OUT;
-		if (this.radius + Ry < Rp) return Primitives.VERTEX_OUT;
-
-		return Primitives.VERTEX_IN;
+		return ( lside*lside > rside ) ? Primitives.VERTEX_OUT : Primitives.VERTEX_IN;
 	}
 }

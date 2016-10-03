@@ -39,6 +39,7 @@ function init ()
 	w.append(new HUD.Button('New Sphere', 'new-sphere', {}));
 	w.append(new HUD.Button('New Cone', 'new-cone', {}));
 	w.append(new HUD.Button('New Cylinder', 'new-cylinder', {}));
+	w.append(new HUD.Button('New Torus', 'new-torus', {}));
 	
 
 	// var w2 = new HUD.Window('Another Window',
@@ -47,14 +48,17 @@ function init ()
 	// w2.append(new HUD.Button('Animate', 'animate', {}));
 	// w2.append(new HUD.Button('Etc.', 'etc', {}));
 
-
+	// var torus = new Primitives.SolidTorus({x:0, y:0, z:0}, 4, 1);
+	// torus.calcOctree(1);
+	// var mymdl = torus.model();
+	// if (mymdl) addToScene(mymdl);
+	// else console.log("Empty model!!");
 
 	// Camera
 	camera = new THREE.PerspectiveCamera (45, WIDTH / HEIGHT, 0.1, 20000);
 	camera.position.set(0,6,0);
 	camera.position.z = 10;
 	scene.add(camera);
-
 
 
 	// Events

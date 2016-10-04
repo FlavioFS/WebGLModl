@@ -1,13 +1,35 @@
 var scene, camera, renderer;
 var sceneHUD, cameraHUD;
 
-// [0]
-// check end of this file
+// contains all solids created in the scene
+var solids = [];
+var world = null;
 
-// function main () {
-// 	init();
-// 	animate();
-// }
+// window for solids in the scene
+var window_solids = null;
+
+
+// Utilities
+
+// Makes some array trigger a callback function when pushed by overriding push()
+var afterPushingTo = function(arr, callback) {
+	arr.push = function(elem) {
+		Array.prototype.push.call(arr, elem);
+		callback();
+		return arr.length;
+	}
+}
+
+afterPushingTo(solids, function() {
+	// console.log(solids[0].constructor.name)
+	// console.log(Primitives.Solid.name)
+	if (window_solids != null)
+		window_solids.append(new HUD.Button(
+			'Solid ' + solids.length/* + ' - ' solids[solids.length-1].className*/,
+			{className: 'solid-selection', dataset: {index: solids.length-1}}
+		));
+})
+
 
 // [1]
 function init ()
@@ -34,16 +56,23 @@ function init ()
 	HUD.create(WIDTH, HEIGHT);
 
 	var w = new HUD.Window('Primitives',
-		{width:200, height:400, resizable: true});
-	w.append(new HUD.Button('New Cube', 'new-cube', {}));
-	w.append(new HUD.Button('New Sphere', 'new-sphere', {}));
-	w.append(new HUD.Button('New Cone', 'new-cone', {}));
-	w.append(new HUD.Button('New Cylinder', 'new-cylinder', {}));
-	w.append(new HUD.Button('New Torus', 'new-torus', {}));
-	
+		{id: 'window1', width:200, height:700, resizable: true});
+	w.append(new HUD.Button('New Cube', {id: 'new-cube'}));
+	w.append(new HUD.Button('New Sphere', {id: 'new-sphere'}));
+	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));
+	w.append(new HUD.Button('New Cylinder', {id: 'new-cylinder'}));
+	w.append(new HUD.Button('Export', {id: 'export'}));
+	w.append(new HUD.Button('Import', {id: 'import'}));
 
-	// var w2 = new HUD.Window('Another Window',
-	// 	{width:200, height:400, left: (WIDTH-200)+'px', resizable: true});
+	w.appendHtml(document.createElement('hr'));
+
+	window_solids = new HUD.Window('Solids in the Scene',
+		{width:200, height:700, left: (WIDTH-200)+'px', resizable: true});
+	window_solids.append(new HUD.Label('Click to select:', null, null))
+	window_solids.append(new HUD.Button(
+			'     Deselect     ', {id: 'solid-deselection'}
+		));
+	
 	// w2.append(new HUD.Button('Render', 'render', {}));
 	// w2.append(new HUD.Button('Animate', 'animate', {}));
 	// w2.append(new HUD.Button('Etc.', 'etc', {}));
@@ -93,6 +122,11 @@ function init ()
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+
+	// world = new Primitives.Solid({x:0,y:0,z:0});
+	// world.createWorldOctree(16, 5);
+	// console.log(world.toString())
+
 }
 
 // [2]
@@ -104,11 +138,16 @@ function animate ()
 	requestAnimationFrame(animate);
 }
 
-// [3]
-function addToScene (model, offset=0) {
+function generateMesh(model, offset=0) {
 	var geometry = Utils.Model.toGeometry(model, offset); // MDL_ variables is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial (model.material);
 	var mesh = new THREE.Mesh(geometry, material);
 	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	scene.add(mesh);
+	return mesh;
 }
+
+// [3]
+function addToScene (model, offset=0) {
+	scene.add(generateMesh(model, offset));
+}
+

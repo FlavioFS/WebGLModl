@@ -67,6 +67,12 @@ div.window form {
 	padding: 4px;
 }
 
+div.window div.label {
+	text-align: center;
+	font: 14pt arial, sans-serif;
+	padding: 4px;
+}
+
 /* always a window title  */
 div.window div.label:first-child {
 	text-align: center;

@@ -61,6 +61,7 @@ function init ()
 	w.append(new HUD.Button('New Sphere', {id: 'new-sphere'}));
 	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));
 	w.append(new HUD.Button('New Cylinder', {id: 'new-cylinder'}));
+	w.append(new HUD.Button('New Torus', {id: 'new-torus'}));
 	w.append(new HUD.Button('Export', {id: 'export'}));
 	w.append(new HUD.Button('Import', {id: 'import'}));
 

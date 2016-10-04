@@ -111,6 +111,9 @@ $(document).ready(function() {
 
 	/** TORUS **/
 	$('#new-torus').click(function() {
+		if ($('#torus-form').length)
+			return $('#torus-form').remove();
+
 		$(this).after(`
 			<form id='torus-form' action='#'>
 				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
@@ -118,17 +121,17 @@ $(document).ready(function() {
 				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
 				<br />
 				<label>Radius: <input type='text' name='radius' size='4' value='1' /></label><br />
-				<label>Tube Radius: <input type='text' name='tubeRadius' size='4' value='1' /></label><br />
+				<label>Height: <input type='text' name='tubeRadius' size='4' value='1' /></label><br />
 				<label for='precision'>Precision</label>
-				<select name="precision" id="minbeds">
+				<select name="precision">
 					<option>1</option>
 					<option>2</option>
 					<option selected>3</option>
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<input type='checkbox' name='render-inside' /> Render inside?<br />
-				<input type='checkbox' name='render-colored' /> Render colored?<br />
+				<label><input type='checkbox' name='render-inside' /> Render inside?<label><br />
+				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
 			`);
@@ -216,7 +219,7 @@ $(document).ready(function() {
 				else if (this_id == 'cylinder-form')
 					index = solids.push(new Primitives.SolidCylinder(pos, r, h, renderInside)) - 1;
 				else if (this_id == 'torus-form')
-					solid = solids.push(new Primitives.SolidTorus(pos, r, t, renderInside)) - 1;
+					index = solids.push(new Primitives.SolidTorus(pos, r, t, renderInside)) - 1;
 					
 				solids[index].calcOctree(precision);
 				console.log('Octree created in ' + loading.getTimer() + 'ms');

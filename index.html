@@ -1,304 +1,61 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8" />
-	<title>WebGL test</title>
-<script id="2d-vertex-shader" type="notjs">
- 
-	// // an attribute will receive data from a buffer
-	// attribute vec4 a_position;
-	// uniform vec2 u_resolution;
- 
-	// // all shaders have a main function
-	// void main() {
- 
-	// 	// gl_Position is a special variable a vertex shader
-	// 	// is responsible for setting
-	// 	gl_Position = a_position;
-	// }
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>WebGLModl</title>
+		<meta charset="utf-8">
 
-	attribute vec2 a_position;
+		<link rel="stylesheet" href="css/jquery-ui.min.css">
+		<!-- JQuery -->
+		<script src="js/jquery-3.1.0.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
 
-	uniform vec2 u_resolution;
-	uniform vec2 u_translation;
-	uniform vec2 u_rotation;
-	uniform vec2 u_scale;
+		<!-- ThreeJS -->
+		<script type="text/javascript" src="js/three.js"></script>
+		<script type="text/javascript" src="js/OrbitControls.js"></script>
 
-	void main() {
-		vec2 scaledPosition = a_position * u_scale;
+		<script type="text/javascript" src="js/HUD.js"></script>
 
-		vec2 rotatedPosition = vec2(
-			scaledPosition.x * u_rotation.y + scaledPosition.y * u_rotation.x,
-			scaledPosition.y * u_rotation.y - scaledPosition.x * u_rotation.x
-		);
-		vec2 position = rotatedPosition + u_translation;
+		<!-- AngularJS -->
+		<script type="text/javascript" src="js/angular.min.js"></script>
+		<!-- 
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+ 		-->
 
-		// convert the position from pixels to 0.0 to 1.0
-		vec2 zeroToOne = position / u_resolution;
+		<!-- Our code -->
+		<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
 
-		// convert from 0->1 to 0->2
-		vec2 zeroToTwo = zeroToOne * 2.0;
 
-		// convert from 0->2 to -1->+1 (clipspace)
-		vec2 clipSpace = zeroToTwo - 1.0;
+		<!-- Testing "class" keyword (Javascript 2.0 - ES6) -->
+		<!-- Utils -->
+		<script type="text/javascript" src="js/utils/Array.js"></script>
+		<script type="text/javascript" src="js/utils/Vector.js"></script>
+		<script type="text/javascript" src="js/utils/Model.js"></script>
+		<script type="text/javascript" src="js/utils/BoundingBox.js"></script>
+		
+		<!-- Primitives -->
+		<script type="text/javascript" src="js/primitives/Solid.js"></script>
+		<script type="text/javascript" src="js/primitives/SolidCone.js"></script>
+		<script type="text/javascript" src="js/primitives/SolidCube.js"></script>
+		<script type="text/javascript" src="js/primitives/SolidCylinder.js"></script>
+		<script type="text/javascript" src="js/primitives/SolidSphere.js"></script>
+		<script type="text/javascript" src="js/primitives/SolidTorus.js"></script>
 
-		gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-	}
+		<!-- Octree -->
+		<script type="text/javascript" src="js/octree/Octree.js"></script>
 
- 
-</script>
- 
-<script id="2d-fragment-shader" type="notjs">
- 
-	// fragment shaders don't have a default precision so we need
-	// to pick one. mediump is a good default
-	precision mediump float;
- 
-	void main() {
-		// gl_FragColor is a special variable a fragment shader
-		// is responsible for setting
-		gl_FragColor = vec4(1, 0, 0.5, 1); // return redish-purple
-	}
- 
-</script>
+		<!-- Testing models -->
+		<script type="text/javascript" src="models/triforce.js"></script>
+		<script type="text/javascript" src="models/basecube.js"></script>
+		<script type="text/javascript" src="models/basehead0.js"></script>
+		<script type="text/javascript" src="models/basehead2.js"></script>
+		<script type="text/javascript" src="models/target.js"></script>
+		<script type="text/javascript" src="models/kunai.js"></script>
+		
+		<!-- Main script -->
+		<script type="text/javascript" src="js/script.js"></script>
+		<script type="text/javascript" src="js/hud-manipulation.js"></script>
+	</head>
 
-	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-
-	<!-- Angular Material requires Angular.js libraries -->
-	<script type="text/javascript" src="bower_components/angular/angular.js"></script>
-	<script type="text/javascript" src="bower_components/angular-animate/angular-animate.min.js"></script>
-	<script type="text/javascript" src="bower_components/angular-aria/angular-aria.min.js"></script>
-	<script type="text/javascript" src="bower_components/angular-messages/angular-messages.min.js"></script>
-
-	<!-- Angular Material -->
-	<script type="text/javascript" src="bower_components/angular-material/angular-material.min.js"></script>
-
-	<!-- our JS code -->
-	<script type="text/javascript" src="js/app.js"></script>
-	<script type="text/javascript" src="js/controllers.js"></script>
-	<script type="text/javascript" src="js/services.js"></script>
-
-	<link rel="stylesheet" type="text/css" href="bower_components/angular-material/angular-material.min.css" />
-	<link rel="stylesheet" type="text/css" href="css/style.css" />
-</head>
-<body ng-app="WebGLModl">
-	<div ng-controller="AppCtrl as ctrl" layout='column' ng-cloak>
-		<md-toolbar class="md-menu-toolbar">
-			<div layout="row">
-				<!-- <md-toolbar-filler layout layout-align="center center">
-					<md-icon md-svg-icon="call:chat"></md-icon>
-				</md-toolbar-filler> -->
-				<div>
-					<h2 class="md-toolbar-tools">WebGLModl</h2>
-					<md-menu-bar>
-						<md-menu>
-							<button ng-click="$mdOpenMenu()">
-								File
-							</button>
-							<md-menu-content>
-								<md-menu-item>
-									<md-button ng-click="ctrl.sampleAction('share', $event)">
-										Share...
-									</md-button>
-								</md-menu-item>
-
-								<md-menu-divider></md-menu-divider>
-
-								<md-menu-item>
-									<md-button ng-click="$mdOpenMenu()">New</md-button>
-								</md-menu-item>
-								<md-menu-item>
-									<md-button ng-click="ctrl.sampleAction('Open', $event)">
-										Open...
-										<span class="md-alt-text"> {{ 'M-O' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-								<md-menu-item>
-									<md-button disabled="disabled" ng-click="ctrl.sampleAction('Save', $event)">
-										Save
-									</md-button>
-								</md-menu-item>
-
-								<md-menu-divider></md-menu-divider>
-
-								<md-menu-item>
-									<md-button ng-click="ctrl.sampleAction('Import', $event)">
-										Import
-									</md-button>
-								</md-menu-item>
-								<md-menu-item>
-									<md-button disabled="disabled" ng-click="ctrl.sampleAction('Export', $event)">
-										Export
-									</md-button>
-								</md-menu-item>
-							</md-menu-content>
-						</md-menu>
-
-						<md-menu>
-							<button ng-click="$mdOpenMenu()">
-								Edit
-							</button>
-							<md-menu-content>
-								<md-menu-item class="md-indent">
-									<md-icon md-svg-icon="undo"></md-icon>
-									<md-button ng-click="ctrl.sampleAction('undo', $event)">
-										Undo
-										<span class="md-alt-text">{{ 'M-Z' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-								<md-menu-item class="md-indent">
-									<md-icon md-svg-icon="redo"></md-icon>
-									<md-button ng-click="ctrl.sampleAction('redo', $event)">
-										Redo
-										<span class="md-alt-text">{{ 'M-Y' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-
-								<md-menu-divider></md-menu-divider>
-
-								<md-menu-item class="md-indent">
-									<md-icon md-svg-icon="content-cut"></md-icon>
-									<md-button ng-click="ctrl.sampleAction('cut', $event)">
-										Cut
-										<span class="md-alt-text">{{ 'M-X' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-								<md-menu-item class="md-indent">
-									<md-icon md-svg-icon="content-copy"></md-icon>
-									<md-button ng-click="ctrl.sampleAction('copy', $event)">
-										Copy
-										<span class="md-alt-text">{{ 'M-C' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-								<md-menu-item class="md-indent">
-									<md-icon md-svg-icon="content-paste"></md-icon>
-									<md-button ng-click="ctrl.sampleAction('paste', $event)">
-										Paste
-										<span class="md-alt-text">{{ 'M-P' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-							</md-menu-content>
-						</md-menu>
-
-						<md-menu>
-							<button ng-click="$mdOpenMenu()">
-								Render
-							</button>
-							<md-menu-content>
-								<md-menu-item class="md-indent">
-									<md-button ng-click="ctrl.sampleAction('Render image', $event)">
-										Render Image
-										<span class="md-alt-text">{{ 'M-R' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-								<md-menu-item class="md-indent">
-									<md-button ng-click="ctrl.sampleAction('Render image', $event)">
-										Render Animation
-										<span class="md-alt-text">{{ 'M-T' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-
-								<md-menu-divider></md-menu-divider>
-
-								<md-menu-item class="md-indent">
-									<md-button ng-click="ctrl.sampleAction('Render image', $event)">
-										OpenGL Render Image
-										<span class="md-alt-text">{{ 'M-L' | keyboardShortcut }}</span>
-									</md-button>
-								</md-menu-item>
-
-							</md-menu-content>
-						</md-menu>
-
-						<md-menu>
-							<button ng-click="$mdOpenMenu()">
-								Help
-							</button>
-							<md-menu-content>
-								<md-menu-item>
-									<md-button ng-click="ctrl.sampleAction('documentation', $event)">
-										Documentation
-									</md-button>
-								</md-menu-item>
-
-								<md-menu-divider></md-menu-divider>
-
-								<md-menu-item>
-									<md-button ng-click="ctrl.sampleAction('about', $event)">
-										About
-									</md-button>
-								</md-menu-item>
-							</md-menu-content>
-						</md-menu>
-
-					</md-menu-bar>
-				</div>
-			</div>
-		</md-toolbar>
-
-		<md-content>
-			<!-- <md-button aria-label="Side panel" ng-click="openSideNavPanel()">
-				<md-tooltip>Side Panel</md-tooltip>
-				Side Panel
-			</md-button> -->
-
-			<md-slider-container>
-				<span>Translate X</span>
-				<md-slider flex min="0" max="399" ng-model="translation.x" id="x-slider" ng-change="translate(0, translation.x)" aria-label="x"></md-slider>
-				<md-input-container>
-					<input flex type="number" ng-model="translation.x" ng-change="translate(0, translation.x)" aria-label="translation-x" />
-				</md-input-container>
-			</md-slider-container>
-
-			<md-slider-container>
-				<span>Translate Y</span>
-				<md-slider flex min="0" max="399" ng-model="translation.y" id="y-slider" ng-change="translate(1, translation.y)" aria-label="y"></md-slider>
-				<md-input-container>
-					<input flex type="number" ng-model="translation.y" ng-change="translate(1, translation.y)" aria-label="translation-y" />
-				</md-input-container>
-			</md-slider-container>
-
-			<md-slider-container>
-				<span>Scale X</span>
-				<md-slider flex step="0.1" min="-5" max="5" ng-model="scale_.x" id="scale-x-slider" ng-change="scale(0, scale_.x)" aria-label="scale-x"></md-slider>
-				<md-input-container>
-					<input flex type="number" ng-model="scale_.x" ng-change="scale(0, scale_.x)" aria-label="scale-x" />
-				</md-input-container>
-			</md-slider-container>
-
-			<md-slider-container>
-				<span>Scale Y</span>
-				<md-slider flex step="0.1" min="-5" max="5" ng-model="scale_.y" id="scale-y-slider" ng-change="scale(1, scale_.y)" aria-label="scale-y"></md-slider>
-				<md-input-container>
-					<input flex type="number" ng-model="scale_.y" ng-change="scale(1, scale_.y)" aria-label="scale-y" />
-				</md-input-container>
-			</md-slider-container>
-
-			<md-slider-container>
-				<span>Angle</span>
-				<md-slider flex min="0" max="360" ng-model="rotation" id="rotation" ng-change="rotate(rotation)" aria-label="rotation"></md-slider>
-				<md-input-container>
-					<input flex type="number" ng-model="rotation" ng-change="rotate(rotation)" aria-label="rotation" />
-				</md-input-container>
-			</md-slider-container>
-
-			<br />
-			<canvas id="glcanvas" height=400 width=400></canvas>
-			<br />
-			Translation: {{translation}}<br />
-			Scale: {{scale_}}<br />
-			Rotation: {{rotation}}<br />
-		</md-content>
-
-		<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right"
-			>
-			<md-toolbar layout="row">
-				<h1 class="md-toolbar-tools">Sidenav Right</h1>
-			</md-toolbar>
-			<md-content layout-padding>
-				Test
-			</md-content>
-		</md-sidenav>
-	</div>
-</body>
+	<body style="margin: 0;">
+	</body>
 </html>

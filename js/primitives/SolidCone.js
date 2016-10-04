@@ -108,17 +108,15 @@ Primitives.SolidCone = class extends Primitives.Solid
 		 * where Ry is the radius at the height y. Thus, from the similar triangles, we find...
 		 *   Ry = ( 1 + ((Yc - Y)/h) ) * r
 		 */
-		var
-			dist =    (point.x - this.center.x)*(point.x - this.center.x) +
-					+ (point.z - this.center.z)*(point.z - this.center.z),
-			Ry = ( 1 + ((this.center.y - point.y)/this.height) ) * this.radius; // this._radius * (this._height - point.y) / this._height;
+		let
+			Xl = point.x - this.center.x,
+			Zl = point.z - this.center.z,
+			dist = Xl*Xl + Zl*Zl,
+			Ry = ( 1 + ((this.center.y - point.y)/this.height) ) * this.radius;
 		
-		// return (dx*dx + dz*dz <= Ry*Ry);
+		if      (dist > Ry*Ry)  return Primitives.VERTEX_OUT;
+		else if (dist == Ry*Ry) return Primitives.VERTEX_ON;
 		
-		if (dist > Ry*Ry)
-			return Primitives.VERTEX_OUT;
-		else if (dist == Ry*Ry)
-			return Primitives.VERTEX_ON;
 		return Primitives.VERTEX_IN;
 	}
 }

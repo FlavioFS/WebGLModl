@@ -98,19 +98,18 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		 *     or
 		 *   Y > Yc + h    ~> above the tip of the Cylinder
 		 */
-		if ( (point.y < this.center.y) || (point.y > this.center.y + this._height) ) return Primitives.VERTEX_OUT;
-
+		if ( (point.y < this.center.y) || (point.y > this.center.y + this._height) )
+			return Primitives.VERTEX_OUT;
 
 		// Circle test: |(X,Y) - (Xc,Yc)| <= r      (this one is squared due to performance reasons)
+		let
+			Xl = point.x - this.center.x,
+			Zl = point.z - this.center.z,
+			dist = Xl*Xl + Zl*Zl;
 		
-		var dist = 	  (point.x - this.center.x)*(point.x - this.center.x)
-					+ (point.z - this.center.z)*(point.z - this.center.z)
+		if      (dist >  this._radius*this._radius) return Primitives.VERTEX_OUT;
+		else if (dist == this._radius*this._radius) return Primitives.VERTEX_ON;
 		
-		// return (dx*dx + dz*dz <= this._radius*this._radius);
-		if (dist > this._radius*this._radius)
-			return Primitives.VERTEX_OUT;
-		else if (dist == this._radius*this._radius)
-			return Primitives.VERTEX_ON;
 		return Primitives.VERTEX_IN;
 	}
 }

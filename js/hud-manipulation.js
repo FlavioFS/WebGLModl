@@ -526,6 +526,26 @@ $(document).ready(function() {
 
 	});
 
+	
+	////// MISC
+
+	$('.window.resizable').append(`
+		<label><input id='show-grid' type='checkbox' name='show-grid' checked /> Show Grid<label><br />
+	`)
+
+	$('#show-grid').change(function() {
+		if ($(this).is(':checked')) {
+			// grid.visible = true;
+			grid.material.transparent = false;
+			grid.material.opacity = 1;
+			grid.material.depthWrite = true;
+		} else {
+			// grid.visible = false;
+			grid.material.transparent = true;
+			grid.material.opacity = 0;
+			grid.material.depthWrite = false;
+		}
+	})
 
 
 

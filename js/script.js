@@ -2,6 +2,7 @@ var scene, camera, renderer;
 var sceneHUD, cameraHUD;
 
 // contains all solids created in the scene
+var grid;
 var solids = [];
 var world = null;
 
@@ -82,6 +83,9 @@ function init ()
 	var glcanvas = renderer.domElement;
 	glcanvas.className = "glcanvas";
 	document.body.appendChild(glcanvas);
+
+	grid = new THREE.GridHelper(10, 10);
+	scene.add(grid);
 
 
 	/******

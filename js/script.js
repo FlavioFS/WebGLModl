@@ -20,14 +20,42 @@ var afterPushingTo = function(arr, callback) {
 	}
 }
 
+// appends to the 'Solids in the Scene' window buttons for selection
+// and checkboxes for showing solid/wireframe
 afterPushingTo(solids, function() {
-	// console.log(solids[0].constructor.name)
-	// console.log(Primitives.Solid.name)
-	if (window_solids != null)
-		window_solids.append(new HUD.Button(
-			'Solid ' + solids.length/* + ' - ' solids[solids.length-1].className*/,
-			{className: 'solid-selection', dataset: {index: solids.length-1}}
-		));
+	if (window_solids != null) {
+		
+		ws = document.getElementById('window-solids');
+		var div = document.createElement('div');
+		ws.appendChild(div);
+
+		var button = document.createElement('input');
+		button.setAttribute('type', 'button');
+		button.className = 'solid-selection';
+		button.value = 'Solid ' + solids.length;
+		button.dataset.index = solids.length-1;
+		div.appendChild(button);
+
+		var c1 = document.createElement('input');
+		c1.setAttribute('type', 'checkbox');
+		c1.setAttribute('class', 'show-solid')
+		c1.setAttribute('checked', 'checked')
+		c1.value = solids.length-1;
+		div.appendChild(c1);
+
+		var c2 = document.createElement('input');
+		c2.setAttribute('type', 'checkbox');
+		c2.setAttribute('class', 'show-wireframe');
+		c2.setAttribute('checked', 'checked')
+		c2.value = solids.length-1;
+		div.appendChild(c2);
+
+		var br = document.createElement('br');
+		div.appendChild(br);
+		
+		
+		
+	}
 })
 
 
@@ -68,7 +96,7 @@ function init ()
 	w.appendHtml(document.createElement('hr'));
 
 	window_solids = new HUD.Window('Solids in the Scene',
-		{width:200, height:700, left: (WIDTH-200)+'px', resizable: true});
+		{id:'window-solids', width:200, height:700, left: (WIDTH-200)+'px', resizable: true});
 	window_solids.append(new HUD.Label('Click to select:', null, null))
 	window_solids.append(new HUD.Button(
 			'     Deselect     ', {id: 'solid-deselection'}
@@ -139,7 +167,7 @@ function animate ()
 	requestAnimationFrame(animate);
 }
 
-function generateMesh(model, offset=0) {
+function generateMesh(model, id, offset=0) {
 	var geometry = Utils.Model.toGeometry(model, offset); // MDL_ variables is defined in "models" folder
 	var material = new THREE.MeshPhongMaterial (model.material);
 	var mesh = new THREE.Mesh(geometry, material);
@@ -147,8 +175,30 @@ function generateMesh(model, offset=0) {
 	return mesh;
 }
 
-// [3]
-function addToScene (model, offset=0) {
-	scene.add(generateMesh(model, offset));
+function generateWireframeBBox(solid, offset=0) {
+	var model = solid._octree.boundingBox.model();
+	model.material.wireframe = true;
+
+	var geometry = Utils.Model.toGeometry(model, offset);
+	var material = new THREE.MeshPhongMaterial (model.material);
+	var mesh = new THREE.Mesh(geometry, material);
+	
+	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	return mesh;
 }
 
+// [3]
+function addToScene (model, id, offset=0) {
+	var mesh = generateMesh(model, id, offset);
+	mesh.name = 'solid-' + id;
+	scene.add(mesh);
+}
+
+
+
+function addWireframeBBOxToScene(solid, id, offset=0, visible=true) {
+	var mesh = generateWireframeBBox(solid, offset);
+	mesh.name = 'wireframe-' + id;
+	mesh.visible = visible;
+	scene.add(mesh);
+}

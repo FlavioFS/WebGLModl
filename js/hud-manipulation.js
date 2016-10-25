@@ -5,6 +5,31 @@ $(document).ready(function() {
 	$('div').draggable({handle: '.draggable'});
 	$('.resizable').resizable();
 
+	// avoid double clicking
+	$("*").dblclick(function(e){
+		e.preventDefault();
+	});
+
+	// showing/hiding solid/wireframe
+	$(document).on('click', '.show-solid', function() {
+		
+		var obj = scene.getObjectByName('solid-'+$(this).val());
+		if ($(this).is(':checked'))
+			obj.visible = true;
+		else
+			obj.visible = false;
+	});
+
+	// $(document).on('click', '.show-wireframe:checkbox', function() {
+	// 	console.log('show-wireframe')
+	// 	var obj = scene.getObjectByName('wireframe-'+$(this).val());
+	// 	console.log(obj);
+	// 	if ($(this).is(':checked'))
+	// 		obj.visible = true;
+	// 	else
+	// 		obj.visible = false;
+	// });
+
 	// It is possible to exist only one form for each 'new' button
 	// if it exists already, it is deleted (like 'toggle')
 
@@ -45,7 +70,7 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<label><input type='checkbox' name='render-inside' /> Render inside?<label><br />
+				<label><input type='checkbox' name='render-inside' checked /> Render inside?<label><br />
 				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
@@ -74,7 +99,7 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<label><input type='checkbox' name='render-inside' /> Render inside?</label><br />
+				<label><input type='checkbox' name='render-inside' checked /> Render inside?</label><br />
 				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
@@ -102,7 +127,7 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<label><input type='checkbox' name='render-inside' /> Render inside?<label><br />
+				<label><input type='checkbox' name='render-inside' checked /> Render inside?<label><br />
 				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
@@ -130,7 +155,7 @@ $(document).ready(function() {
 					<option>4</option>
 					<option>5</option>
 				</select><br />
-				<label><input type='checkbox' name='render-inside' /> Render inside?<label><br />
+				<label><input type='checkbox' name='render-inside' checked /> Render inside?<label><br />
 				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
 				<input type='submit' value='Create' />
 			</form>
@@ -228,7 +253,10 @@ $(document).ready(function() {
 					solids[index].addToSceneColored(scene, precision, 0)
 				else {
 					var model = solids[index].model();
-					if (model) addToScene(model);
+					if (model) {
+						addToScene(model, index);
+						addWireframeBBOxToScene(solids[index], index)
+					}
 					else console.log("Empty model!!");	
 				}
 
@@ -320,7 +348,10 @@ $(document).ready(function() {
 				solids[index].addToSceneColored(scene, 0, 0)
 			else {
 				var model = solids[index].model();
-				if (model) addToScene(model);
+				if (model) {
+					addToScene(model, index);
+					addWireframeBBOxToScene(solids[index], index)
+				}
 				else console.log("Empty model!!");
 			}
 
@@ -352,6 +383,8 @@ $(document).ready(function() {
 
 		var i = getSelectedSolidIndex();
 
+		$(this).find('input:text').val(0)
+
 		if (isNaN(i))
 			return alert('Select a solid!')
 
@@ -364,36 +397,79 @@ $(document).ready(function() {
 			solids[i].translate(pos)
 			var model = solids[i].model();
 
-			if (model)
-				scene.children[i+5] = generateMesh(model);
+			// UPDATES ON THREE.JS
+			if (model) { 
+				var obj = scene.getObjectByName('solid-'+i);
+				var wire = scene.getObjectByName('wireframe-'+i);
+				obj.geometry = generateMesh(model).geometry;
+				wire.geometry = generateWireframeBBox(solids[i]).geometry;
+			}
 			else console.log("Empty model!!");
 
+			// $(this).find('input[name=x]').val(0)
+
 			loading.endTimer().hide(5000);
+
+
 		}, 15);
 	});
 
 	/*****
 	****** BOOLEAN OPERATIONS
 	*/
-	// $('#window1').append(`
-	// 	<form id='union-form' action='#'>
-	// 		<label>Obj1: <input type='text' name='a' size='4' value='0' /></label> |
-	// 		<label>Obj2: <input type='text' name='b' size='4' value='1' /></label> |
-	// 		<input type='submit' value='Union' />
-	// 	</form>
-	// `);
+	$('#window1').append(`
+		<form id='boolean-form' action='#'>
+			<label>Obj1: <input type='text' name='a' size='4' value='1' /></label> -
+			<label>Obj2: <input type='text' name='b' size='4' value='2' /></label><br />
+			<label>Depth: <input type='text' name='depth' size='4' value='2' /></label>
+			<input class='submit-button' type='button' value='Union' />
+			<input class='submit-button' type='button' value='Intersection' />
+			<input class='submit-button' type='button' value='Difference' />
+		</form>
+	`);
 
-	$(document).on('submit', '#union-form', function() {
+	$(document).on('click', '#boolean-form .submit-button', function() {
 		var
-			a = parseInt($(this).find('input[name=a]').val()),
-			b = parseInt($(this).find('input[name=b]').val());
+			a = parseInt($('body').find('#boolean-form input[name=a]').val()) - 1,
+			b = parseInt($('body').find('#boolean-form input[name=b]').val()) - 1,
+			depth = parseInt($('body').find('#boolean-form input[name=depth]').val()) - 1;
 
-		// solid = new Primitives.Solid({x:0,y:0,z:0});
-		// solid.union(solids[a], solids[b], 4, 2)
-		// console.log(solid.toString());
-		// world.placeNodeInWorld(solids[a].octree, world.octree)
+			
+
+		// var loading = new HUD.Loading(
+		// 	'Importing solid...')
+		// 	.show();
+
+		// reason to use timeout: a solid would be calculated BEFORE showing a loading
+		// setTimeout(function() {
+
+			solid = new Primitives.Solid({x:0,y:0,z:0});
+
+			if ($(this).val() == 'Union')
+				solid.union(solids[a], solids[b])
+			else if ($(this).val() == 'Intersection')
+				solid.intersection(solids[a], solids[b])
+			else if ($(this).val() == 'Difference')
+				solid.difference(solids[a], solids[b])
+
+			// console.log(solid);
+			// console.log(solid.toString());
+
+			var index = solids.push(solid) - 1;
+			// solids[index].fromString(code, bBoxEdge);
+			var model = solids[index].model();
+			if (model) {
+				addToScene(model, index);
+				addWireframeBBOxToScene(solids[index], index)
+			}
+			else console.log("Empty model!!");
+
+		// 	loading.endTimer().hide(5000);
+		// }, 15);
 
 	});
+
+
 
 
 });

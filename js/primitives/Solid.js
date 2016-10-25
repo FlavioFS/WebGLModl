@@ -276,7 +276,7 @@ Primitives.Solid = class
 		if (node.kids.length == 0)
 		{
 			// ... OR if a node is to be rendered or we have chosen to render internal nodes, jumps this if
-			if (node.color != Octree.BLACK || !(node.willBeRendered || this._renderInside))
+			if (node.color != Octree.BLACK)// || !(node.willBeRendered || this._renderInside))
 				return;
 			return node.boundingBox.model();
 		}
@@ -502,7 +502,7 @@ Primitives.Solid = class
 	// Move every bounding box's center
 	translate(newPos) 
 	{
-		this.translateRecursion(this._octree, newPos)
+		this.translateRecursion(this.octree, newPos)
 	}
 
 	translateRecursion(node, newPos) 
@@ -515,79 +515,335 @@ Primitives.Solid = class
 			this.translateRecursion(node.kids[i], newPos)
 	}
 
-	/*************************/
+
+	/****************************************/
 	// BOOLEAN OPERATIONS
-	// NOT FINISHED
-	union(node1, node2, bBoxEdge, precision=3)
-	{
-		let level = 0;
-		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
-		// this._octree = this.fromStringRecursion(bBox, 0, str, ref)
-		this._octree = new Octree.Node(null, bBox, Octree.GRAY, level, []);		
+	/****************************************/
 
-		this.calcEmptyOctree(this._octree, precision, level+1, bBoxEdge);
+	// if both solids' bounding box edge and center are different, normalize the solids' nodes.
+	// Return the solids' nodes
+	normalizeNodesIfNeeded(solid1, solid2, depth=2) {
+		if (
+			solid1._octree.boundingBox.edge == solid2._octree.boundingBox.edge
+			&& solid1._octree.boundingBox.center.x == solid2._octree.boundingBox.center.x
+			&& solid1._octree.boundingBox.center.y == solid2._octree.boundingBox.center.y
+			&& solid1._octree.boundingBox.center.z == solid2._octree.boundingBox.center.z
+		)
+			return [solid1._octree, solid2._octree];
+		return this.normalizeSolidsBBox(solid1._octree, solid2._octree);
 
-		// once we have a empty octree, we can calculate the union
+		
+	}
+
+	union(solid1, solid2, depth=2) {
+
+		var nodes = this.normalizeNodesIfNeeded(solid1, solid2, depth);
+		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
+		this.unionRecursion(this._octree, nodes[0], nodes[1]);
 
 	}
 
-	createWorldOctree(bBoxEdge, precision) {
-		let level = 0;
-		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
-		// this._octree = this.fromStringRecursion(bBox, 0, str, ref)
-		this._octree = new Octree.Node(null, bBox, Octree.GRAY, level, []);		
+	unionRecursion(newNode, node1, node2) {
+		// both gray
+		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
+		{
+			var newBoxes = newNode.boundingBox.subdivide();
+			newNode.kids = [];
 
-		this.calcEmptyOctree(this._octree, precision, level+1, bBoxEdge);
-	}
-
-	calcEmptyOctree(node, precision, level)
-	{
-		if (level < precision) {
-			var newBoxes = node.boundingBox.subdivide();
-
-			node.kids = [];
 			for (var i = 0; i < newBoxes.length; i++)
 			{
-				node.kids.push(
-					new Octree.Node(node, newBoxes[i],
-						(level+1 < precision) ? Octree.GRAY : Octree.WHITE,
-						level+1, [])
+				newNode.kids.push(
+					new Octree.Node(newNode, newBoxes[i],
+						Octree.GRAY, // it may change
+						newNode.level+1, [])
 				);
-			}
 
-			// Recursion to each one of them
-			for (var i = 0; i < Octree.EIGHT; i++) {
-				this.calcEmptyOctree(node.kids[i], precision, level+1);
+				if (node1.kids[i].color == Octree.BLACK || node2.kids[i].color == Octree.BLACK)
+					newNode.kids[i].color = Octree.BLACK;
+				else if (node1.kids[i].color == Octree.WHITE && node2.kids[i].color == Octree.WHITE)
+					newNode.kids[i].color = Octree.WHITE;
+				
+				this.unionRecursion(newNode.kids[i], node1.kids[i], node2.kids[i]);
+			}
+		}
+
+		// both leaves
+		// this node is already created, so we skip the recursion
+		else if (node1.color != Octree.GRAY && node2.color != Octree.GRAY)
+		{
+			return;
+
+		// only one is gray, so copy everything from the gray one to the new node
+		} else {
+			if (node1.color == Octree.GRAY && node2.color == Octree.WHITE)
+			{
+				var newBoxes = newNode.boundingBox.subdivide();
+				newNode.kids = [];
+
+				for (var i = 0; i < newBoxes.length; i++)
+					newNode.kids.push(node1.kids[i]);
+			}
+			else if (node1.color == Octree.WHITE && node2.color == Octree.GRAY)
+			{
+				var newBoxes = newNode.boundingBox.subdivide();
+				newNode.kids = [];
+
+				for (var i = 0; i < newBoxes.length; i++)
+					newNode.kids.push(node2.kids[i]);
 			}
 		}
 	}
 
-	placeNodeInWorld(node, worldSubnode) {
-		// console.log(node);
-		// console.log(worldSubnode);
-		// console.log(node.boundingBox.center)
-		// console.log(node.boundingBox.edge)
-		// console.log(worldSubnode.boundingBox.center)
-		// console.log(worldSubnode.boundingBox.edge)
-		// console.log('oi')
-		// if (node.boundingBox.center == worldSubnode.boundingBox.center
-		// 	&& node.boundingBox.edge == worldSubnode.boundingBox.edge) {
-		// 	worldSubnode = node;
-		// 	console.log('consegui')
-		// 	return;
-		// }
-		// else {
-		// 	// Recursion to each one of them
-		// 	for (var i = 0; i < worldSubnode.kids.length; i++) {
-		// 		this.placeNodeInWorld(node, worldSubnode.kids[i]);
-		// 	}
-		// }
+	intersection(solid1, solid2, depth=2) {
+
+		var nodes = this.normalizeNodesIfNeeded(solid1, solid2, depth);
+		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
+		this.intersectionRecursion(this._octree, nodes[0], nodes[1]);
+
 	}
 
-	searchBBox(emptyNode, node) {
-		// res = {node: null, dist: 0}
+	intersectionRecursion(newNode, node1, node2) {
+		// both gray
+		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
+		{
+			var newBoxes = newNode.boundingBox.subdivide();
+			newNode.kids = [];
+
+			for (var i = 0; i < newBoxes.length; i++)
+			{
+				newNode.kids.push(
+					new Octree.Node(newNode, newBoxes[i],
+						Octree.GRAY, // it may change
+						newNode.level+1, [])
+				);
+
+				if (node1.kids[i].color == Octree.BLACK && node2.kids[i].color == Octree.BLACK)
+					newNode.kids[i].color = Octree.BLACK;
+				else if (node1.kids[i].color == Octree.WHITE || node2.kids[i].color == Octree.WHITE)
+					newNode.kids[i].color = Octree.WHITE;
+				
+				this.intersectionRecursion(newNode.kids[i], node1.kids[i], node2.kids[i]);
+			}
+		}
+
+		// both leaves
+		// this node is already created, so we skip the recursion
+		else if (node1.color != Octree.GRAY && node2.color != Octree.GRAY)
+		{
+			return;
+
+		// only one is gray, so copy everything from the gray one to the new node
+		} else {
+			if (node1.color == Octree.GRAY && node2.color == Octree.BLACK)
+			{
+				var newBoxes = newNode.boundingBox.subdivide();
+				newNode.kids = [];
+
+				for (var i = 0; i < newBoxes.length; i++)
+					newNode.kids.push(node1.kids[i]);
+			}
+			else if (node1.color == Octree.BLACK && node2.color == Octree.GRAY)
+			{
+				var newBoxes = newNode.boundingBox.subdivide();
+				newNode.kids = [];
+
+				for (var i = 0; i < newBoxes.length; i++)
+					newNode.kids.push(node2.kids[i]);
+			}
+		}
+	}
+
+	difference(solid1, solid2, depth=2) {
+
+		var nodes = this.normalizeNodesIfNeeded(solid1, solid2, depth);
+		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
+		this.differenceRecursion(this._octree, nodes[0], nodes[1]);
+
+	}
+
+	differenceRecursion(newNode, node1, node2) {
+		// both gray
+		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
+		{
+			var newBoxes = newNode.boundingBox.subdivide();
+			newNode.kids = [];
+
+			for (var i = 0; i < newBoxes.length; i++)
+			{
+				newNode.kids.push(
+					new Octree.Node(newNode, newBoxes[i],
+						Octree.GRAY, // it may change
+						newNode.level+1, [])
+				);
+
+				if (node1.kids[i].color == Octree.BLACK && node2.kids[i].color == Octree.WHITE)
+					newNode.kids[i].color = Octree.BLACK;
+				else if (
+					(node1.kids[i].color == Octree.BLACK && node2.kids[i].color == Octree.BLACK)
+					|| (node1.kids[i].color == Octree.WHITE)
+				)
+					newNode.kids[i].color = Octree.WHITE;
+				
+				this.differenceRecursion(newNode.kids[i], node1.kids[i], node2.kids[i]);
+			}
+		}
+
+		// both leaves
+		// this node is already created, so we skip the recursion
+		else if (node1.color != Octree.GRAY && node2.color != Octree.GRAY)
+		{
+			return;
+
+		} else {
+			// in this case we copy node1 to newNode
+			if (node1.color == Octree.GRAY && node2.color == Octree.WHITE)
+			{
+				var newBoxes = newNode.boundingBox.subdivide();
+				newNode.kids = [];
+
+				for (var i = 0; i < newBoxes.length; i++)
+					newNode.kids.push(node1.kids[i]);
+			}
+			// BLACK - GRAY
+			else if (node1.color == Octree.BLACK && node2.color == Octree.GRAY)
+			{
+
+				// create new black kids[] for node1
+				var blackKids = [];
+				var node1Boxes = node1.boundingBox.subdivide();
+
+				for (var i = 0; i < node1Boxes.length; i++) {
+					blackKids.push(
+						new Octree.Node(null, node1Boxes[i],
+							Octree.BLACK,
+							node1.level+1, [])
+					);
+				}
+
+				// now we do black_kids - nodes2.kids
+
+				var newBoxes = newNode.boundingBox.subdivide();
+				newNode.kids = [];
+
+				for (var i = 0; i < newBoxes.length; i++) {
+					newNode.kids.push(
+						new Octree.Node(newNode, newBoxes[i],
+							Octree.GRAY, // it may change
+							newNode.level+1, [])
+					);
+
+					if (node2.kids[i].color == Octree.WHITE)
+						newNode.kids[i].color = Octree.BLACK;
+					else if (node2.kids[i].color == Octree.BLACK)
+						newNode.kids[i].color = Octree.WHITE;
+					
+					this.differenceRecursion(newNode.kids[i], blackKids[i], node2.kids[i]);
+				}
+
+			}
+		}
+	}
+
+
+	// get the biggest boundingBox, duplicates its size so the another solid will be inside this bBox too
+	normalizeSolidsBBox(node1, node2, depth=2) {
+		var baseNode = (node1.boundingBox.edge >= node2.boundingBox.edge)
+						? node1 : node2;
+
+		// testing where each node will be placed
+		var sum = {x: baseNode.boundingBox.edge/2,
+					y:baseNode.boundingBox.edge/2,
+					z: baseNode.boundingBox.edge/2};
+
+
+		if (node1.boundingBox.center.x > node2.boundingBox.center.x)
+			sum.x *= -1;
+		if (node1.boundingBox.center.y > node2.boundingBox.center.y)
+			sum.y *= -1;
+		if (node1.boundingBox.center.z > node2.boundingBox.center.z)
+			sum.z *= -1;
+
+
+		// create two wrappers
+
+		var wrapperBBox1 = new Utils.BoundingBox (Utils.Vector.sum(baseNode.boundingBox.center, sum),
+			baseNode.boundingBox.edge*2)
+		var wrapperBBox2 = new Utils.BoundingBox (Utils.Vector.sum(baseNode.boundingBox.center, sum),
+			baseNode.boundingBox.edge*2)
+
+		var wrapperNode1 = new Octree.Node(null, wrapperBBox1, Octree.WHITE, baseNode.level-1, []);
+		var wrapperNode2 = new Octree.Node(null, wrapperBBox2, Octree.WHITE, baseNode.level-1, []);
+
+
+		// countmatchednodes not implemented yet
+
+		var countMatchedNodes = {total: 0};
+
+		this.placeNodeInsideBiggerNode(wrapperNode1, node1, countMatchedNodes, depth);
+		// console.log(wrapperNode1);
+		// console.log(this.toStringRecursion(wrapperNode1).toLowerCase())
+
+		var countMatchedNodes = {total: 0};
+		this.placeNodeInsideBiggerNode(wrapperNode2, node2, countMatchedNodes, depth);
+		// console.log(wrapperNode2);
+		// console.log(this.toStringRecursion(wrapperNode2).toLowerCase())
+
+		return [ wrapperNode1, wrapperNode2 ];
+	}
+
+	// given a node, it looks for any wrapperNode kid (even kid of kids)
+	// that matches the node
+	checkIfNodeMatchesAnyBiggerNodeKid(wrapperNode, node, countMatchedNodes, depth) {
+
+		if (wrapperNode == undefined)
+			return;
+
+		for (var i = 0; i < wrapperNode.kids.length; i++) {
+
+			if (
+				wrapperNode.kids[i].boundingBox.edge == node.boundingBox.edge
+				&& wrapperNode.kids[i].boundingBox.center.x == node.boundingBox.center.x
+				&& wrapperNode.kids[i].boundingBox.center.y == node.boundingBox.center.y
+				&& wrapperNode.kids[i].boundingBox.center.z == node.boundingBox.center.z
+			)
+			{
+				wrapperNode.kids[i] = node;
+				countMatchedNodes.total++;
+				return;
+			}
+
+		}
+
+		for (var i = 0; i < wrapperNode.kids.length; i++) {
+			this.checkIfNodeMatchesAnyBiggerNodeKid(wrapperNode.kids[i], node, countMatchedNodes, depth);
+		}
+
+		// if yet it has not matched all nodes, we try placeNodeInsideBiggerNode again
+		for (var i = 0; i < node.kids.length; i++) {
+			this.placeNodeInsideBiggerNode(wrapperNode, node.kids[i], countMatchedNodes, depth-1);
+		}
+	}
+
+	placeNodeInsideBiggerNode(wrapperNode, node, countMatchedNodes, depth=2) {
+
+		if (depth == 0)
+			return;
 		
 
+		if (wrapperNode.color != Octree.GRAY) {
+			wrapperNode.color = Octree.GRAY;
+
+			var newBoxes = wrapperNode.boundingBox.subdivide();
+			for (var i = 0; i < newBoxes.length; i++) {
+				wrapperNode.kids.push(
+					new Octree.Node(wrapperNode, newBoxes[i],
+						Octree.WHITE, // it may change
+						wrapperNode.level+1, [])
+				);
+			}
+		}
+
+		this.checkIfNodeMatchesAnyBiggerNodeKid(wrapperNode, node, countMatchedNodes, depth);
 	}
 
 

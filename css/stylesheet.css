@@ -86,6 +86,20 @@ div.window div.draggable {
 	cursor: move;
 }
 
+div#window-solids div {
+	text-align: center;
+	display: block;
+	margin: 0 auto;
+	margin-top: 10px;
+}
+div#window-solids input[type=button] {
+	display: inline-block;
+}
+
+div#window-solids input[type=button]#solid-deselection {
+	display: block;
+}
+
 /* Regarding the signal lamp */
 .signal {
 	background-color: #5F5;

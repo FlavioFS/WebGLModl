@@ -10,26 +10,6 @@ $(document).ready(function() {
 		e.preventDefault();
 	});
 
-	// showing/hiding solid/wireframe
-	$(document).on('click', '.show-solid', function() {
-		
-		var obj = scene.getObjectByName('solid-'+$(this).val());
-		if ($(this).is(':checked'))
-			obj.visible = true;
-		else
-			obj.visible = false;
-	});
-
-	// $(document).on('click', '.show-wireframe:checkbox', function() {
-	// 	console.log('show-wireframe')
-	// 	var obj = scene.getObjectByName('wireframe-'+$(this).val());
-	// 	console.log(obj);
-	// 	if ($(this).is(':checked'))
-	// 		obj.visible = true;
-	// 	else
-	// 		obj.visible = false;
-	// });
-
 	// It is possible to exist only one form for each 'new' button
 	// if it exists already, it is deleted (like 'toggle')
 
@@ -270,6 +250,7 @@ $(document).ready(function() {
 	});
 	
 
+	/******** SOLIDS IN THE SCENE WINDOW *****/
 	/***
 	**** SOLID SELECTION
 	*/
@@ -296,13 +277,16 @@ $(document).ready(function() {
 		$(this).prop('disabled', true)
 
 		
-		// highlight
+		// HIGHLIGHT
+		// show wireframe if it is not showing already
+		var wireframe = $('.show-wireframe[type=checkbox][value='+$(this).data('index')+']');
+		if (!wireframe.is(':checked'))
+			wireframe.click();
+
 		var material = scene.getObjectByName('wireframe-'+$(this).data('index')).material;
 		material.wireframeLinewidth = 3;
 		material.color.set('#f4e542');
 		scene.getObjectByName('wireframe-'+$(this).data('index')).material = material;
-		// scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.set('#f4e542');
-		// scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.setWireframeLinewidth(3);
 	})
 
 	/***
@@ -311,6 +295,49 @@ $(document).ready(function() {
 	$(document).on('change', 'input[type=color].solid-color', function() {
 		scene.getObjectByName('solid-'+$(this).data('index')).material.color.set($(this).val());
 		scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.set($(this).val());
+	});
+
+	/***
+	**** SHOWING/HIDING SOLID/WIREFRAME
+	*/
+	$(document).on('change', '.show-solid[type=checkbox]', function() {
+		
+		var obj = scene.getObjectByName('solid-'+$(this).val());
+		var material = obj.material;
+
+		if ($(this).is(':checked')) {
+			material.visible = true;
+		}
+		else
+		{
+			material.visible = false;
+		}
+
+		obj.material = material;
+	});
+
+	$(document).on('change', '.show-wireframe[type=checkbox]', function() {
+		
+		var obj = scene.getObjectByName('wireframe-'+$(this).val());
+		var material = obj.material;
+
+		// obj.visible = true/false is not working for wireframes. It causes freezing
+
+		// depthWrite false only when hiding to avoid showing wireframes lines
+		if ($(this).is(':checked')) {
+			
+			material.transparent = false;
+			material.opacity = 1;
+			material.wireframe = true;
+			material.depthWrite = true;
+			obj.material = material;
+		} else {
+			material.transparent = true;
+			material.opacity = 0;
+			material.wireframe = false;
+			material.depthWrite = false;
+			obj.material = material;
+		}
 	});
 
 	/***

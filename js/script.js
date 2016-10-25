@@ -53,7 +53,6 @@ afterPushingTo(solids, function() {
 		var c2 = document.createElement('input');
 		c2.setAttribute('type', 'checkbox');
 		c2.setAttribute('class', 'show-wireframe');
-		c2.setAttribute('checked', 'checked')
 		c2.value = solids.length-1;
 		div.appendChild(c2);
 
@@ -76,7 +75,7 @@ function init ()
 
 
 	// Creates renderer
-	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer = new THREE.WebGLRenderer({antialias:true, alpha: true});
 	renderer.setSize(WIDTH, HEIGHT);
 	renderer.setClearColor(0x222233, 1);
 	renderer.autoClear = false;
@@ -182,15 +181,31 @@ function generateMesh(model, id, offset=0) {
 	return mesh;
 }
 
-function generateWireframeBBox(solid, offset=0) {
+function generateWireframeBBox(solid, offset=0, visible=false) {
 	var model = solid._octree.boundingBox.model();
-	model.material.wireframe = true;
+	
 
 	var geometry = Utils.Model.toGeometry(model, offset);
-	var material = new THREE.MeshPhongMaterial (model.material);
+
+	var material = new THREE.MeshBasicMaterial ({
+		color: model.material.color,
+		shading: THREE.FlatShading,
+		side: THREE.DoubleSide,
+		depthWrite: false,
+		// depthTest: false,
+		wireframe: true,
+	});
+	
+	if (!visible) {
+		material.transparent = true;
+		material.opacity = 0;
+		material.wireframe = false;
+	}
+
 	var mesh = new THREE.Mesh(geometry, material);
 	
 	if (model.material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+
 	return mesh;
 }
 

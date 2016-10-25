@@ -36,6 +36,13 @@ afterPushingTo(solids, function() {
 		button.dataset.index = solids.length-1;
 		div.appendChild(button);
 
+		var colorPicker = document.createElement('input');
+		colorPicker.setAttribute('type', 'color');
+		colorPicker.className = 'solid-color';
+		colorPicker.value = '#FF0000';
+		colorPicker.dataset.index = solids.length-1;
+		div.appendChild(colorPicker);
+
 		var c1 = document.createElement('input');
 		c1.setAttribute('type', 'checkbox');
 		c1.setAttribute('class', 'show-solid')

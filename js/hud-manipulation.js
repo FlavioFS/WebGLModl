@@ -273,15 +273,45 @@ $(document).ready(function() {
 	/***
 	**** SOLID SELECTION
 	*/
+	function unhighlightSolid() {
+		if ($('.solid-selection:disabled').length) {
+			var material = scene.getObjectByName('wireframe-'+$('.solid-selection:disabled').data('index')).material;
+			material.wireframeLinewidth = 1;
+			material.color.set(
+				scene.getObjectByName('solid-'+$('.solid-selection:disabled').data('index')).material.color
+			);
+
+			scene.getObjectByName('wireframe-'+$('.solid-selection:disabled').data('index')).material = material;
+		}
+	}
 	$(document).on('click', '#solid-deselection', function() {
+		unhighlightSolid();
 		$('.solid-selection:disabled').prop('disabled', false)
 	})
 	$(document).on('click', '.solid-selection', function() {
+		// un-highlight any previous highlighted
+		unhighlightSolid();
+
 		$('.solid-selection:disabled').prop('disabled', false)
 		$(this).prop('disabled', true)
 
-		var index = parseInt($(this).data('index'))
+		
+		// highlight
+		var material = scene.getObjectByName('wireframe-'+$(this).data('index')).material;
+		material.wireframeLinewidth = 3;
+		material.color.set('#f4e542');
+		scene.getObjectByName('wireframe-'+$(this).data('index')).material = material;
+		// scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.set('#f4e542');
+		// scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.setWireframeLinewidth(3);
 	})
+
+	/***
+	**** CHANGE SOLID COLOR
+	*/
+	$(document).on('change', 'input[type=color].solid-color', function() {
+		scene.getObjectByName('solid-'+$(this).data('index')).material.color.set($(this).val());
+		scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.set($(this).val());
+	});
 
 	/***
 	**** EXPORT AND IMPORT

@@ -529,7 +529,7 @@ $(document).ready(function() {
 	
 	////// MISC
 
-	$('.window.resizable').append(`
+	$('#window1').append(`
 		<label><input id='show-grid' type='checkbox' name='show-grid' checked /> Show Grid<label><br />
 	`)
 

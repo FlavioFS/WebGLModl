@@ -744,16 +744,72 @@ Primitives.Solid = class
 		}
 	}
 
+	/********
+	***** FUNCTIONS FOR SUBDIVIDING BBOX AND APPEND NODES INTO NEW OCTREES
+	*/
+
+	// it calculates the precision a new octree with `boxEdge`
+	// must have to place inside it another node
+	// which has a `dist` distance from the center of another node
+	findPrecision(dist, boxEdge, minEdge) {
+		// a leave will have at most boxEdge size
+		var leavesEdge = [
+			boxEdge,
+			boxEdge,
+			boxEdge
+		] // x, y, z
+
+		// with the distances we can calculate what edge could handle this
+		// examples: dist=1.75, so we divide for 2, 1, 0.5 and 0.25; finally only 0.25 can be used for it
+		for (var i = 0; i < 3; i++) {
+			if (dist[i] == 0) {
+				leavesEdge[i] = 0;
+				continue;
+			}
+
+			while (dist[i] % leavesEdge[i] != 0)
+			{
+				if (leavesEdge[i] <= minEdge)
+					break;
+				leavesEdge[i] /= 2;
+			} 
+		}
+
+		
+		// the distance will be divided by the wrapperNode1 edge to find out which precision it needs
+		// precision = how many times we have to subdivide?
+		// example: edge=2, dist.x = 0.5, so 2/0.5 = 8, so we need to 2^3 = 8
+
+		var precisions = [
+			(dist[0] == 0) ? 0 : parseInt(Math.log(boxEdge / leavesEdge[0]) / Math.log(2)),
+			(dist[1] == 0) ? 0 : parseInt(Math.log(boxEdge / leavesEdge[1]) / Math.log(2)),
+			(dist[2] == 0) ? 0 : parseInt(Math.log(boxEdge / leavesEdge[2]) / Math.log(2)),
+		]
+
+		return Math.max.apply(Math, precisions)
+	}
 
 	// get the biggest boundingBox, duplicates its size so the another solid will be inside this bBox too
-	normalizeSolidsBBox(node1, node2, depth=2) {
-		var baseNode = (node1.boundingBox.edge >= node2.boundingBox.edge)
-						? node1 : node2;
+	normalizeSolidsBBox(n1, n2, depth=2) {
+		var node1, node2;
+
+		if (n1.boundingBox.edge >= n1.boundingBox.edge)
+		{
+			node1 = n1;
+			node2 = n2;
+		}
+		else
+		{
+			node2 = n1;
+			node1 = n2;
+		}
+		// var baseNode = (node1.boundingBox.edge >= node2.boundingBox.edge)
+		// 				? node1 : node2;
 
 		// testing where each node will be placed
-		var sum = {x: baseNode.boundingBox.edge/2,
-					y:baseNode.boundingBox.edge/2,
-					z: baseNode.boundingBox.edge/2};
+		var sum = {x: node1.boundingBox.edge/2,
+					y:node1.boundingBox.edge/2,
+					z: node1.boundingBox.edge/2};
 
 
 		if (node1.boundingBox.center.x > node2.boundingBox.center.x)
@@ -766,29 +822,88 @@ Primitives.Solid = class
 
 		// create two wrappers
 
-		var wrapperBBox1 = new Utils.BoundingBox (Utils.Vector.sum(baseNode.boundingBox.center, sum),
-			baseNode.boundingBox.edge*2)
-		var wrapperBBox2 = new Utils.BoundingBox (Utils.Vector.sum(baseNode.boundingBox.center, sum),
-			baseNode.boundingBox.edge*2)
+		var wrapperBBox1 = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, sum),
+			node1.boundingBox.edge*2)
+		var wrapperBBox2 = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, sum),
+			node1.boundingBox.edge*2)
 
-		var wrapperNode1 = new Octree.Node(null, wrapperBBox1, Octree.WHITE, baseNode.level-1, []);
-		var wrapperNode2 = new Octree.Node(null, wrapperBBox2, Octree.WHITE, baseNode.level-1, []);
+		var wrapperNode1 = new Octree.Node(null, wrapperBBox1, Octree.WHITE, node1.level-1, []);
+		var wrapperNode2 = new Octree.Node(null, wrapperBBox2, Octree.WHITE, node1.level-1, []);
 
 
-		// countmatchednodes not implemented yet
+		// wrapperNodes will be divided based on the distance between node1 and node2
+		var dist = [
+			Math.abs(node1.boundingBox.center.x - node2.boundingBox.center.x),
+			Math.abs(node1.boundingBox.center.y - node2.boundingBox.center.y),
+			Math.abs(node1.boundingBox.center.z - node2.boundingBox.center.z),
+		] // x, y, z
 
-		var countMatchedNodes = {total: 0};
+		var precision = this.findPrecision(dist, wrapperNode2.boundingBox.edge, 0.25);
+		console.log(precision)
 
-		this.placeNodeInsideBiggerNode(wrapperNode1, node1, countMatchedNodes, depth);
-		// console.log(wrapperNode1);
-		// console.log(this.toStringRecursion(wrapperNode1).toLowerCase())
+		this.subdivideWrapperNode(wrapperNode1, 1);
+		this.copyNodeKidsToWrapperNode(wrapperNode1, node1, false);
 
-		var countMatchedNodes = {total: 0};
-		this.placeNodeInsideBiggerNode(wrapperNode2, node2, countMatchedNodes, depth);
-		// console.log(wrapperNode2);
-		// console.log(this.toStringRecursion(wrapperNode2).toLowerCase())
+		this.subdivideWrapperNode(wrapperNode2, precision);
+		this.copyNodeKidsToWrapperNode(wrapperNode2, node2);
+
+		console.log(this.toStringRecursion(wrapperNode1).toLowerCase())
+		console.log(this.toStringRecursion(wrapperNode2).toLowerCase())
 
 		return [ wrapperNode1, wrapperNode2 ];
+	}
+
+	subdivideWrapperNode(wrapperNode, precision)
+	{
+		if (precision == 0)
+			return;
+
+		if (wrapperNode.color != Octree.GRAY) {
+			wrapperNode.color = Octree.GRAY;
+
+			var newBoxes = wrapperNode.boundingBox.subdivide();
+			for (var i = 0; i < newBoxes.length; i++) {
+				wrapperNode.kids.push(
+					new Octree.Node(wrapperNode, newBoxes[i],
+						Octree.WHITE, // it may change
+						wrapperNode.level+1, [])
+				);
+				this.subdivideWrapperNode(wrapperNode.kids[i], precision-1)
+			}
+		}
+	}
+
+	copyNodeKidsToWrapperNode(wrapperNode, node, copyOnlyLeaves=true) {
+
+		if (!copyOnlyLeaves)
+			this.copyToWrapperNodeKid(wrapperNode, node);
+
+		for (var i = 0; i < node.kids.length; i++) {
+			this.copyToWrapperNodeKid(wrapperNode, node.kids[i]);
+			this.copyNodeKidsToWrapperNode(wrapperNode, node.kids[i]);
+		}
+
+	}
+
+	copyToWrapperNodeKid(wrapperNode, node)
+	{
+		if (wrapperNode == undefined )
+			return;
+
+		for (var i = 0; i < wrapperNode.kids.length; i++) {
+			if (
+				wrapperNode.kids[i].boundingBox.edge == node.boundingBox.edge
+				&& wrapperNode.kids[i].boundingBox.center.x == node.boundingBox.center.x
+				&& wrapperNode.kids[i].boundingBox.center.y == node.boundingBox.center.y
+				&& wrapperNode.kids[i].boundingBox.center.z == node.boundingBox.center.z
+			) {
+				wrapperNode.kids[i] = node;
+				return;
+			}
+
+			this.copyToWrapperNodeKid(wrapperNode.kids[i], node);
+		}
+
 	}
 
 	// given a node, it looks for any wrapperNode kid (even kid of kids)

@@ -57,7 +57,7 @@ div.window input[type=button] {
 	display: block;
 	margin: 0 auto;
 	margin-top: 10px;
-	font-size: 14pt;
+	font-size: 10pt;
 }
 
 div.window form {
@@ -65,6 +65,11 @@ div.window form {
 	text-align: center;
 	border: 1px solid black;
 	padding: 4px;
+}
+
+div.window form input[type=text] {
+	width: 30px;
+	text-align: center;
 }
 
 div.window div.label {

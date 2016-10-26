@@ -1,3 +1,10 @@
+/**
+ * Credits to chandlerprall at Github.
+ * Licensed under MIT license.
+ * Source available at:
+ *  https://github.com/chandlerprall/ThreeCSG
+ */
+
 'use strict';
 const EPSILON = 1e-5,
     COPLANAR = 0,

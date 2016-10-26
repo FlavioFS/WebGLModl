@@ -506,9 +506,9 @@ $(document).ready(function() {
 
 	$('#window1').append(`
 		<form id='rotate-form' class='transform-form' action='#'>
-			<label>X: <input type='text' name='x' size='4' value='1' /></label> |
-			<label>Y: <input type='text' name='y' size='4' value='1' /></label> |
-			<label>Z: <input type='text' name='z' size='4' value='1' /></label>
+			<label>X: <input type='text' name='x' size='4' value='0' /></label> |
+			<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
+			<label>Z: <input type='text' name='z' size='4' value='0' /></label>
 			<input type='submit' value='Rotate Mesh' />
 		</form>
 	`);

@@ -1,16 +1,3 @@
-/* IMPORTANT: How to create instances at the browser console
-	
-	Correct:
-		solidName = new Primitives.Solid ({x: 1, y: 2, z: 3});
-
-	Wrong:
-		var   solidName = new Primitives.Solid ({x: 1, y: 2, z: 3});
-		const solidName = new Primitives.Solid ({x: 1, y: 2, z: 3});
-		let	  solidName = new Primitives.Solid ({x: 1, y: 2, z: 3});
-
-	DO NOT use "var", "const" or "let".
-*/
-
 /** DOCUMENTATION
  *
  *  =====================================================================================================

@@ -1,16 +1,3 @@
-/* IMPORTANT: How to create instances at the browser console
-	
-	Correct:
-		cylinderName = new Primitives.SolidCylinder ({"x": 1, "y": 2, "z": 3}, 7);
-
-	Wrong:
-		var   cylinderName = new Primitives.SolidCylinder ({"x": 1, "y": 2, "z": 3}, 7);
-		const cylinderName = new Primitives.SolidCylinder ({"x": 1, "y": 2, "z": 3}, 7);
-		let	  cylinderName = new Primitives.SolidCylinder ({"x": 1, "y": 2, "z": 3}, 7);
-
-	DO NOT use "var", "const" or "let".
-*/
-
 /** DOCUMENTATION
  *
  *  =====================================================================================================

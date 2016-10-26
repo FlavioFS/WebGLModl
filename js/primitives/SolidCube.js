@@ -1,16 +1,3 @@
-/* IMPORTANT: How to create instances at the browser console
-	
-	Correct:
-		cubeName = new Primitives.SolidCube ({"x": 1, "y": 2, "z": 3}, 7);
-
-	Wrong:
-		var   cubeName = new Primitives.SolidCube ({"x": 1, "y": 2, "z": 3}, 7);
-		const cubeName = new Primitives.SolidCube ({"x": 1, "y": 2, "z": 3}, 7);
-		let	  cubeName = new Primitives.SolidCube ({"x": 1, "y": 2, "z": 3}, 7);
-
-	DO NOT use "var", "const" or "let".
-*/
-
 /** DOCUMENTATION
  *
  *  =====================================================================================================
@@ -107,5 +94,12 @@ Primitives.SolidCube = class extends Primitives.Solid
 		if ( (point.z < this.center.z - halfEdge) || (point.z > this.center.z + halfEdge) ) return Primitives.VERTEX_OUT;
 		
 		return Primitives.VERTEX_ON;
+	}
+
+	/* =====================================================================================================
+	 *  THREEJS GEOMETRY
+	 * ===================================================================================================== */
+	geometry() {
+		return new THREE.CubeGeometry(edge, edge, edge);
 	}
 };

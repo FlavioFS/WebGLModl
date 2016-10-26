@@ -119,4 +119,11 @@ Primitives.SolidCone = class extends Primitives.Solid
 		
 		return Primitives.VERTEX_IN;
 	}
+
+	/* =====================================================================================================
+	 *  THREEJS GEOMETRY
+	 * ===================================================================================================== */
+	geometry()  {
+		return new THREE.ConeGeometry(this.radius, this.height, 32);
+	}
 };

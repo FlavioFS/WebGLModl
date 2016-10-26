@@ -101,4 +101,11 @@ Primitives.SolidSphere = class extends Primitives.Solid
 			return Primitives.VERTEX_ON;
 		return Primitives.VERTEX_IN;
 	}
+
+	/* =====================================================================================================
+	 *  THREEJS GEOMETRY
+	 * ===================================================================================================== */
+	geometry() {
+		return new THREE.SphereGeometry(this._radius, 32, 16);
+	}
 };

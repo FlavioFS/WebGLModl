@@ -112,4 +112,11 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		
 		return Primitives.VERTEX_IN;
 	}
+
+	/* =====================================================================================================
+	 *  THREEJS GEOMETRY
+	 * ===================================================================================================== */
+	geometry() {
+		return new THREE.CylinderGeometry(this.radius, this.radius, this.height, 32);
+	}
 };

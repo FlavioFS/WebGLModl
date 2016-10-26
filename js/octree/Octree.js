@@ -8,7 +8,7 @@ Octree.GRAY  = 2;
 Octree.EIGHT = 8;
 
 // Tree structure
-Octree.Node = class Node
+Octree.Node = class
 {
 	/* =====================================================================================================
 	 *  CONSTRUCTOR

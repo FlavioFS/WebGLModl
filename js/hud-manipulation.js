@@ -482,10 +482,10 @@ $(document).ready(function() {
 	});
 
 	/*****
-	****** TRANSLATE
+	****** TRANSLATE AND SCALE
 	*/
 	$('#window1').append(`
-		<form id='translate-form' action='#'>
+		<form id='translate-form' class='transform-form' action='#'>
 			<label>X: <input type='text' name='x' size='4' value='0' /></label> |
 			<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
 			<label>Z: <input type='text' name='z' size='4' value='0' /></label>
@@ -493,7 +493,35 @@ $(document).ready(function() {
 		</form>
 	`);
 
-	$(document).on('submit', '#translate-form', function() {
+	$('#window1').append(`
+		<form id='scale-form' class='transform-form' action='#'>
+			<label>Factor: <input type='text' name='factor' size='4' value='1' /></label>
+			<input style='display: inline' type='button' class='scale-octree' value='Scale Octree' /><br /><br />
+			<label>X: <input type='text' name='x' size='4' value='1' /></label> |
+			<label>Y: <input type='text' name='y' size='4' value='1' /></label> |
+			<label>Z: <input type='text' name='z' size='4' value='1' /></label>
+			<input type='submit' value='Scale Mesh' />
+		</form>
+	`);
+
+	$('#window1').append(`
+		<form id='rotate-form' class='transform-form' action='#'>
+			<label>X: <input type='text' name='x' size='4' value='1' /></label> |
+			<label>Y: <input type='text' name='y' size='4' value='1' /></label> |
+			<label>Z: <input type='text' name='z' size='4' value='1' /></label>
+			<input type='submit' value='Rotate Mesh' />
+		</form>
+	`);
+
+	$(document).on('submit', '.transform-form', function() {
+		var op;
+		if ($(this).attr('id') == 'translate-form')
+			op = 'Translating';
+		else if ($(this).attr('id') == 'scale-form')
+			op = 'Scaling';
+		else if ($(this).attr('id') == 'rotate-form')
+			op = 'Rotating';
+
 		pos = {
 			x: parseFloat($(this).find('input[name=x]').val()),
 			y: parseFloat($(this).find('input[name=y]').val()),
@@ -508,22 +536,47 @@ $(document).ready(function() {
 			return alert('Select a solid!');
 
 		var loading = new HUD.Loading(
-		'Translating...')
+		op+'...')
 		.show();
 
 		setTimeout(function() {
 			
 			solids[i].translate(pos);
-			var model = solids[i].model();
 
-			// UPDATES ON THREE.JS
-			if (model) { 
-				var obj = scene.getObjectByName('solid-'+i);
-				var wire = scene.getObjectByName('wireframe-'+i);
-				obj.geometry = generateMesh(model).geometry;
-				wire.geometry = generateWireframeBBox(solids[i]).geometry;
+			// scene.getObjectByName('solid-'+i).translateX(pos.x).translateY(pos.y).translateZ(pos.z)
+			// scene.getObjectByName('wireframe-'+i).translateX(pos.x).translateY(pos.y).translateZ(pos.z)
+			var obj = scene.getObjectByName('solid-'+i);
+			var wire = scene.getObjectByName('wireframe-'+i);
+
+			if (op == 'Translating') {
+				$(this).find('input:text').val(0);
+				var model = solids[i].model();
+
+				// UPDATES ON THREE.JS
+				if (model) { 
+					obj.geometry = generateMesh(model).geometry;
+					wire.geometry = generateWireframeBBox(solids[i]).geometry;
+				}
+				else console.log("Empty model!!");
 			}
-			else console.log("Empty model!!");
+			else if (op == 'Scaling')
+			{
+				$(this).find('input:text').val(1);
+				obj.scale.set(pos.x, pos.y, pos.z);
+				wire.scale.set(pos.x, pos.y, pos.z);
+			}
+			else if (op == 'Rotating')
+			{
+				$(this).find('input:text').val(0);
+				obj.rotateX(pos.x/180 * Math.PI)
+				obj.rotateY(pos.y/180 * Math.PI)
+				obj.rotateZ(pos.z/180 * Math.PI)
+				wire.rotateX(pos.x/180 * Math.PI)
+				wire.rotateY(pos.y/180 * Math.PI)
+				wire.rotateZ(pos.z/180 * Math.PI)
+			}
+
+			
 
 			// $(this).find('input[name=x]').val(0)
 
@@ -531,6 +584,34 @@ $(document).ready(function() {
 
 
 		}, 15);
+	});
+
+	$(document).on('click', '.scale-octree', function() {
+		var factor = parseFloat($(this).parent().find('input[name=factor]').val());
+
+		var i = getSelectedSolidIndex();
+
+		if (isNaN(i))
+			return alert('Select a solid!')
+		
+		if (factor == 0)
+			return alert('The factor can\'t be zero');
+
+		solids[i].scale(factor)
+
+		var obj = scene.getObjectByName('solid-'+i);
+		var wire = scene.getObjectByName('wireframe-'+i);
+
+		$(this).parent().find('input[name=factor]').val(1)
+
+		var model = solids[i].model();
+
+		// UPDATES ON THREE.JS
+		if (model) { 
+			obj.geometry = generateMesh(model).geometry;
+			wire.geometry = generateWireframeBBox(solids[i]).geometry;
+		}
+		else console.log("Empty model!!");
 	});
 
 	/*****

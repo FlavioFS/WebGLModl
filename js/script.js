@@ -95,7 +95,7 @@ function init ()
 	HUD.create(WIDTH, HEIGHT);
 
 	var w = new HUD.Window('Primitives',
-		{id: 'window1', width:200, height:700, resizable: true});
+		{id: 'window1', width:200, height:800, resizable: true});
 	w.append(new HUD.Button('New Cube', {id: 'new-cube'}));
 	w.append(new HUD.Button('New Sphere', {id: 'new-sphere'}));
 	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));

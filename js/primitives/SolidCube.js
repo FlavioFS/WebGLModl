@@ -108,4 +108,4 @@ Primitives.SolidCube = class extends Primitives.Solid
 		
 		return Primitives.VERTEX_ON;
 	}
-}
+};

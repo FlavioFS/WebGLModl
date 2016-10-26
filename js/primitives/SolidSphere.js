@@ -91,7 +91,7 @@ Primitives.SolidSphere = class extends Primitives.Solid
 		// Sphere equation test: |(X,Y,Z) - (Xc,Yc,Zc)| <= r    (squared due to performance reasons)
 		var dist =    (point.x - this.center.x)*(point.x - this.center.x)
 					+ (point.y - this.center.y)*(point.y - this.center.y)
-					+ (point.z - this.center.z)*(point.z - this.center.z)
+					+ (point.z - this.center.z)*(point.z - this.center.z);
 
 
 		// return ( dist <= this.radius * this.radius );
@@ -101,4 +101,4 @@ Primitives.SolidSphere = class extends Primitives.Solid
 			return Primitives.VERTEX_ON;
 		return Primitives.VERTEX_IN;
 	}
-}
+};

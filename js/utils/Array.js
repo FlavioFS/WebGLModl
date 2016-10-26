@@ -9,14 +9,11 @@ Utils.Array = Utils.Array || {};
 // Centroid of a triangle
 Utils.Array.centroid = function (A, B, C)
 {
-	var rv =
-	{
+	return {
 		x: (A[0] + B[0] + C[0])/3,
 		y: (A[1] + B[1] + C[1])/3,
 		z: (A[2] + B[2] + C[2])/3
 	};
-
-	return rv;
 };
 
 /* Offsets array to the right by <offset> for
@@ -24,24 +21,24 @@ Utils.Array.centroid = function (A, B, C)
  */
 Utils.Array.offset = function (array, offset=1, min=0)
 {
-	for (var i = 0; i < array.length; i++)
+	for (let i = 0; i < array.length; i++)
 		if (array[i] > min) array[i] += offset;
 };
 
 // Replaces <oldValue> with <newValue>.
 Utils.Array.replaceElement = function (array, oldValue, newValue)
 {
-	for (var i = 0; i < array.length; i++)
+	for (let i = 0; i < array.length; i++)
 		if (array[i] == oldValue) array[i] = newValue;
 };
 
 // Transforms the array into a Set
 Utils.Array.removeDuplicates = function (array)
 {
-	rv = [];
+	var rv = [];
 
-	for (var i = 0; i < array.length-1; i++) {
-		for (var j = i+1; j < array.length; j++) {
+	for (let i = 0; i < array.length-1; i++) {
+		for (let j = i+1; j < array.length; j++) {
 			if (array[j].equals(array[i])) {
 				rv.push( {"oldValue": j, "newValue": i} );
 				array.splice(j, 1);
@@ -86,6 +83,6 @@ Array.prototype.equals = function (array) {
         }           
     }       
     return true;
-}
+};
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, "equals", {enumerable: false});

@@ -112,4 +112,4 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 		
 		return Primitives.VERTEX_IN;
 	}
-}
+};

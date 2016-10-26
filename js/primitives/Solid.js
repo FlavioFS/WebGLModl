@@ -110,7 +110,7 @@ Primitives.Solid = class
 		if (node == null)
 			return '';
 
-		let s = node.color == Octree.GRAY ? '(' : node.color;
+		var s = node.color == Octree.GRAY ? '(' : node.color;
 
 		for (var i = 0; i < Octree.EIGHT; i++) 
 			s += this.toStringRecursion(node.kids[i]);
@@ -123,12 +123,12 @@ Primitives.Solid = class
 	{
 		str = str.toUpperCase().split('');
 		
-		let level = 0;
+		var level = 0;
 		 // we have to pass the index by reference. let i = 0 doesnt work
-		let ref = {i: 0};
+		var ref = {i: 0};
 
-		let bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge)
-		this._octree = this.fromStringRecursion(bBox, 0, str, ref)
+		var bBox = new Utils.BoundingBox (Utils.Vector.sum(this.center, {x:0, y:0, z:0}), bBoxEdge);
+		this._octree = this.fromStringRecursion(bBox, 0, str, ref);
 	}
 
 	fromStringRecursion(bBox, level, colorList, ref) {
@@ -141,7 +141,7 @@ Primitives.Solid = class
 				node = new Octree.Node(null, bBox, Octree.GRAY, level, []);
 				
 				var newBoxes = node.boundingBox.subdivide();
-				for (let j = 0; j < Octree.EIGHT; j++)
+				for (var j = 0; j < Octree.EIGHT; j++)
 					node.kids.push(
 						this.fromStringRecursion(newBoxes[j], level+1, colorList, ref)
 					);
@@ -242,7 +242,7 @@ Primitives.Solid = class
 
 			// 8 sub-cubes
 			node.kids = [];
-			for (var i = 0; i < newBoxes.length; i++)
+			for (let i = 0; i < newBoxes.length; i++)
 			{
 				node.kids.push(
 					new Octree.Node(node, newBoxes[i], Octree.GRAY, level+1, [])
@@ -250,7 +250,7 @@ Primitives.Solid = class
 			}
 
 			// Recursion to each one of them
-			for (var i = 0; i < Octree.EIGHT; i++) {
+			for (let i = 0; i < Octree.EIGHT; i++) {
 				this.calcOctreeRecursion(node.kids[i], precision, level+1, minDivision);
 			}
 		}
@@ -288,7 +288,7 @@ Primitives.Solid = class
 		{
 			var kidsModels = [];
 			var newkid;
-			for (var i = 0; i < node.kids.length; i++)
+			for (let i = 0; i < node.kids.length; i++)
 			{
 				newkid = this.modelRecursion(node.kids[i]);
 				if (newkid) kidsModels.push(newkid);
@@ -305,13 +305,13 @@ Primitives.Solid = class
 			rv.normals = [];
 
 			// Gathers vertices in one array list
-			for (var i = 0; i < kidsModels.length; i++)
-				for (var j = 0; j < kidsModels[i].vertices.length; j++)
+			for (let i = 0; i < kidsModels.length; i++)
+				for (let j = 0; j < kidsModels[i].vertices.length; j++)
 					rv.vertices.push(kidsModels[i].vertices[j]);
 
 			// Gathers normals in one array list
-			for (var i = 0; i < kidsModels.length; i++)
-				for (var j = 0; j < kidsModels[i].normals.length; j++)
+			for (let i = 0; i < kidsModels.length; i++)
+				for (let j = 0; j < kidsModels[i].normals.length; j++)
 					rv.normals.push(kidsModels[i].normals[j]);
 
 			/* Gathers and offsets (fixes topology of) higher faces.
@@ -323,8 +323,8 @@ Primitives.Solid = class
 			 * 8 x [0, ..., 8^n] -> 1 x [0, ..., 8^(n+1)]
 			 */
 			let offset = 0;
-			for (var i = 0; i < kidsModels.length; i++) {
-				for (var j = 0; j < kidsModels[i].faces.length; j++) {
+			for (let i = 0; i < kidsModels.length; i++) {
+				for (let j = 0; j < kidsModels[i].faces.length; j++) {
 					rv.faces.push
 					([
 						kidsModels[i].faces[j][0] + offset,
@@ -335,7 +335,7 @@ Primitives.Solid = class
 
 				offset += kidsModels[i].vertices.length;
 			}
-			
+
 			var swaps = Utils.Array.removeDuplicates(rv.vertices); // Removes repeated vertices
 			Utils.BoundingBox.fixFaces(swaps, rv.faces);           // Now faces must be fixed too
 
@@ -345,7 +345,7 @@ Primitives.Solid = class
 			var faceCenter;
 			var solid2Face;
 			var normal;
-			for (var i = 0; i < rv.faces.length; i++)
+			for (let i = 0; i < rv.faces.length; i++)
 			{
 				// Working on this face
 				face = rv.faces[i];
@@ -409,7 +409,7 @@ Primitives.Solid = class
 	// Adds to scene directly with no optimizations, but colored
 	addToSceneColored (scene, precision, offset=0)
 	{
-		let group = new THREE.Object3D();
+		var group = new THREE.Object3D();
 		this.addToSceneColoredRecursion (group, this.octree, precision, offset);
 		scene.add(group);
 	}
@@ -461,7 +461,7 @@ Primitives.Solid = class
 					model.material.opacity = 0.2;
 				break;
 			}
-			
+
 			// if (precision == 0)
 			// {
 			// 	model.material.color = 0x0000FF;
@@ -470,7 +470,7 @@ Primitives.Solid = class
 			// else if (precision == 1)
 			// {
 			// 	model.material.color = 0x0000FF;
-			// 	model.material.opacity = 0.6;	
+			// 	model.material.opacity = 0.6;
 			// }
 			// else
 			// {
@@ -492,7 +492,7 @@ Primitives.Solid = class
 		// Branch node - Divide
 		else
 		{
-			for (var i = 0; i < node.kids.length; i++)
+			for (let i = 0; i < node.kids.length; i++)
 			{
 				this.addToSceneColoredRecursion (scene, node.kids[i], precision, offset);
 			}
@@ -502,19 +502,19 @@ Primitives.Solid = class
 	// OPERATIONS
 
 	// Move every bounding box's center
-	translate(newPos) 
+	translate(newPos)
 	{
 		this.translateRecursion(this.octree, newPos)
 	}
 
-	translateRecursion(node, newPos) 
+	translateRecursion(node, newPos)
 	{
-		node.boundingBox.center.x += newPos.x
-		node.boundingBox.center.y += newPos.y
-		node.boundingBox.center.z += newPos.z
+		node.boundingBox.center.x += newPos.x;
+		node.boundingBox.center.y += newPos.y;
+		node.boundingBox.center.z += newPos.z;
 
-		for (var i = 0; i < node.kids.length; i++) 
-			this.translateRecursion(node.kids[i], newPos)
+		for (let i = 0; i < node.kids.length; i++)
+			this.translateRecursion(node.kids[i], newPos);
 	}
 
 
@@ -525,7 +525,7 @@ Primitives.Solid = class
 	union(solid1, solid2) {
 
 		var nodes = this.normalizeNodesIfNeeded(solid1, solid2);
-		console.log(nodes)
+		console.log(nodes);
 		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
 		this.unionRecursion(this._octree, nodes[0], nodes[1]);
 		this.simplifyNode(this._octree);
@@ -534,13 +534,14 @@ Primitives.Solid = class
 	}
 
 	unionRecursion(newNode, node1, node2) {
+		var newBoxes;
 		// both gray
 		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
 		{
-			var newBoxes = newNode.boundingBox.subdivide();
+			newBoxes = newNode.boundingBox.subdivide();
 			newNode.kids = [];
 
-			for (var i = 0; i < newBoxes.length; i++)
+			for (let i = 0; i < newBoxes.length; i++)
 			{
 				newNode.kids.push(
 					new Octree.Node(newNode, newBoxes[i],
@@ -552,7 +553,7 @@ Primitives.Solid = class
 					newNode.kids[i].color = Octree.BLACK;
 				else if (node1.kids[i].color == Octree.WHITE && node2.kids[i].color == Octree.WHITE)
 					newNode.kids[i].color = Octree.WHITE;
-				
+
 				this.unionRecursion(newNode.kids[i], node1.kids[i], node2.kids[i]);
 			}
 		}
@@ -567,18 +568,18 @@ Primitives.Solid = class
 		} else {
 			if (node1.color == Octree.GRAY && node2.color == Octree.WHITE)
 			{
-				var newBoxes = newNode.boundingBox.subdivide();
+				newBoxes = newNode.boundingBox.subdivide();
 				newNode.kids = [];
 
-				for (var i = 0; i < newBoxes.length; i++)
+				for (let i = 0; i < newBoxes.length; i++)
 					newNode.kids.push(node1.kids[i]);
 			}
 			else if (node1.color == Octree.WHITE && node2.color == Octree.GRAY)
 			{
-				var newBoxes = newNode.boundingBox.subdivide();
+				newBoxes = newNode.boundingBox.subdivide();
 				newNode.kids = [];
 
-				for (var i = 0; i < newBoxes.length; i++)
+				for (let i = 0; i < newBoxes.length; i++)
 					newNode.kids.push(node2.kids[i]);
 			}
 		}
@@ -596,13 +597,14 @@ Primitives.Solid = class
 	}
 
 	intersectionRecursion(newNode, node1, node2) {
+		var newBoxes;
 		// both gray
 		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
 		{
-			var newBoxes = newNode.boundingBox.subdivide();
+			newBoxes = newNode.boundingBox.subdivide();
 			newNode.kids = [];
 
-			for (var i = 0; i < newBoxes.length; i++)
+			for (let i = 0; i < newBoxes.length; i++)
 			{
 				newNode.kids.push(
 					new Octree.Node(newNode, newBoxes[i],
@@ -614,7 +616,7 @@ Primitives.Solid = class
 					newNode.kids[i].color = Octree.BLACK;
 				else if (node1.kids[i].color == Octree.WHITE || node2.kids[i].color == Octree.WHITE)
 					newNode.kids[i].color = Octree.WHITE;
-				
+
 				this.intersectionRecursion(newNode.kids[i], node1.kids[i], node2.kids[i]);
 			}
 		}
@@ -629,18 +631,18 @@ Primitives.Solid = class
 		} else {
 			if (node1.color == Octree.GRAY && node2.color == Octree.BLACK)
 			{
-				var newBoxes = newNode.boundingBox.subdivide();
+				newBoxes = newNode.boundingBox.subdivide();
 				newNode.kids = [];
 
-				for (var i = 0; i < newBoxes.length; i++)
+				for (let i = 0; i < newBoxes.length; i++)
 					newNode.kids.push(node1.kids[i]);
 			}
 			else if (node1.color == Octree.BLACK && node2.color == Octree.GRAY)
 			{
-				var newBoxes = newNode.boundingBox.subdivide();
+				newBoxes = newNode.boundingBox.subdivide();
 				newNode.kids = [];
 
-				for (var i = 0; i < newBoxes.length; i++)
+				for (let i = 0; i < newBoxes.length; i++)
 					newNode.kids.push(node2.kids[i]);
 			}
 		}
@@ -658,13 +660,14 @@ Primitives.Solid = class
 	}
 
 	differenceRecursion(newNode, node1, node2) {
+		var newBoxes;
 		// both gray
 		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
 		{
-			var newBoxes = newNode.boundingBox.subdivide();
+			newBoxes = newNode.boundingBox.subdivide();
 			newNode.kids = [];
 
-			for (var i = 0; i < newBoxes.length; i++)
+			for (let i = 0; i < newBoxes.length; i++)
 			{
 				newNode.kids.push(
 					new Octree.Node(newNode, newBoxes[i],
@@ -679,7 +682,7 @@ Primitives.Solid = class
 					|| (node1.kids[i].color == Octree.WHITE)
 				)
 					newNode.kids[i].color = Octree.WHITE;
-				
+
 				this.differenceRecursion(newNode.kids[i], node1.kids[i], node2.kids[i]);
 			}
 		}
@@ -694,10 +697,10 @@ Primitives.Solid = class
 			// in this case we copy node1 to newNode
 			if (node1.color == Octree.GRAY && node2.color == Octree.WHITE)
 			{
-				var newBoxes = newNode.boundingBox.subdivide();
+				newBoxes = newNode.boundingBox.subdivide();
 				newNode.kids = [];
 
-				for (var i = 0; i < newBoxes.length; i++)
+				for (let i = 0; i < newBoxes.length; i++)
 					newNode.kids.push(node1.kids[i]);
 			}
 			// BLACK - GRAY
@@ -708,7 +711,7 @@ Primitives.Solid = class
 				var blackKids = [];
 				var node1Boxes = node1.boundingBox.subdivide();
 
-				for (var i = 0; i < node1Boxes.length; i++) {
+				for (let i = 0; i < node1Boxes.length; i++) {
 					blackKids.push(
 						new Octree.Node(null, node1Boxes[i],
 							Octree.BLACK,
@@ -718,10 +721,10 @@ Primitives.Solid = class
 
 				// now we do black_kids - nodes2.kids
 
-				var newBoxes = newNode.boundingBox.subdivide();
+				newBoxes = newNode.boundingBox.subdivide();
 				newNode.kids = [];
 
-				for (var i = 0; i < newBoxes.length; i++) {
+				for (let i = 0; i < newBoxes.length; i++) {
 					newNode.kids.push(
 						new Octree.Node(newNode, newBoxes[i],
 							Octree.GRAY, // it may change
@@ -732,10 +735,9 @@ Primitives.Solid = class
 						newNode.kids[i].color = Octree.BLACK;
 					else if (node2.kids[i].color == Octree.BLACK)
 						newNode.kids[i].color = Octree.WHITE;
-					
+
 					this.differenceRecursion(newNode.kids[i], blackKids[i], node2.kids[i]);
 				}
-
 			}
 		}
 	}
@@ -753,11 +755,11 @@ Primitives.Solid = class
 			boxEdge,
 			boxEdge,
 			boxEdge
-		] // x, y, z
+		]; // x, y, z
 
 		// with the distances we can calculate what edge could handle this
 		// examples: dist=1.75, so we divide for 2, 1, 0.5 and 0.25; finally only 0.25 can be used for it
-		for (var i = 0; i < 3; i++) {
+		for (let i = 0; i < 3; i++) {
 			if (dist[i] == 0) {
 				leavesEdge[i] = 0;
 				continue;
@@ -780,7 +782,7 @@ Primitives.Solid = class
 			(dist[0] == 0) ? 0 : parseInt(Math.log(boxEdge / leavesEdge[0]) / Math.log(2)),
 			(dist[1] == 0) ? 0 : parseInt(Math.log(boxEdge / leavesEdge[1]) / Math.log(2)),
 			(dist[2] == 0) ? 0 : parseInt(Math.log(boxEdge / leavesEdge[2]) / Math.log(2)),
-		]
+		];
 
 		return Math.max.apply(Math, precisions)
 	}
@@ -790,7 +792,7 @@ Primitives.Solid = class
 	simplifyNode(node) {
 		var whiteBlackCounter = 0;
 
-		for (var i = 0; i < node.kids.length; i++) {
+		for (let i = 0; i < node.kids.length; i++) {
 			if (node.kids[i].color == Octree.GRAY)
 				this.simplifyNode(node.kids[i]);
 			else if (node.kids[i].color == Octree.WHITE)
@@ -818,7 +820,7 @@ Primitives.Solid = class
 		if (node.level > max.level)
 			max.level = node.level;
 
-		for (var i = 0; i < node.kids.length; i++) {
+		for (let i = 0; i < node.kids.length; i++) {
 			this.getNodeMaxLevel(node.kids[i], max)
 		}
 
@@ -832,7 +834,7 @@ Primitives.Solid = class
 		if (node == undefined || node.level == precision)
 			return;
 
-		for (var i = 0; i < node.kids.length; i++) {
+		for (let i = 0; i < node.kids.length; i++) {
 			this.forceBlackNodeToSubdivide(node.kids[i], precision);
 		}
 
@@ -841,7 +843,7 @@ Primitives.Solid = class
 			node.color = Octree.GRAY;
 
 			var newBoxes = node.boundingBox.subdivide();
-			for (var i = 0; i < Octree.EIGHT; i++) {
+			for (let i = 0; i < Octree.EIGHT; i++) {
 				node.kids.push(
 					new Octree.Node(node, newBoxes[i],
 						Octree.BLACK, // it may change
@@ -868,16 +870,16 @@ Primitives.Solid = class
 
 		// so solid1 will be totally inside solid2 boundingbox
 		if (solid1._octree.boundingBox.edge*2 <= solid2._octree.boundingBox.edge) {
-			console.log('primeiro caso')
+			console.log('primeiro caso');
 			// this.normalizeOneNodeOnly(solid2._octree, solid1._octree)
-			return [solid1._octree, this.normalizeOneNodeOnly(solid2._octree, solid1._octree)]
+			return [solid1._octree, this.normalizeOneNodeOnly(solid2._octree, solid1._octree)];
 		}
 		// so solid2 will be totally inside solid1 boundingbox
 		else if (solid2._octree.boundingBox.edge*2 <= solid1._octree.boundingBox.edge)
 		{
-			console.log('segundo caso')
+			console.log('segundo caso');
 			
-			return [solid1._octree, this.normalizeOneNodeOnly(solid1._octree, solid2._octree)]
+			return [solid1._octree, this.normalizeOneNodeOnly(solid1._octree, solid2._octree)];
 		}
 
 		// else
@@ -917,9 +919,8 @@ Primitives.Solid = class
 		if (node1.boundingBox.center.z > node2.boundingBox.center.z)
 			sum.z *= -1;
 
-
 		var wrapperBBox1 = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, sum),
-			node1.boundingBox.edge*2)
+			node1.boundingBox.edge*2);
 
 		var wrapperNode1 = new Octree.Node(null, wrapperBBox1, Octree.WHITE, node1.level-1, []);
 
@@ -935,7 +936,7 @@ Primitives.Solid = class
 	// so we create a new parent node for node2 based on node1.boundingBox
 	normalizeOneNodeOnly(node1, node2, basedOnDistance=false, minEdge=0.25)
 	{
-		var bBox = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, {x:0, y:0, z:0}), node1.boundingBox.edge)
+		var bBox = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, {x:0, y:0, z:0}), node1.boundingBox.edge);
 		var wrapperNode2 = new Octree.Node(null, bBox, Octree.WHITE, node2.level-1, []);
 
 
@@ -944,7 +945,7 @@ Primitives.Solid = class
 				Math.abs(node1.boundingBox.center.x - node2.boundingBox.center.x),
 				Math.abs(node1.boundingBox.center.y - node2.boundingBox.center.y),
 				Math.abs(node1.boundingBox.center.z - node2.boundingBox.center.z),
-			] // x, y, z
+			]; // x, y, z
 
 			var precision = this.findPrecision(dist, wrapperNode2.boundingBox.edge, minEdge);
 
@@ -960,7 +961,6 @@ Primitives.Solid = class
 		}
 		
 
-		
 		this.copyNodeKidsToWrapperNode(wrapperNode2, node2);
 
 		return wrapperNode2;
@@ -1003,7 +1003,7 @@ Primitives.Solid = class
 		if (wrapperNode == undefined )
 			return;
 
-		for (var i = 0; i < wrapperNode.kids.length; i++) {
+		for (let i = 0; i < wrapperNode.kids.length; i++) {
 			if (
 				wrapperNode.kids[i].boundingBox.edge == node.boundingBox.edge
 				&& wrapperNode.kids[i].boundingBox.center.x == node.boundingBox.center.x
@@ -1019,5 +1019,4 @@ Primitives.Solid = class
 
 	}
 
-
-}
+};

@@ -39,5 +39,4 @@ Octree.Node = class Node
 	set kids (kids)               { this._kids = kids;               }
 	set level (level)             { this._level = level;             }
 	set willBeRendered (b)        { this._willBeRendered = b;        }
-}
-
+};

@@ -408,6 +408,79 @@ $(document).ready(function() {
 
 	});
 
+	/*******
+	******** DUPLICATE AND DELETE
+	*/
+	// gets index (int) of a selected solid, then solids[index].toString()
+	$(document).on('click', '#duplicate', function() {
+		if(!isNaN(getSelectedSolidIndex())) {
+			var original = [
+				scene.getObjectByName('solid-'+getSelectedSolidIndex()),
+				scene.getObjectByName('wireframe-'+getSelectedSolidIndex())
+			]
+			var newIndex = solids.push(solids[getSelectedSolidIndex()]) - 1;
+
+			console.log(original)
+			var duplicatedMesh = new THREE.Mesh(
+				original[0].geometry,
+				new THREE.MeshPhongMaterial({
+					color: original[0].material.color,
+					specular: 0xFFDDDD,
+					shininess: 2,
+					shading: THREE.FlatShading,
+					wireframe: false,
+					transparent: true,
+					opacity: 1.0
+				})
+			);
+			duplicatedMesh.name = 'solid-'+newIndex;
+
+			scene.add(duplicatedMesh)
+
+			var duplicatedWireframe = new THREE.Mesh(
+				original[1].geometry,
+				new THREE.MeshBasicMaterial ({
+					color: duplicatedMesh.material.color,
+					shading: THREE.FlatShading,
+					side: THREE.DoubleSide,
+					depthWrite: false,
+					// depthTest: false,
+					wireframe: true,
+				})
+			);
+			duplicatedWireframe.name = 'wireframe-'+newIndex;
+			scene.add(duplicatedWireframe)
+
+			// console.log('#'+duplicatedMesh.material.color.getHex().toString(16))
+			console.log($('input[type=color].solid-color'))
+			console.log($('input[type=color][data-index="'+newIndex+'"].solid-color'))
+			
+			$('input[type=color][data-index="'+newIndex+'"].solid-color')[0]
+				.value = '#'+duplicatedMesh.material.color.getHex().toString(16)
+			
+		} else {
+			alert('Select a solid!');
+		}
+	});
+
+	$(document).on('click', '#delete', function() {
+		var index = getSelectedSolidIndex();
+
+		if(!isNaN(index)) {
+			if (confirm("Delete?")) {
+				solids[getSelectedSolidIndex()] = null;
+
+				scene.remove(scene.getObjectByName('solid-'+index));
+				scene.remove(scene.getObjectByName('wireframe-'+index));
+
+				$('#window-solids div[data-index="'+index+'"]').remove()
+
+			}
+		} else {
+			alert('Select a solid!');
+		}
+	});
+
 	/*****
 	****** TRANSLATE
 	*/

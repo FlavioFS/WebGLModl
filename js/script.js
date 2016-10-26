@@ -28,6 +28,7 @@ afterPushingTo(solids, function() {
 		
 		ws = document.getElementById('window-solids');
 		var div = document.createElement('div');
+		div.dataset.index = solids.length-1;
 		ws.appendChild(div);
 
 		var button = document.createElement('input');
@@ -100,10 +101,12 @@ function init ()
 	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));
 	w.append(new HUD.Button('New Cylinder', {id: 'new-cylinder'}));
 	w.append(new HUD.Button('New Torus', {id: 'new-torus'}));
+	w.appendHtml(document.createElement('hr'));
 	w.append(new HUD.Button('Export', {id: 'export'}));
 	w.append(new HUD.Button('Import', {id: 'import'}));
-
 	w.appendHtml(document.createElement('hr'));
+	w.append(new HUD.Button('Duplicate Solid', {id: 'duplicate'}));
+	w.append(new HUD.Button('Delete Solid', {id: 'delete'}));
 
 	window_solids = new HUD.Window('Solids in the Scene',
 		{id:'window-solids', width:200, height:700, left: (WIDTH-50)+'px', resizable: true});

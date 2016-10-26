@@ -28,7 +28,7 @@ $(document).ready(function() {
 				<input type='submit' value='Create' />
 			</form>
 			`);
-	})
+	});
 
 	/** SPHERE **/
 	$('#new-sphere').click(function() {
@@ -55,7 +55,7 @@ $(document).ready(function() {
 				<input type='submit' value='Create' />
 			</form>
 			`);
-	})
+	});
 
 
 	/** CONE **/
@@ -84,7 +84,7 @@ $(document).ready(function() {
 				<input type='submit' value='Create' />
 			</form>
 			`);
-	})
+	});
 
 	/** Cylinder **/
 	$('#new-cylinder').click(function() {
@@ -112,7 +112,7 @@ $(document).ready(function() {
 				<input type='submit' value='Create' />
 			</form>
 			`);
-	})
+	});
 
 	/** TORUS **/
 	$('#new-torus').click(function() {
@@ -126,7 +126,7 @@ $(document).ready(function() {
 				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
 				<br />
 				<label>Radius: <input type='text' name='radius' size='4' value='1' /></label><br />
-				<label>Height: <input type='text' name='tubeRadius' size='4' value='1' /></label><br />
+				<label>Tube Radius: <input type='text' name='tubeRadius' size='4' value='1' /></label><br />
 				<label for='precision'>Precision</label>
 				<select name="precision">
 					<option>1</option>
@@ -140,7 +140,7 @@ $(document).ready(function() {
 				<input type='submit' value='Create' />
 			</form>
 			`);
-	})
+	});
 
 	// #cube-form
 	$(document).on('submit', 'form#cube-form', function() {
@@ -166,7 +166,7 @@ $(document).ready(function() {
 				
 				addSolid(solid);
 
-				this_elem.remove()
+				this_elem.remove();
 
 				loading.endTimer().hide(5000);
 			}, 15);
@@ -199,7 +199,7 @@ $(document).ready(function() {
 			precision = parseInt($(this).find('select[name=precision]').val());
 			renderInside = $(this).find('input[name=render-inside]').prop('checked');
 
-			boolAddColored = $(this).find('input[name=render-colored]').prop('checked')
+			boolAddColored = $(this).find('input[name=render-colored]').prop('checked');
 
 			// rendering
 			var loading = new HUD.Loading(
@@ -228,12 +228,12 @@ $(document).ready(function() {
 				console.log('Octree created in ' + loading.getTimer() + 'ms');
 				
 				if (boolAddColored)
-					solid.addToSceneColored(scene, precision, 0)
+					solid.addToSceneColored(scene, precision, 0);
 				else {
 					addSolid(solid);
 				}
 
-				this_elem.remove()
+				this_elem.remove();
 
 				loading.endTimer().hide(5000);
 			}, 15);
@@ -266,8 +266,8 @@ $(document).ready(function() {
 		// un-highlight any previous highlighted
 		unhighlightSolid();
 
-		$('.solid-selection:disabled').prop('disabled', false)
-		$(this).prop('disabled', true)
+		$('.solid-selection:disabled').prop('disabled', false);
+		$(this).prop('disabled', true);
 
 		
 		// HIGHLIGHT
@@ -280,7 +280,7 @@ $(document).ready(function() {
 		material.wireframeLinewidth = 3;
 		material.color.set('#f4e542');
 		scene.getObjectByName('wireframe-'+$(this).data('index')).material = material;
-	})
+	});
 
 	/***
 	**** CHANGE SOLID COLOR
@@ -338,7 +338,7 @@ $(document).ready(function() {
 	*/
 	var getSelectedSolidIndex = function() {
 		return parseInt($('.solid-selection:disabled').data('index'))
-	}
+	};
 
 	// gets index (int) of a selected solid, then solids[index].toString()
 	$(document).on('click', '#export', function() {
@@ -396,12 +396,12 @@ $(document).ready(function() {
 			solid.fromString(code, bBoxEdge);
 
 			if (boolAddColored)
-				solid.addToSceneColored(scene, 0, 0)
+				solid.addToSceneColored(scene, 0, 0);
 			else {
 				addSolid(solid);
 			}
 
-			this_elem.remove()
+			this_elem.remove();
 
 			loading.endTimer().hide(5000);
 		}, 15);
@@ -429,10 +429,10 @@ $(document).ready(function() {
 
 		var i = getSelectedSolidIndex();
 
-		$(this).find('input:text').val(0)
+		$(this).find('input:text').val(0);
 
 		if (isNaN(i))
-			return alert('Select a solid!')
+			return alert('Select a solid!');
 
 		var loading = new HUD.Loading(
 		'Translating...')
@@ -440,7 +440,7 @@ $(document).ready(function() {
 
 		setTimeout(function() {
 			
-			solids[i].translate(pos)
+			solids[i].translate(pos);
 			var model = solids[i].model();
 
 			// UPDATES ON THREE.JS
@@ -490,11 +490,11 @@ $(document).ready(function() {
 			solid = new Primitives.Solid({x:0,y:0,z:0});
 
 			if ($(this).val() == 'Union')
-				solid.union(solids[a], solids[b])
+				solid.union(solids[a], solids[b]);
 			else if ($(this).val() == 'Intersection')
-				solid.intersection(solids[a], solids[b])
+				solid.intersection(solids[a], solids[b]);
 			else if ($(this).val() == 'Difference')
-				solid.difference(solids[a], solids[b])
+				solid.difference(solids[a], solids[b]);
 
 			addSolid(solid);
 
@@ -508,7 +508,7 @@ $(document).ready(function() {
 
 	$('#window1').append(`
 		<label><input id='show-grid' type='checkbox' name='show-grid' checked /> Show Grid<label><br />
-	`)
+	`);
 
 	$('#show-grid').change(function() {
 		if ($(this).is(':checked')) {

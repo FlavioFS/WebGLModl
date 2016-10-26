@@ -2,9 +2,9 @@
 var Octree = Octree || {};
 
 // Constants
-Octree.BLACK = 'B';
-Octree.WHITE = 'W';
-Octree.GRAY  = 'G';
+Octree.BLACK = 0;
+Octree.WHITE = 1;
+Octree.GRAY  = 2;
 Octree.EIGHT = 8;
 
 // Tree structure

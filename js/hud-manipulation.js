@@ -161,14 +161,10 @@ $(document).ready(function() {
 
 			// reason to use timeout: a solid would be calculated BEFORE showing a loading
 			setTimeout(function() {
-				var index = solids.push(new Primitives.SolidSphere(pos, e/2, true)) - 1;
-				solids[index].calcOctree(1);
-				// console.log(solids[index].octree.boundingBox.center)
-				// console.log(solids[index].octree.boundingBox.edge)
-				// console.log(solids[index].octree);
-				var model = solids[index].model();
-				if (model) addToScene(model);
-				else console.log("Empty model!!");	
+				var solid = new Primitives.SolidSphere(pos, e/2, true);
+				solid.calcOctree(1);
+				
+				addSolid(solid);
 
 				this_elem.remove()
 
@@ -216,28 +212,25 @@ $(document).ready(function() {
 				if (boolAddColored)
 					renderInside = true;
 
-				var index;
+				var solid;
+
 				if (this_id == 'sphere-form')
-					index = solids.push(new Primitives.SolidSphere(pos, r, renderInside)) - 1;
+					solid = new Primitives.SolidSphere(pos, r, renderInside);
 				else if (this_id == 'cone-form')
-					index = solids.push(new Primitives.SolidCone(pos, r, h, renderInside)) - 1;
+					solid = new Primitives.SolidCone(pos, r, h, renderInside);
 				else if (this_id == 'cylinder-form')
-					index = solids.push(new Primitives.SolidCylinder(pos, r, h, renderInside)) - 1;
+					solid = new Primitives.SolidCylinder(pos, r, h, renderInside);
 				else if (this_id == 'torus-form')
-					index = solids.push(new Primitives.SolidTorus(pos, r, t, renderInside)) - 1;
+					solid = new Primitives.SolidTorus(pos, r, t, renderInside);
 					
-				solids[index].calcOctree(precision);
+
+				solid.calcOctree(precision);
 				console.log('Octree created in ' + loading.getTimer() + 'ms');
-				// console.log(solid.octree);
+				
 				if (boolAddColored)
-					solids[index].addToSceneColored(scene, precision, 0)
+					solid.addToSceneColored(scene, precision, 0)
 				else {
-					var model = solids[index].model();
-					if (model) {
-						addToScene(model, index);
-						addWireframeBBOxToScene(solids[index], index)
-					}
-					else console.log("Empty model!!");	
+					addSolid(solid);
 				}
 
 				this_elem.remove()
@@ -399,17 +392,13 @@ $(document).ready(function() {
 		// reason to use timeout: a solid would be calculated BEFORE showing a loading
 		setTimeout(function() {
 
-			var index = solids.push(new Primitives.Solid(pos)) - 1;
-			solids[index].fromString(code, bBoxEdge);
+			var solid = new Primitives.Solid(pos);
+			solid.fromString(code, bBoxEdge);
+
 			if (boolAddColored)
-				solids[index].addToSceneColored(scene, 0, 0)
+				solid.addToSceneColored(scene, 0, 0)
 			else {
-				var model = solids[index].model();
-				if (model) {
-					addToScene(model, index);
-					addWireframeBBOxToScene(solids[index], index)
-				}
-				else console.log("Empty model!!");
+				addSolid(solid);
 			}
 
 			this_elem.remove()
@@ -478,7 +467,6 @@ $(document).ready(function() {
 		<form id='boolean-form' action='#'>
 			<label>Obj1: <input type='text' name='a' size='4' value='1' /></label> -
 			<label>Obj2: <input type='text' name='b' size='4' value='2' /></label><br />
-			<label>Depth: <input type='text' name='depth' size='4' value='2' /></label>
 			<input class='submit-button' type='button' value='Union' />
 			<input class='submit-button' type='button' value='Intersection' />
 			<input class='submit-button' type='button' value='Difference' />
@@ -488,8 +476,7 @@ $(document).ready(function() {
 	$(document).on('click', '#boolean-form .submit-button', function() {
 		var
 			a = parseInt($('body').find('#boolean-form input[name=a]').val()) - 1,
-			b = parseInt($('body').find('#boolean-form input[name=b]').val()) - 1,
-			depth = parseInt($('body').find('#boolean-form input[name=depth]').val()) - 1;
+			b = parseInt($('body').find('#boolean-form input[name=b]').val()) - 1;
 
 			
 
@@ -509,17 +496,7 @@ $(document).ready(function() {
 			else if ($(this).val() == 'Difference')
 				solid.difference(solids[a], solids[b])
 
-			// console.log(solid);
-			// console.log(solid.toString());
-
-			var index = solids.push(solid) - 1;
-			// solids[index].fromString(code, bBoxEdge);
-			var model = solids[index].model();
-			if (model) {
-				addToScene(model, index);
-				addWireframeBBOxToScene(solids[index], index)
-			}
-			else console.log("Empty model!!");
+			addSolid(solid);
 
 		// 	loading.endTimer().hide(5000);
 		// }, 15);

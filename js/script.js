@@ -106,7 +106,7 @@ function init ()
 	w.appendHtml(document.createElement('hr'));
 
 	window_solids = new HUD.Window('Solids in the Scene',
-		{id:'window-solids', width:200, height:700, left: (WIDTH-200)+'px', resizable: true});
+		{id:'window-solids', width:200, height:700, left: (WIDTH-50)+'px', resizable: true});
 	window_solids.append(new HUD.Label('Click to select:', null, null))
 	window_solids.append(new HUD.Button(
 			'     Deselect     ', {id: 'solid-deselection'}
@@ -227,4 +227,17 @@ function addWireframeBBOxToScene(solid, id, offset=0, visible=true) {
 	mesh.name = 'wireframe-' + id;
 	mesh.visible = visible;
 	scene.add(mesh);
+}
+
+function addSolid(solid) {
+	var model = solid.model();
+	if (model) {
+		var index = solids.push(solid) - 1;	
+		addToScene(model, index);
+		addWireframeBBOxToScene(solids[index], index)
+	}
+	else
+	{
+		alert("Empty model");
+	}
 }

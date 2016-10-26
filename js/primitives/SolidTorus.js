@@ -1,16 +1,3 @@
-/* IMPORTANT: How to create instances at the browser console
-	
-	Correct:
-		torusName = new Primitives.SolidTorus ({"x": 1, "y": 2, "z": 3}, 7);
-
-	Wrong:
-		var   torusName = new Primitives.SolidTorus ({"x": 1, "y": 2, "z": 3}, 7);
-		const torusName = new Primitives.SolidTorus ({"x": 1, "y": 2, "z": 3}, 7);
-		let	  torusName = new Primitives.SolidTorus ({"x": 1, "y": 2, "z": 3}, 7);
-
-	DO NOT use "var", "const" or "let".
-*/
-
 /** DOCUMENTATION
  *
  *  =====================================================================================================

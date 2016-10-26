@@ -1,16 +1,3 @@
-/* IMPORTANT: How to create instances at the browser console
-	
-	Correct:
-		coneName = new Primitives.SolidCone ({"x": 1, "y": 2, "z": 3}, 7);
-
-	Wrong:
-		var   coneName = new Primitives.SolidCone ({"x": 1, "y": 2, "z": 3}, 7);
-		const coneName = new Primitives.SolidCone ({"x": 1, "y": 2, "z": 3}, 7);
-		let	  coneName = new Primitives.SolidCone ({"x": 1, "y": 2, "z": 3}, 7);
-
-	DO NOT use "var", "const" or "let".
-*/
-
 /** DOCUMENTATION
  *
  *  =====================================================================================================

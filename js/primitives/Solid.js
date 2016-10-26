@@ -110,7 +110,7 @@ Primitives.Solid = class
 		if (node == null)
 			return '';
 
-		let s = node.color == Octree.GRAY ? '(' : node.color;
+		var s = (node.color == Octree.GRAY) ? '(' : node.color;
 
 		for (var i = 0; i < Octree.EIGHT; i++) 
 			s += this.toStringRecursion(node.kids[i]);
@@ -141,7 +141,7 @@ Primitives.Solid = class
 				node = new Octree.Node(null, bBox, Octree.GRAY, level, []);
 				
 				var newBoxes = node.boundingBox.subdivide();
-				for (let j = 0; j < Octree.EIGHT; j++)
+				for (var j = 0; j < Octree.EIGHT; j++)
 					node.kids.push(
 						this.fromStringRecursion(newBoxes[j], level+1, colorList, ref)
 					);
@@ -528,6 +528,9 @@ Primitives.Solid = class
 		console.log(nodes)
 		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
 		this.unionRecursion(this._octree, nodes[0], nodes[1]);
+		
+		this.removeEmptyGrayNodes(this._octree);
+
 		this.simplifyNode(this._octree);
 		this.simplifyNode(nodes[0]);
 		this.simplifyNode(nodes[1]);
@@ -589,6 +592,9 @@ Primitives.Solid = class
 		var nodes = this.normalizeNodesIfNeeded(solid1, solid2);
 		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
 		this.intersectionRecursion(this._octree, nodes[0], nodes[1]);
+
+		this.removeEmptyGrayNodes(this._octree);
+
 		this.simplifyNode(this._octree);
 		this.simplifyNode(nodes[0]);
 		this.simplifyNode(nodes[1]);
@@ -651,10 +657,27 @@ Primitives.Solid = class
 		var nodes = this.normalizeNodesIfNeeded(solid1, solid2);
 		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
 		this.differenceRecursion(this._octree, nodes[0], nodes[1]);
+
+		this.removeEmptyGrayNodes(this._octree);
+
 		this.simplifyNode(this._octree);
 		this.simplifyNode(nodes[0]);
 		this.simplifyNode(nodes[1]);
 
+	}
+
+	removeEmptyGrayNodes(node) {
+		if (node == undefined)
+			return;
+
+		if (node.color == Octree.GRAY && node.kids.length == 0) {
+			console.log('achei');
+			node.color = Octree.WHITE;
+			return
+		}
+
+		for (var i = 0; i < node.kids.length; i++)
+			this.removeEmptyGrayNodes(node.kids[i])
 	}
 
 	differenceRecursion(newNode, node1, node2) {

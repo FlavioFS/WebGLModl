@@ -517,6 +517,23 @@ Primitives.Solid = class
 			this.translateRecursion(node.kids[i], newPos);
 	}
 
+	scale(factor)
+	{
+		this.scaleRecursion(this.octree, factor);
+	}
+
+	scaleRecursion(node, factor)
+	{
+
+		node.boundingBox.edge     *= factor;
+		node.boundingBox.center.x *= factor;
+		node.boundingBox.center.y *= factor;
+		node.boundingBox.center.z *= factor;
+
+		for (let i = 0; i < node.kids.length; i++) 
+			this.scaleRecursion(node.kids[i], factor);
+	}
+
 
 	/****************************************/
 	// BOOLEAN OPERATIONS

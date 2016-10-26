@@ -382,7 +382,7 @@ $(document).ready(function() {
 		};
 		bBoxEdge = parseFloat($(this).find('input[name=bBoxEdge]').val());
 		code = $(this).find('textarea[name=code]').val()
-		boolAddColored = $(this).find('input[name=render-colored]').prop('checked')
+		boolAddColored = $(this).find('input[name=render-colored]').prop('checked');
 
 		// rendering
 		var loading = new HUD.Loading(
@@ -449,11 +449,11 @@ $(document).ready(function() {
 				})
 			);
 			duplicatedWireframe.name = 'wireframe-'+newIndex;
-			scene.add(duplicatedWireframe)
+			scene.add(duplicatedWireframe);
 
 			// console.log('#'+duplicatedMesh.material.color.getHex().toString(16))
 			console.log($('input[type=color].solid-color'))
-			console.log($('input[type=color][data-index="'+newIndex+'"].solid-color'))
+			console.log($('input[type=color][data-index="'+newIndex+'"].solid-color'));
 			
 			$('input[type=color][data-index="'+newIndex+'"].solid-color')[0]
 				.value = '#'+duplicatedMesh.material.color.getHex().toString(16)
@@ -568,11 +568,11 @@ $(document).ready(function() {
 			else if (op == 'Rotating')
 			{
 				$(this).find('input:text').val(0);
-				obj.rotateX(pos.x/180 * Math.PI)
-				obj.rotateY(pos.y/180 * Math.PI)
-				obj.rotateZ(pos.z/180 * Math.PI)
-				wire.rotateX(pos.x/180 * Math.PI)
-				wire.rotateY(pos.y/180 * Math.PI)
+				obj.rotateX(pos.x/180 * Math.PI);
+				obj.rotateY(pos.y/180 * Math.PI);
+				obj.rotateZ(pos.z/180 * Math.PI);
+				wire.rotateX(pos.x/180 * Math.PI);
+				wire.rotateY(pos.y/180 * Math.PI);
 				wire.rotateZ(pos.z/180 * Math.PI)
 			}
 
@@ -592,17 +592,17 @@ $(document).ready(function() {
 		var i = getSelectedSolidIndex();
 
 		if (isNaN(i))
-			return alert('Select a solid!')
+			return alert('Select a solid!');
 		
 		if (factor == 0)
 			return alert('The factor can\'t be zero');
 
-		solids[i].scale(factor)
+		solids[i].scale(factor);
 
 		var obj = scene.getObjectByName('solid-'+i);
 		var wire = scene.getObjectByName('wireframe-'+i);
 
-		$(this).parent().find('input[name=factor]').val(1)
+		$(this).parent().find('input[name=factor]').val(1);
 
 		var model = solids[i].model();
 

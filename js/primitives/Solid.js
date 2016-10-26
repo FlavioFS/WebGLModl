@@ -655,20 +655,6 @@ Primitives.Solid = class
 
 	}
 
-	removeEmptyGrayNodes(node) {
-		if (node == undefined)
-			return;
-
-		if (node.color == Octree.GRAY && node.kids.length == 0) {
-			console.log('achei');
-			node.color = Octree.WHITE;
-			return
-		}
-
-		for (var i = 0; i < node.kids.length; i++)
-			this.removeEmptyGrayNodes(node.kids[i])
-	}
-
 	differenceRecursion(newNode, node1, node2) {
 		var newBoxes;
 		// both gray
@@ -820,6 +806,19 @@ Primitives.Solid = class
 			node.color = Octree.BLACK;
 			node.kids = [];
 		}
+	}
+
+	removeEmptyGrayNodes(node) {
+		if (node == undefined)
+			return;
+
+		if (node.color == Octree.GRAY && node.kids.length == 0) {
+			node.color = Octree.WHITE;
+			return;
+		}
+
+		for (var i = 0; i < node.kids.length; i++)
+			this.removeEmptyGrayNodes(node.kids[i])
 	}
 
 	// it gets to know what level is the max

@@ -41,8 +41,7 @@ Utils.BoundingBox = class
 
 		
 		// Returns the list of vertices
-		var vlist = 
-		[
+		return [
 			{ "x": xmin, "y": ymin, "z": zmin },
 			{ "x": xmax, "y": ymin, "z": zmin },
 			{ "x": xmin, "y": ymax, "z": zmin },
@@ -52,7 +51,6 @@ Utils.BoundingBox = class
 			{ "x": xmin, "y": ymax, "z": zmax },
 			{ "x": xmax, "y": ymax, "z": zmax }
 		];
-		return vlist;
 		
 	}
 
@@ -71,8 +69,7 @@ Utils.BoundingBox = class
 		const zmax = this._center.z + newEdgeHalf;
 
 		// Returns the list of BoundingBoxes
-		var bList =
-		[
+		return [
 			new Utils.BoundingBox ({ "x": xmin, "y": ymin, "z": zmin }, newEdge),
 			new Utils.BoundingBox ({ "x": xmax, "y": ymin, "z": zmin }, newEdge),
 			new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmin }, newEdge),
@@ -82,7 +79,6 @@ Utils.BoundingBox = class
 			new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmax }, newEdge),
 			new Utils.BoundingBox ({ "x": xmax, "y": ymax, "z": zmax }, newEdge)
 		];
-		return bList;
 	}
 
 	// Returns model for THREE.js
@@ -90,12 +86,9 @@ Utils.BoundingBox = class
 	{
 		var VL = this.vertices(); // Vertex List
 
-		var rmodel =
-		{
+		return {
 			"material":
 			{
-				// color: 0xFFFFFF,
-				// specular: 0xFFFFFF,
 				color: 0xFF0000,
 				specular: 0xFFDDDD,
 				shininess: 2,
@@ -106,24 +99,22 @@ Utils.BoundingBox = class
 			},
 
 			"vertices":
-			[
-				[ VL[0].x, VL[0].y, VL[0].z ],
-				[ VL[1].x, VL[1].y, VL[1].z ],
-				[ VL[2].x, VL[2].y, VL[2].z ],
-				[ VL[3].x, VL[3].y, VL[3].z ],
+				[
+					[ VL[0].x, VL[0].y, VL[0].z ],
+					[ VL[1].x, VL[1].y, VL[1].z ],
+					[ VL[2].x, VL[2].y, VL[2].z ],
+					[ VL[3].x, VL[3].y, VL[3].z ],
 
-				[ VL[4].x, VL[4].y, VL[4].z ],
-				[ VL[5].x, VL[5].y, VL[5].z ],
-				[ VL[6].x, VL[6].y, VL[6].z ],
-				[ VL[7].x, VL[7].y, VL[7].z ]
-			],
+					[ VL[4].x, VL[4].y, VL[4].z ],
+					[ VL[5].x, VL[5].y, VL[5].z ],
+					[ VL[6].x, VL[6].y, VL[6].z ],
+					[ VL[7].x, VL[7].y, VL[7].z ]
+				],
 
 			"faces": Utils.BoundingBox.triangleFaceTopology,
 
 			"normals": Utils.BoundingBox.faceNormals
 		};
-
-		return rmodel;
 	}
 
 	// Calculates the normal from the topology (even when shifted)
@@ -162,14 +153,14 @@ Utils.BoundingBox = class
 		if (swaps.length > 0)
 		{
 			// For each repeated element removed...
-			for (var i = 0; i < swaps.length; i++)
+			for (let i = 0; i < swaps.length; i++)
 			{
 				// ... replaces its value in all faces and...
-				for (var j = 0; j < faceList.length; j++)
+				for (let j = 0; j < faceList.length; j++)
 					Utils.Array.replaceElement(faceList[j], swaps[i].oldValue, swaps[i].newValue);
 
 				// ... offsets higher faces by 1 to the left
-				for (var j = 0; j < faceList.length; j++)
+				for (let j = 0; j < faceList.length; j++)
 					Utils.Array.offset(faceList[j], -1, swaps[i].oldValue);
 			}
 		}
@@ -180,15 +171,15 @@ Utils.BoundingBox = class
 		if (deletions.length > 0)
 		{
 			// For each repeated element removed...
-			for (var i = 0; i < deletions.length; i++)
+			for (let i = 0; i < deletions.length; i++)
 			{
 				// ... offsets higher faces by 1 to the left
-				for (var j = 0; j < faceList.length; j++)
+				for (let j = 0; j < faceList.length; j++)
 					Utils.Array.offset(faceList[j], -1, deletions[i]);
 			}
 		}	
 	}
-}
+};
 
 /* =====================================================================================================
  *  Constants

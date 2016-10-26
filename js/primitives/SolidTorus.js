@@ -123,14 +123,12 @@ Primitives.SolidTorus = class extends Primitives.Solid
 
 		/* Torus equation:
 		 *   ( R² + t² - (X-Xc)² - (Y-Yc)² - (Z-Zc)² )² = 4R².(t² - (Y-Yc)²)
-		 * Replacing the equality sign (=) with an inequality sign (>), when get the subpaces
+		 * Replacing the equality sign (=) with an inequality sign (>), we get the subspaces.
 		 */
 		 let
-			Ry = Math.sqrt(this.tubeRadius*this.tubeRadius - Yl*Yl),
-			Rp = Math.sqrt(Xl*Xl + Zl*Zl), // Radius of slice at the point
-			lside = this.radius*this.radius + this.tubeRadius*this.tubeRadius - hDist2 - Yl*Yl,
-			rside = 4*this.radius*this.radius*(this.tubeRadius*this.tubeRadius - Yl*Yl);
+			lSide = this.radius*this.radius + this.tubeRadius*this.tubeRadius - hDist2 - Yl*Yl,
+			rSide = 4*this.radius*this.radius*(this.tubeRadius*this.tubeRadius - Yl*Yl);
 
-		return ( lside*lside > rside ) ? Primitives.VERTEX_OUT : Primitives.VERTEX_IN;
+		return ( lSide*lSide > rSide ) ? Primitives.VERTEX_OUT : Primitives.VERTEX_IN;
 	}
-}
+};

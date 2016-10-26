@@ -131,4 +131,11 @@ Primitives.SolidTorus = class extends Primitives.Solid
 
 		return ( lSide*lSide > rSide ) ? Primitives.VERTEX_OUT : Primitives.VERTEX_IN;
 	}
+
+	/* =====================================================================================================
+	 *  THREEJS GEOMETRY
+	 * ===================================================================================================== */
+	geometry() {
+		return new THREE.TorusGeometry(this.radius, this.tubeRadius, 32, 16);
+	}
 };

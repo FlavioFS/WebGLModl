@@ -100,6 +100,12 @@ Primitives.SolidCube = class extends Primitives.Solid
 	 *  THREEJS GEOMETRY
 	 * ===================================================================================================== */
 	geometry() {
-		return new THREE.CubeGeometry(edge, edge, edge);
+		var rv = new THREE.CubeGeometry(this.edge, this.edge, this.edge);
+
+		var center_mtx = new THREE.Matrix4();
+		center_mtx.setPosition( new THREE.Vector3(this.center.x, this.center.y, this.center.z) );
+		rv.applyMatrix(center_mtx);
+
+		return rv;
 	}
 };

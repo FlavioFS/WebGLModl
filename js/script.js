@@ -124,6 +124,7 @@ function init ()
 	// var mymdl = torus.model();
 	// if (mymdl) addToScene(mymdl);
 	// else console.log("Empty model!!");
+	//
 
 	// Camera
 	camera = new THREE.PerspectiveCamera (45, WIDTH / HEIGHT, 0.1, 20000);

@@ -16,9 +16,10 @@ CSG.NodeIntersect = class extends CSG.NodeBoolean
      *  GETTERS & SETTERS
      * ===================================================================================================== */
     geometry ()  {
-        var left_bsp = new ThreeBSP.Node(left.geometry());
-        var right_bsp = new ThreeBSP.Node(right.geometry());
+        var left_bsp = new ThreeBSP (this._left.geometry());
+        var right_bsp = new ThreeBSP (this._right.geometry());
 
-        return left_bsp.intersect(right_bsp).toGeometry();
+        var rv = left_bsp.intersect(right_bsp).toGeometry();
+        return rv;
     }
 };

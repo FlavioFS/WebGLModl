@@ -19,7 +19,7 @@ var afterPushingTo = function(arr, callback) {
 		callback();
 		return arr.length;
 	}
-}
+};
 
 // appends to the 'Solids in the Scene' window buttons for selection
 // and checkboxes for showing solid/wireframe
@@ -47,8 +47,8 @@ afterPushingTo(solids, function() {
 
 		var c1 = document.createElement('input');
 		c1.setAttribute('type', 'checkbox');
-		c1.setAttribute('class', 'show-solid')
-		c1.setAttribute('checked', 'checked')
+		c1.setAttribute('class', 'show-solid');
+		c1.setAttribute('checked', 'checked');
 		c1.value = solids.length-1;
 		div.appendChild(c1);
 
@@ -64,7 +64,7 @@ afterPushingTo(solids, function() {
 		
 		
 	}
-})
+});
 
 
 // [1]
@@ -110,7 +110,7 @@ function init ()
 
 	window_solids = new HUD.Window('Solids in the Scene',
 		{id:'window-solids', width:200, height:800, left: (WIDTH-50)+'px', resizable: true});
-	window_solids.append(new HUD.Label('Click to select:', null, null))
+	window_solids.append(new HUD.Label('Click to select:', null, null));
 	window_solids.append(new HUD.Button(
 			'     Deselect     ', {id: 'solid-deselection'}
 		));
@@ -163,6 +163,31 @@ function init ()
 
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+	// CSG Test
+	var test_mat = {
+		color: 0xFF0000,
+			specular: 0xFFDDDD,
+		shininess: 2,
+		shading: THREE.FlatShading,
+		wireframe: false,
+		transparent: true,
+		opacity: 1.0
+	};
+
+	// Testing CSG
+	var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
+	var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
+	var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
+
+	var test_dif1 = new CSG.NodeDifference(null, test_cub, test_sph);
+	var test_dif2 = new CSG.NodeDifference(null, test_dif1, test_cyl);
+
+	var material = new THREE.MeshPhongMaterial (test_mat);
+	var mesh = new THREE.Mesh(test_dif2.geometry(), material);
+	if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	scene.add(mesh);
 
 
 	// world = new Primitives.Solid({x:0,y:0,z:0});

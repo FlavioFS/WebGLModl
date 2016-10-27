@@ -111,6 +111,12 @@ Primitives.SolidCone = class extends Primitives.Solid
 	 *  THREEJS GEOMETRY
 	 * ===================================================================================================== */
 	geometry()  {
-		return new THREE.ConeGeometry(this.radius, this.height, 32);
+		var rv = new THREE.ConeGeometry(this.radius, this.height, 32);
+
+		var center_mtx = new THREE.Matrix4();
+		center_mtx.setPosition( new THREE.Vector3(this.center.x, this.center.y, this.center.z) );
+		rv.applyMatrix(center_mtx);
+
+		return rv;
 	}
 };

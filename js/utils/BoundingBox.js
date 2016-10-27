@@ -41,7 +41,8 @@ Utils.BoundingBox = class
 
 		
 		// Returns the list of vertices
-		return [
+		var rv =
+		[
 			{ "x": xmin, "y": ymin, "z": zmin },
 			{ "x": xmax, "y": ymin, "z": zmin },
 			{ "x": xmin, "y": ymax, "z": zmin },
@@ -51,6 +52,8 @@ Utils.BoundingBox = class
 			{ "x": xmin, "y": ymax, "z": zmax },
 			{ "x": xmax, "y": ymax, "z": zmax }
 		];
+
+		return rv;
 		
 	}
 
@@ -69,7 +72,8 @@ Utils.BoundingBox = class
 		const zmax = this._center.z + newEdgeHalf;
 
 		// Returns the list of BoundingBoxes
-		return [
+		var rv =
+		[
 			new Utils.BoundingBox ({ "x": xmin, "y": ymin, "z": zmin }, newEdge),
 			new Utils.BoundingBox ({ "x": xmax, "y": ymin, "z": zmin }, newEdge),
 			new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmin }, newEdge),
@@ -79,6 +83,8 @@ Utils.BoundingBox = class
 			new Utils.BoundingBox ({ "x": xmin, "y": ymax, "z": zmax }, newEdge),
 			new Utils.BoundingBox ({ "x": xmax, "y": ymax, "z": zmax }, newEdge)
 		];
+
+		return rv;
 	}
 
 	// Returns model for THREE.js
@@ -86,7 +92,8 @@ Utils.BoundingBox = class
 	{
 		var VL = this.vertices(); // Vertex List
 
-		return {
+		var rv =
+		{
 			"material":
 			{
 				color: 0xFF0000,
@@ -115,6 +122,8 @@ Utils.BoundingBox = class
 
 			"normals": Utils.BoundingBox.faceNormals
 		};
+
+		return rv;
 	}
 
 	// Calculates the normal from the topology (even when shifted)

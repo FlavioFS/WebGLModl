@@ -523,6 +523,7 @@ $(document).ready(function() {
 
 	$(document).on('submit', '.transform-form', function() {
 		var op, defaultValue;
+		var this_elem = $(this);
 
 		if ($(this).attr('id') == 'translate-form') {
 			op = 'Translating';
@@ -568,8 +569,9 @@ $(document).ready(function() {
 			var obj = scene.getObjectByName('solid-'+i);
 			var wire = scene.getObjectByName('wireframe-'+i);
 
+			this_elem.find('input[type=text]').val(defaultValue)
 			if (op == 'Translating') {
-				$(this).find('input:text').val(0);
+				
 				var model = solids[i].model();
 
 				// UPDATES ON THREE.JS
@@ -581,13 +583,11 @@ $(document).ready(function() {
 			}
 			else if (op == 'Scaling')
 			{
-				$(this).find('input:text').val(1);
 				obj.scale.set(pos.x, pos.y, pos.z);
 				wire.scale.set(pos.x, pos.y, pos.z);
 			}
 			else if (op == 'Rotating')
 			{
-				$(this).find('input:text').val(0);
 				obj.rotateX(pos.x/180 * Math.PI);
 				obj.rotateY(pos.y/180 * Math.PI);
 				obj.rotateZ(pos.z/180 * Math.PI);
@@ -710,7 +710,7 @@ $(document).ready(function() {
 
 	// KEYBOARD EVENTS
 	$(document).on('keypress', function(e) {
-		console.log('keypress: ' + e.which);
+		// console.log('keypress: ' + e.which);
 		if ((e.which == 88 || e.which == 120) || (e.key == 88 || e.key == 120))  // x or X
 		{
 			$('input#delete').click();

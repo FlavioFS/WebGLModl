@@ -89,7 +89,7 @@ Primitives.Solid = class
 	// Return the octree in the string format, ex.: '((bw(bbbbbww(....'
 	toString()
 	{
-		return this.toStringRecursion(this.octree).toLowerCase();
+		return this.toStringRecursion(this.octree);
 	}
 
 	toStringRecursion(node)
@@ -97,7 +97,13 @@ Primitives.Solid = class
 		if (node == null)
 			return '';
 
-		var s = (node.color == Octree.GRAY) ? '(' : node.color;
+		var s;
+		if (node.color == Octree.GRAY)
+			s = '(';
+		else if (node.color == Octree.WHITE)
+			s = 'w';
+		else
+			s = 'b';
 
 		for (var i = 0; i < Octree.EIGHT; i++) 
 			s += this.toStringRecursion(node.kids[i]);
@@ -108,7 +114,7 @@ Primitives.Solid = class
 	// Creates octree from a string ex.: '((bw(bbbbbww(....'
 	fromString(str, bBoxEdge = 1)
 	{
-		str = str.toUpperCase().split('');
+		str = str.toLowerCase().split('');
 		
 		var level = 0;
 		 // we have to pass the index by reference. let i = 0 doesnt work
@@ -135,10 +141,14 @@ Primitives.Solid = class
 				
 				return node;
 
-			} else if (colorList[ref.i] == Octree.BLACK) {
+			}
+			else if (colorList[ref.i] == 'b' || colorList[ref.i] == Octree.BLACK)
+			{
 				ref.i++;
 				return new Octree.Node(null, bBox, Octree.BLACK, level, []);
-			} else if (colorList[ref.i] == Octree.WHITE) {
+			}
+			else if (colorList[ref.i] == 'w' || colorList[ref.i] == Octree.WHITE)
+			{
 				ref.i++;
 				return new Octree.Node(null, bBox, Octree.WHITE, level, []);
 			}
@@ -449,26 +459,6 @@ Primitives.Solid = class
 				break;
 			}
 
-			// if (precision == 0)
-			// {
-			// 	model.material.color = 0x0000FF;
-			// 	model.material.opacity = 1.0;
-			// }
-			// else if (precision == 1)
-			// {
-			// 	model.material.color = 0x0000FF;
-			// 	model.material.opacity = 0.6;
-			// }
-			// else
-			// {
-			// 	// model.material.color -= 0xFF0000 * node.level / precision;
-			// 	// model.material.color += 0x0000FF * node.level / precision;
-			// 	model.material.color =
-			// 		0xFF0000 * (1 - (node.level/precision)) + 0x0000FF * (node.level/precision);
-
-			// 	model.material.opacity = 1.0 * (1 - node.level/precision) + 0.2 * node.level;
-			// }
-
 			var geometry = Utils.Model.toGeometry(model, offset);
 			var material = new THREE.MeshPhongMaterial (model.material);
 			var mesh = new THREE.Mesh(geometry, material);
@@ -491,6 +481,8 @@ Primitives.Solid = class
 	// Move every bounding box's center
 	translate(newPos)
 	{
+		this.center = Utils.Vector.sum(this.center, newPos);
+
 		this.translateRecursion(this.octree, newPos);
 	}
 
@@ -521,26 +513,79 @@ Primitives.Solid = class
 			this.scaleRecursion(node.kids[i], factor);
 	}
 
+	// Instead of doing a deep copy of oldSolid
+	// we just do a fromString(oldSolid.toString())
+	duplicateFrom(oldSolid) {
+		this.fromString(oldSolid.toString(), oldSolid._octree.boundingBox.edge)
+	}
+
 
 	/****************************************/
 	// BOOLEAN OPERATIONS
 	/****************************************/
+
+	// Analyse whether both solids have equal bounding boxes.
+	// If yes, just return solids' nodes
+	// If not:
+	//		 one's bBox is twice as bigger as the another's, normalize another
+	//		 otherwise, normalize both
+	normalizeNodesIfNeeded(solid1, solid2)
+	{
+		if (
+			solid1._octree.boundingBox.edge == solid2._octree.boundingBox.edge
+			&& solid1._octree.boundingBox.center.x == solid2._octree.boundingBox.center.x
+			&& solid1._octree.boundingBox.center.y == solid2._octree.boundingBox.center.y
+			&& solid1._octree.boundingBox.center.z == solid2._octree.boundingBox.center.z
+		) {
+			console.log('caso 0')
+			return [solid1._octree, solid2._octree];
+		}
+
+		// so solid1 will be totally inside solid2 boundingbox
+		if (solid1._octree.boundingBox.edge*2 <= solid2._octree.boundingBox.edge) {
+			console.log('caso 1')
+			console.log(solid1._octree.boundingBox)
+			console.log(solid2._octree.boundingBox)
+			return [solid1._octree, this.normalizeOneNodeOnly(solid2._octree, solid1._octree)]
+		}
+		
+		// so solid2 will be totally inside solid1 boundingbox
+		else if (solid2._octree.boundingBox.edge*2 <= solid1._octree.boundingBox.edge) {
+			console.log('caso 2')
+			console.log(solid1._octree.boundingBox)
+			console.log(solid2._octree.boundingBox)
+			return [solid1._octree, this.normalizeOneNodeOnly(solid1._octree, solid2._octree)]
+		}
+
+		console.log('caso 3')
+		console.log(this.toStringRecursion(solid1._octree))
+		console.log(this.toStringRecursion(solid2._octree))
+		return this.normalizeSolidsBBox(solid1._octree, solid2._octree);
+
+		
+	}
 
 	union(solid1, solid2) {
 
 		var nodes = this.normalizeNodesIfNeeded(solid1, solid2);
 		this._octree = new Octree.Node(null, nodes[0].boundingBox, Octree.GRAY);
 		this.unionRecursion(this._octree, nodes[0], nodes[1]);
-		
-		this.removeEmptyGrayNodes(this._octree);
 
-		this.simplifyNode(this._octree);
-		this.simplifyNode(nodes[0]);
-		this.simplifyNode(nodes[1]);
+		this.binaryOperationCleaning(nodes);
+		
+		// this.removeEmptyGrayNodes(this._octree);
+
+		// this.simplifyNode(this._octree);
+		// this.simplifyNode(nodes[0]);
+		// this.simplifyNode(nodes[1]);
+
+		// // updates center
+		// this.center = this._octree.boundingBox.center;
 	}
 
 	unionRecursion(newNode, node1, node2) {
-		var newBoxes
+		var newBoxes;
+
 		// both gray
 		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
 		{
@@ -603,10 +648,14 @@ Primitives.Solid = class
 		this.simplifyNode(nodes[0]);
 		this.simplifyNode(nodes[1]);
 
+		// updates center
+		this.center = this._octree.boundingBox.center;
+
 	}
 
 	intersectionRecursion(newNode, node1, node2) {
-		var newBoxes
+		var newBoxes;
+
 		// both gray
 		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
 		{
@@ -669,10 +718,14 @@ Primitives.Solid = class
 		this.simplifyNode(nodes[0]);
 		this.simplifyNode(nodes[1]);
 
+		// updates center
+		this.center = this._octree.boundingBox.center;
+
 	}
 
 	differenceRecursion(newNode, node1, node2) {
 		var newBoxes;
+
 		// both gray
 		if (node1.color == Octree.GRAY && node2.color == Octree.GRAY)
 		{
@@ -755,9 +808,103 @@ Primitives.Solid = class
 		}
 	}
 
+	// apply general functions like removing empty gray nodes, simplifying etc.
+	binaryOperationCleaning(extraNodes) {
+		this.removeEmptyGrayNodes(this._octree);
+
+		this.simplifyNode(this._octree);
+		this.simplifyNode(extraNodes[0]);
+		this.simplifyNode(extraNodes[1]);
+
+		// updates center
+		this.center = this._octree.boundingBox.center;
+	}
+
 	/********
 	***** FUNCTIONS FOR SUBDIVIDING BBOX AND APPENDING NODES INTO NEW OCTREES
 	*/
+
+	// get the biggest boundingBox, duplicates its size so the another solid will be inside this bBox too
+	normalizeSolidsBBox(n1, n2)
+	{
+		var node1, node2;
+
+		if (n1.boundingBox.edge >= n1.boundingBox.edge)
+		{
+			node1 = n1;
+			node2 = n2;
+		}
+		else
+		{
+			node2 = n1;
+			node1 = n2;
+		}
+
+		// testing where each node will be placed
+		var sum = {x: node1.boundingBox.edge/2,
+					y:node1.boundingBox.edge/2,
+					z: node1.boundingBox.edge/2};
+
+
+		if (node1.boundingBox.center.x > node2.boundingBox.center.x)
+			sum.x *= -1;
+		if (node1.boundingBox.center.y > node2.boundingBox.center.y)
+			sum.y *= -1;
+		if (node1.boundingBox.center.z > node2.boundingBox.center.z)
+			sum.z *= -1;
+
+
+		var wrapperBBox1 = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, sum),
+			node1.boundingBox.edge*2);
+
+		var wrapperNode1 = new Octree.Node(null, wrapperBBox1, Octree.WHITE, node1.level-1, []);
+
+		this.subdivideWrapperNode(wrapperNode1, 1);
+		this.copyNodeKidsToWrapperNode(wrapperNode1, node1, false);
+
+		// distance from node1's to node2's bBoxes
+		var distance = [
+			Math.abs(node1.boundingBox.center.x - node2.boundingBox.center.x),
+			Math.abs(node1.boundingBox.center.y - node2.boundingBox.center.y),
+			Math.abs(node1.boundingBox.center.z - node2.boundingBox.center.z),
+		];
+
+		// once we have the wrapperNode1 (with a double sized boundingBox)
+		// we can calculate wrapperNode2 based on wrapperNode1
+		var wrapperNode2 = this.normalizeOneNodeOnly(wrapperNode1, node2, distance);
+		console.log(this.toStringRecursion(wrapperNode1))
+		console.log(this.toStringRecursion(wrapperNode2))
+		return [ wrapperNode1, wrapperNode2 ];
+	}
+
+	// node2.boundingBox.edge*2 <= node1.boundingBox.edge*2
+	// so we create a new parent node for node2 based on node1.boundingBox
+	// We calculate the precision of the new bigger node based on a distance, if provided
+	normalizeOneNodeOnly(node1, node2, distance=null, minEdge=0.25)
+	{
+		var bBox = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, {x:0, y:0, z:0}), node1.boundingBox.edge);
+		var wrapperNode2 = new Octree.Node(null, bBox, Octree.WHITE, node2.level-1, []);
+
+
+		if (distance) {
+			var precision = this.findPrecision(distance, wrapperNode2.boundingBox.edge, minEdge);
+			console.log(precision)
+			console.log(this.getNodeMaxLevel(node2, {level: -1}))
+
+			if (precision > this.getNodeMaxLevel(node2, {level: -1}))
+				this.forceBlackNodeToSubdivide(node2, precision);
+
+			this.subdivideWrapperNode(wrapperNode2, precision);
+		}
+		else {
+			this.subdivideWrapperNode(wrapperNode2, this.getNodeMaxLevel(node1, {level: -1}));
+		}
+
+		console.log(this.toStringRecursion(wrapperNode2))
+		this.copyNodeKidsToWrapperNode(wrapperNode2, node2, false);
+
+		return wrapperNode2;
+	}
 
 	// it calculates the precision a new octree with `boxEdge`
 	// must have to place inside it another node
@@ -881,111 +1028,6 @@ Primitives.Solid = class
 
 	}
 
-
-	// if both solids' bounding box edge and center are different, normalize the solids' nodes.
-	// Return the solids' nodes
-	normalizeNodesIfNeeded(solid1, solid2)
-	{
-		if (
-			solid1._octree.boundingBox.edge == solid2._octree.boundingBox.edge
-			&& solid1._octree.boundingBox.center.x == solid2._octree.boundingBox.center.x
-			&& solid1._octree.boundingBox.center.y == solid2._octree.boundingBox.center.y
-			&& solid1._octree.boundingBox.center.z == solid2._octree.boundingBox.center.z
-		)
-			return [solid1._octree, solid2._octree];
-
-		// so solid1 will be totally inside solid2 boundingbox
-		if (solid1._octree.boundingBox.edge*2 <= solid2._octree.boundingBox.edge)
-			return [solid1._octree, this.normalizeOneNodeOnly(solid2._octree, solid1._octree)]
-		
-		// so solid2 will be totally inside solid1 boundingbox
-		else if (solid2._octree.boundingBox.edge*2 <= solid1._octree.boundingBox.edge)
-			return [solid1._octree, this.normalizeOneNodeOnly(solid1._octree, solid2._octree)]
-
-		// else
-		return this.normalizeSolidsBBox(solid1._octree, solid2._octree);
-
-		
-	}
-
-	// get the biggest boundingBox, duplicates its size so the another solid will be inside this bBox too
-	normalizeSolidsBBox(n1, n2)
-	{
-		var node1, node2;
-
-		if (n1.boundingBox.edge >= n1.boundingBox.edge)
-		{
-			node1 = n1;
-			node2 = n2;
-		}
-		else
-		{
-			node2 = n1;
-			node1 = n2;
-		}
-		// var baseNode = (node1.boundingBox.edge >= node2.boundingBox.edge)
-		// 				? node1 : node2;
-
-		// testing where each node will be placed
-		var sum = {x: node1.boundingBox.edge/2,
-					y:node1.boundingBox.edge/2,
-					z: node1.boundingBox.edge/2};
-
-
-		if (node1.boundingBox.center.x > node2.boundingBox.center.x)
-			sum.x *= -1;
-		if (node1.boundingBox.center.y > node2.boundingBox.center.y)
-			sum.y *= -1;
-		if (node1.boundingBox.center.z > node2.boundingBox.center.z)
-			sum.z *= -1;
-
-
-		var wrapperBBox1 = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, sum),
-			node1.boundingBox.edge*2);
-
-		var wrapperNode1 = new Octree.Node(null, wrapperBBox1, Octree.WHITE, node1.level-1, []);
-
-		this.subdivideWrapperNode(wrapperNode1, 1);
-		this.copyNodeKidsToWrapperNode(wrapperNode1, node1, false);
-
-		// once we have the wrapperNode1 (with a double sized boundingBox)
-		// we can calculate wrapperNode2 from it
-		return [ wrapperNode1, this.normalizeOneNodeOnly(wrapperNode1, node2, true) ];
-	}
-
-	// node2.boundingBox.edge*2 <= node1.boundingBox.edge*2
-	// so we create a new parent node for node2 based on node1.boundingBox
-	normalizeOneNodeOnly(node1, node2, basedOnDistance=false, minEdge=0.25)
-	{
-		var bBox = new Utils.BoundingBox (Utils.Vector.sum(node1.boundingBox.center, {x:0, y:0, z:0}), node1.boundingBox.edge);
-		var wrapperNode2 = new Octree.Node(null, bBox, Octree.WHITE, node2.level-1, []);
-
-
-		if (basedOnDistance) {
-			var dist = [
-				Math.abs(node1.boundingBox.center.x - node2.boundingBox.center.x),
-				Math.abs(node1.boundingBox.center.y - node2.boundingBox.center.y),
-				Math.abs(node1.boundingBox.center.z - node2.boundingBox.center.z),
-			]; // x, y, z
-
-			var precision = this.findPrecision(dist, wrapperNode2.boundingBox.edge, minEdge);
-
-			if (precision > this.getNodeMaxLevel(node2, {level: -1}))
-				this.forceBlackNodeToSubdivide(node2, precision);
-
-			this.subdivideWrapperNode(wrapperNode2, precision);
-			this.copyNodeKidsToWrapperNode(wrapperNode2, node2);
-		}
-		else {
-			this.subdivideWrapperNode(wrapperNode2, this.getNodeMaxLevel(node1, {level: -1}));
-			this.copyNodeKidsToWrapperNode(wrapperNode2, node2);
-		}
-
-		
-		this.copyNodeKidsToWrapperNode(wrapperNode2, node2);
-
-		return wrapperNode2;
-	}
 
 	subdivideWrapperNode(wrapperNode, precision)
 	{

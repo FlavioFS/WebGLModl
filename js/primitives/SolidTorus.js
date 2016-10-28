@@ -42,9 +42,9 @@ Primitives.SolidTorus = class extends Primitives.Solid
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
 	// This Torus is centered at the base, and points to the z-axis (up)
-	constructor (centerJSON, radius, tubeRadius, renderInside = true)
+	constructor (centerJSON, radius, tubeRadius, renderInside = true, name="Torus")
 	{
-		super (centerJSON);
+		super (centerJSON, name);
 		this.radius = radius;
 		this.tubeRadius = tubeRadius;
 		this._renderInside = renderInside;

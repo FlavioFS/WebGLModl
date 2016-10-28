@@ -1,25 +1,27 @@
 /**
- * Created by Kienz on 26/10/2016.
+ * Created by Kienz on 28/10/2016.
  */
 
-// Difference node
-CSG.NodeDifference = class extends CSG.NodeBoolean
+// Scaling operation
+CSG.NodeScale = class extends CSG.NodeTransform
 {
     /* =====================================================================================================
      *  CONSTRUCTOR
      * ===================================================================================================== */
-    constructor (left = null, right = null) {
-        super(left, right, "CSG.NodeDifference");
+    constructor (child = null, param = {x:1, y:1, z:1}) {
+        super(child, param, "CSG.NodeScale");
     }
 
     /* =====================================================================================================
-     *  GETTERS & SETTERS
+     *  Methods
      * ===================================================================================================== */
-    geometry ()  {
-        var left_bsp = new ThreeBSP (this.left.geometry());
-        var right_bsp = new ThreeBSP (this.right.geometry());
+    geometry () {
+        var rv = this.child.geometry();
 
-        var rv = left_bsp.subtract(right_bsp).toGeometry();
+        var translation_mtx = new THREE.Matrix4();
+        translation_mtx.scale( new THREE.Vector3(this.param.x, this.param.y, this.param.z) );
+        rv.applyMatrix(translation_mtx);
+
         return rv;
     }
 };

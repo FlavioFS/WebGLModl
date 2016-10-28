@@ -8,8 +8,8 @@ CSG.NodeBoolean = class extends CSG.Node
     /* =====================================================================================================
      *  CONSTRUCTOR
      * ===================================================================================================== */
-    constructor (parent = null, left = null, right = null) {
-        super(parent);
+    constructor (left = null, right = null, name="CSG.NodeBoolean") {
+        super(name);
         this._left  = left;
         this._right = right;
     }

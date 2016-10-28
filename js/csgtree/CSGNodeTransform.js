@@ -1,29 +1,32 @@
 /**
- * Created by Kienz on 26/10/2016.
+ * Created by Kienz on 28/10/2016.
  */
 
-// Boolean operation nodes
-CSG.NodeLeaf = class extends CSG.Node
+// Translate, Scale, Rotate
+CSG.NodeTransform = class extends CSG.Node
 {
     /* =====================================================================================================
      *  CONSTRUCTOR
      * ===================================================================================================== */
-    constructor (solid = null) {
-        super("CSG.NodeLeaf");
-        this.solid  = solid;
+    constructor (child = null, param = null, name="Node.Transform") {
+        super(name);
+        this.child  = child;
+        this.param  = param;
     }
 
     /* =====================================================================================================
      *  GETTERS & SETTERS
      * ===================================================================================================== */
-    get solid  () { return this._solid;  }
+    get child  () { return this._child;  }
+    get param  () { return this._param;  }
 
-    set solid  (solid)  { this._solid  = solid;  }
+    set child  (child)  { this._child  = child;  }
+    set param  (param)  { this._param  = param;  }
 
     /* =====================================================================================================
      *  Methods
      * ===================================================================================================== */
     geometry () {
-        return this.solid.geometry();
+        return this.child.geometry();
     }
 };

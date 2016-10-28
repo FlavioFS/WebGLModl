@@ -98,3 +98,4 @@ Utils.Vector.UP    = { x: 0, y: 1, z: 0 };
 Utils.Vector.DOWN  = { x: 0, y:-1, z: 0 };
 Utils.Vector.FRONT = { x: 0, y: 0, z: 1 };
 Utils.Vector.BACK  = { x: 0, y: 0, z:-1 };
+Utils.Vector.ZERO  = { x: 0, y: 0, z: 0 };

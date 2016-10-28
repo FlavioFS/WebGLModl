@@ -41,9 +41,9 @@ Primitives.SolidSphere = class extends Primitives.Solid
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
-	constructor (centerJSON, radius, renderInside = false)
+	constructor (centerJSON, radius, renderInside = false, name="Sphere")
 	{
-		super (centerJSON);
+		super (centerJSON, name);
 		this._radius = radius;
 		this._octree = null;
 		this._renderInside = renderInside;

@@ -42,9 +42,9 @@ Primitives.SolidCone = class extends Primitives.Solid
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
 	// This Cone is centered at the base, and points to the z-axis (up)
-	constructor (centerJSON, radius, height, renderInside = true)
+	constructor (centerJSON, radius, height, renderInside = true, name="Cone")
 	{
-		super (centerJSON);
+		super (centerJSON, name);
 		this.radius = radius;
 		this.height = height;
 		this._renderInside = renderInside;

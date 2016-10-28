@@ -41,9 +41,9 @@ Primitives.SolidCube = class extends Primitives.Solid
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
-	constructor (centerJSON, edge)
+	constructor (centerJSON, edge, name="Cube")
 	{
-		super (centerJSON);
+		super (centerJSON, name);
 		this._edge = edge;
 	}
 

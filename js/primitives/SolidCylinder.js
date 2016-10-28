@@ -42,9 +42,9 @@ Primitives.SolidCylinder = class extends Primitives.Solid
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
 	// This Cylinder is centered at the base, and points to the z-axis (up)
-	constructor (centerJSON, radius, height, renderInside = true)
+	constructor (centerJSON, radius, height, renderInside = true, name="Cylinder")
 	{
-		super (centerJSON);
+		super (centerJSON, name);
 		this._radius = radius;
 		this._height = height;
 		this._renderInside = renderInside;

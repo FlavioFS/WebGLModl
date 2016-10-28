@@ -55,10 +55,11 @@ Primitives.Solid = class
 	/* =====================================================================================================
 	 *  CONSTRUCTOR
 	 * ===================================================================================================== */	
-	constructor (centerJSON={x:0, y:0, z:0})
+	constructor (centerJSON=Utils.Vector.ZERO, name="Solid")
 	{
 		this.center = centerJSON; // Every Solid has a center
 		this._octree = null;       // Every Solid has an Octree (this is abstract)
+		this.name = name;
 		this._boolRenderInside = true;
 	}
 
@@ -68,8 +69,10 @@ Primitives.Solid = class
 	 * ===================================================================================================== */	
 	get center () { return this._center; }
 	get octree () { return this._octree; }
+	get name   () { return this._name; }
 
 	set center (centerJSON) { this._center = centerJSON; }
+	set name   (name)       { this._name = name; }
 
 
 	/* =====================================================================================================
@@ -285,7 +288,7 @@ Primitives.Solid = class
 		{
 			var kidsModels = [];
 			var newkid;
-			for (var i = 0; i < node.kids.length; i++)
+			for (let i = 0; i < node.kids.length; i++)
 			{
 				newkid = this.modelRecursion(node.kids[i]);
 				if (newkid) kidsModels.push(newkid);
@@ -537,29 +540,29 @@ Primitives.Solid = class
 			&& solid1._octree.boundingBox.center.y == solid2._octree.boundingBox.center.y
 			&& solid1._octree.boundingBox.center.z == solid2._octree.boundingBox.center.z
 		) {
-			console.log('caso 0')
+			console.log('caso 0');
 			return [solid1._octree, solid2._octree];
 		}
 
 		// so solid1 will be totally inside solid2 boundingbox
 		if (solid1._octree.boundingBox.edge*2 <= solid2._octree.boundingBox.edge) {
-			console.log('caso 1')
-			console.log(solid1._octree.boundingBox)
-			console.log(solid2._octree.boundingBox)
+			console.log('caso 1');
+			console.log(solid1._octree.boundingBox);
+			console.log(solid2._octree.boundingBox);
 			return [solid1._octree, this.normalizeOneNodeOnly(solid2._octree, solid1._octree)]
 		}
 		
 		// so solid2 will be totally inside solid1 boundingbox
 		else if (solid2._octree.boundingBox.edge*2 <= solid1._octree.boundingBox.edge) {
-			console.log('caso 2')
-			console.log(solid1._octree.boundingBox)
-			console.log(solid2._octree.boundingBox)
+			console.log('caso 2');
+			console.log(solid1._octree.boundingBox);
+			console.log(solid2._octree.boundingBox);
 			return [solid1._octree, this.normalizeOneNodeOnly(solid1._octree, solid2._octree)]
 		}
 
-		console.log('caso 3')
-		console.log(this.toStringRecursion(solid1._octree))
-		console.log(this.toStringRecursion(solid2._octree))
+		console.log('caso 3');
+		console.log(this.toStringRecursion(solid1._octree));
+		console.log(this.toStringRecursion(solid2._octree));
 		return this.normalizeSolidsBBox(solid1._octree, solid2._octree);
 
 		
@@ -872,8 +875,8 @@ Primitives.Solid = class
 		// once we have the wrapperNode1 (with a double sized boundingBox)
 		// we can calculate wrapperNode2 based on wrapperNode1
 		var wrapperNode2 = this.normalizeOneNodeOnly(wrapperNode1, node2, distance);
-		console.log(this.toStringRecursion(wrapperNode1))
-		console.log(this.toStringRecursion(wrapperNode2))
+		console.log(this.toStringRecursion(wrapperNode1));
+		console.log(this.toStringRecursion(wrapperNode2));
 		return [ wrapperNode1, wrapperNode2 ];
 	}
 
@@ -888,8 +891,8 @@ Primitives.Solid = class
 
 		if (distance) {
 			var precision = this.findPrecision(distance, wrapperNode2.boundingBox.edge, minEdge);
-			console.log(precision)
-			console.log(this.getNodeMaxLevel(node2, {level: -1}))
+			console.log(precision);
+			console.log(this.getNodeMaxLevel(node2, {level: -1}));
 
 			if (precision > this.getNodeMaxLevel(node2, {level: -1}))
 				this.forceBlackNodeToSubdivide(node2, precision);
@@ -900,7 +903,7 @@ Primitives.Solid = class
 			this.subdivideWrapperNode(wrapperNode2, this.getNodeMaxLevel(node1, {level: -1}));
 		}
 
-		console.log(this.toStringRecursion(wrapperNode2))
+		console.log(this.toStringRecursion(wrapperNode2));
 		this.copyNodeKidsToWrapperNode(wrapperNode2, node2, false);
 
 		return wrapperNode2;
@@ -1083,4 +1086,4 @@ Primitives.Solid = class
 	}
 
 
-}
+};

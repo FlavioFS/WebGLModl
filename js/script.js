@@ -6,65 +6,12 @@ var grid;
 var solids = [];
 var world = null;
 
-// window for solids in the scene
-var window_solids = null;
-
-
 // Utilities
 
 // Makes some array trigger a callback function when pushed by overriding push()
-var afterPushingTo = function(arr, callback) {
-	arr.push = function(elem) {
-		Array.prototype.push.call(arr, elem);
-		callback();
-		return arr.length;
-	}
-};
 
 // appends to the 'Solids in the Scene' window buttons for selection
 // and checkboxes for showing solid/wireframe
-afterPushingTo(solids, function() {
-	if (window_solids != null) {
-		
-		ws = document.getElementById('window-solids');
-		var div = document.createElement('div');
-		div.dataset.index = solids.length-1;
-		ws.appendChild(div);
-
-		var button = document.createElement('input');
-		button.setAttribute('type', 'button');
-		button.className = 'solid-selection';
-		button.value = 'Solid ' + solids.length;
-		button.dataset.index = solids.length-1;
-		div.appendChild(button);
-
-		var colorPicker = document.createElement('input');
-		colorPicker.setAttribute('type', 'color');
-		colorPicker.className = 'solid-color';
-		colorPicker.value = '#FF0000';
-		colorPicker.dataset.index = solids.length-1;
-		div.appendChild(colorPicker);
-
-		var c1 = document.createElement('input');
-		c1.setAttribute('type', 'checkbox');
-		c1.setAttribute('class', 'show-solid');
-		c1.setAttribute('checked', 'checked');
-		c1.value = solids.length-1;
-		div.appendChild(c1);
-
-		var c2 = document.createElement('input');
-		c2.setAttribute('type', 'checkbox');
-		c2.setAttribute('class', 'show-wireframe');
-		c2.value = solids.length-1;
-		div.appendChild(c2);
-
-		var br = document.createElement('br');
-		div.appendChild(br);
-		
-		
-		
-	}
-});
 
 
 // [1]
@@ -90,8 +37,8 @@ function init ()
 
 
 	/******
-	* HUD 
-	*/
+	 * HUD
+	 */
 	HUD.create(WIDTH, HEIGHT);
 
 	var windowWidth = 220;
@@ -113,9 +60,9 @@ function init ()
 		{id:'window-solids', width:140, height:HEIGHT, left: windowWidth+'px', resizable: false});
 	window_solids.append(new HUD.Label('Click to select:', null, null));
 	window_solids.append(new HUD.Button(
-			'     Deselect     ', {id: 'solid-deselection'}
-		));
-	
+		'     Deselect     ', {id: 'solid-deselection'}
+	));
+
 	// w2.append(new HUD.Button('Render', 'render', {}));
 	// w2.append(new HUD.Button('Animate', 'animate', {}));
 	// w2.append(new HUD.Button('Etc.', 'etc', {}));
@@ -169,7 +116,7 @@ function init ()
 	// CSG Test
 	var test_mat = {
 		color: 0xFF0000,
-			specular: 0xFFDDDD,
+		specular: 0xFFDDDD,
 		shininess: 2,
 		shading: THREE.FlatShading,
 		wireframe: false,
@@ -182,13 +129,43 @@ function init ()
 	// var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
 	// var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
 
-	// var test_dif1 = new CSG.NodeDifference(null, test_cub, test_sph);
-	// var test_dif2 = new CSG.NodeDifference(null, test_dif1, test_cyl);
+	// Functional CSG tree geometry test
+	var result_geo = new CSG.NodeDifference(
 
-	// var material = new THREE.MeshPhongMaterial (test_mat);
-	// var mesh = new THREE.Mesh(test_dif2.geometry(), material);
-	// if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	// scene.add(mesh);
+		new CSG.NodeDifference (
+
+			new CSG.NodeLeaf(
+				new Primitives.SolidCube(Utils.Vector.ZERO, 4)
+			),
+
+			new CSG.NodeTranslate(
+				new CSG.NodeScale(
+					new CSG.NodeLeaf(
+						new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
+					),
+					{x:2, y:2, z:2}
+				),
+				{x:1, y:1, z:1}
+			)
+
+		),
+
+		new CSG.NodeTranslate(
+			new CSG.NodeLeaf(
+				new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
+			),
+			{x:-1, y:-1, z:-1}
+		)
+
+	).geometry();
+
+	// var test_dif1 = new CSG.NodeDifference(test_cub, test_sph);
+	// var test_dif2 = new CSG.NodeDifference(test_dif1, test_cyl);
+
+	var material = new THREE.MeshPhongMaterial (test_mat);
+	var mesh = new THREE.Mesh(result_geo, material);
+	if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	scene.add(mesh);
 
 
 	// world = new Primitives.Solid({x:0,y:0,z:0});
@@ -196,6 +173,59 @@ function init ()
 	// console.log(world.toString())
 
 }
+
+
+// window for solids in the scene
+var window_solids = null;
+var afterPushingTo = function(arr, callback) {
+	arr.push = function(elem) {
+		Array.prototype.push.call(arr, elem);
+		callback();
+		return arr.length;
+	}
+};
+afterPushingTo(solids, function() {
+	if (window_solids != null) {
+
+		ws = document.getElementById('window-solids');
+		var div = document.createElement('div');
+		div.dataset.index = solids.length-1;
+		ws.appendChild(div);
+
+		var button = document.createElement('input');
+		button.setAttribute('type', 'button');
+		button.className = 'solid-selection';
+		button.value = 'Solid ' + solids.length;
+		button.dataset.index = solids.length-1;
+		div.appendChild(button);
+
+		var colorPicker = document.createElement('input');
+		colorPicker.setAttribute('type', 'color');
+		colorPicker.className = 'solid-color';
+		colorPicker.value = '#FF0000';
+		colorPicker.dataset.index = solids.length-1;
+		div.appendChild(colorPicker);
+
+		var c1 = document.createElement('input');
+		c1.setAttribute('type', 'checkbox');
+		c1.setAttribute('class', 'show-solid');
+		c1.setAttribute('checked', 'checked');
+		c1.value = solids.length-1;
+		div.appendChild(c1);
+
+		var c2 = document.createElement('input');
+		c2.setAttribute('type', 'checkbox');
+		c2.setAttribute('class', 'show-wireframe');
+		c2.value = solids.length-1;
+		div.appendChild(c2);
+
+		var br = document.createElement('br');
+		div.appendChild(br);
+
+
+
+	}
+});
 
 // [2]
 function animate ()

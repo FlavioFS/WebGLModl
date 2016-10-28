@@ -2,8 +2,8 @@ $(document).ready(function() {
 	init();
 	animate();
 
-	$('div').draggable({handle: '.draggable'});
-	$('.resizable').resizable();
+	// $('div').draggable({handle: '.draggable'});
+	// $('.resizable').resizable();
 
 	// avoid double clicking
 	$("*").dblclick(function(e){
@@ -195,6 +195,7 @@ $(document).ready(function() {
 				y: parseFloat($(this).find('input[name=y]').val()),
 				z: parseFloat($(this).find('input[name=z]').val())
 			};
+
 			r = parseFloat($(this).find('input[name=radius]').val());
 			precision = parseInt($(this).find('select[name=precision]').val());
 			renderInside = $(this).find('input[name=render-inside]').prop('checked');
@@ -417,10 +418,18 @@ $(document).ready(function() {
 			var original = [
 				scene.getObjectByName('solid-'+getSelectedSolidIndex()),
 				scene.getObjectByName('wireframe-'+getSelectedSolidIndex())
-			]
-			var newIndex = solids.push(solids[getSelectedSolidIndex()]) - 1;
+			];
 
-			console.log(original)
+			var oldSolid = solids[getSelectedSolidIndex()];
+			var newSolid = new Primitives.Solid({
+				x: oldSolid.center.x,
+				y: oldSolid.center.y,
+				z: oldSolid.center.z,
+			});
+			newSolid.duplicateFrom(oldSolid);
+
+			var newIndex = solids.push(newSolid) - 1;
+
 			var duplicatedMesh = new THREE.Mesh(
 				original[0].geometry,
 				new THREE.MeshPhongMaterial({
@@ -435,7 +444,7 @@ $(document).ready(function() {
 			);
 			duplicatedMesh.name = 'solid-'+newIndex;
 
-			scene.add(duplicatedMesh)
+			scene.add(duplicatedMesh);
 
 			var duplicatedWireframe = new THREE.Mesh(
 				original[1].geometry,
@@ -451,10 +460,6 @@ $(document).ready(function() {
 			duplicatedWireframe.name = 'wireframe-'+newIndex;
 			scene.add(duplicatedWireframe);
 
-			// console.log('#'+duplicatedMesh.material.color.getHex().toString(16))
-			console.log($('input[type=color].solid-color'))
-			console.log($('input[type=color][data-index="'+newIndex+'"].solid-color'));
-			
 			$('input[type=color][data-index="'+newIndex+'"].solid-color')[0]
 				.value = '#'+duplicatedMesh.material.color.getHex().toString(16)
 			
@@ -463,18 +468,21 @@ $(document).ready(function() {
 		}
 	});
 
+	function destroySolid(index) {
+		solids[getSelectedSolidIndex()] = null;
+
+		scene.remove(scene.getObjectByName('solid-'+index));
+		scene.remove(scene.getObjectByName('wireframe-'+index));
+
+		$('#window-solids div[data-index="'+index+'"]').remove()
+	}
+
 	$(document).on('click', '#delete', function() {
 		var index = getSelectedSolidIndex();
 
 		if(!isNaN(index)) {
 			if (confirm("Delete?")) {
-				solids[getSelectedSolidIndex()] = null;
-
-				scene.remove(scene.getObjectByName('solid-'+index));
-				scene.remove(scene.getObjectByName('wireframe-'+index));
-
-				$('#window-solids div[data-index="'+index+'"]').remove()
-
+				destroySolid(index);
 			}
 		} else {
 			alert('Select a solid!');
@@ -514,23 +522,36 @@ $(document).ready(function() {
 	`);
 
 	$(document).on('submit', '.transform-form', function() {
-		var op;
-		if ($(this).attr('id') == 'translate-form')
+		var op, defaultValue;
+		var this_elem = $(this);
+
+		if ($(this).attr('id') == 'translate-form') {
 			op = 'Translating';
-		else if ($(this).attr('id') == 'scale-form')
+			defaultValue = 0;
+		}
+		else if ($(this).attr('id') == 'scale-form') {
 			op = 'Scaling';
-		else if ($(this).attr('id') == 'rotate-form')
+			defaultValue = 1;
+		}
+		else if ($(this).attr('id') == 'rotate-form') {
 			op = 'Rotating';
+			defaultValue = 0;
+		}
 
 		pos = {
-			x: parseFloat($(this).find('input[name=x]').val()),
-			y: parseFloat($(this).find('input[name=y]').val()),
-			z: parseFloat($(this).find('input[name=z]').val())
+			x: $(this).find('input[name=x]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=x]').val()),
+			y: $(this).find('input[name=y]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=y]').val()),
+			z: $(this).find('input[name=z]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=z]').val())
 		};
 
-		var i = getSelectedSolidIndex();
+		if (pos.x == '')
+			pos.x = 0;
+		if (pos.y == '')
+			pos.y = 0;
+		if (pos.z == '')
+			pos.z = 0;
 
-		$(this).find('input:text').val(0);
+		var i = getSelectedSolidIndex();
 
 		if (isNaN(i))
 			return alert('Select a solid!');
@@ -548,8 +569,9 @@ $(document).ready(function() {
 			var obj = scene.getObjectByName('solid-'+i);
 			var wire = scene.getObjectByName('wireframe-'+i);
 
+			this_elem.find('input[type=text]').val(defaultValue)
 			if (op == 'Translating') {
-				$(this).find('input:text').val(0);
+				
 				var model = solids[i].model();
 
 				// UPDATES ON THREE.JS
@@ -561,13 +583,11 @@ $(document).ready(function() {
 			}
 			else if (op == 'Scaling')
 			{
-				$(this).find('input:text').val(1);
 				obj.scale.set(pos.x, pos.y, pos.z);
 				wire.scale.set(pos.x, pos.y, pos.z);
 			}
 			else if (op == 'Rotating')
 			{
-				$(this).find('input:text').val(0);
 				obj.rotateX(pos.x/180 * Math.PI);
 				obj.rotateY(pos.y/180 * Math.PI);
 				obj.rotateZ(pos.z/180 * Math.PI);
@@ -623,7 +643,11 @@ $(document).ready(function() {
 			<label>Obj2: <input type='text' name='b' size='4' value='2' /></label><br />
 			<input class='submit-button' type='button' value='Union' />
 			<input class='submit-button' type='button' value='Intersection' />
-			<input class='submit-button' type='button' value='Difference' />
+			<input class='submit-button' type='button' value='Difference' /><br />
+			Destroy original objects:<br /> 
+			<label>First <input type='checkbox' name='destroy-first' checked /> <label><br />
+			<label>Second <input type='checkbox' name='destroy-second' checked /> <label><br />
+
 		</form>
 	`);
 
@@ -652,6 +676,12 @@ $(document).ready(function() {
 
 			addSolid(solid);
 
+			if ($('#boolean-form input[name=destroy-first]').is(':checked'))
+				destroySolid(a)
+
+			if ($('#boolean-form input[name=destroy-second]').is(':checked'))
+				destroySolid(b)
+
 		// 	loading.endTimer().hide(5000);
 		// }, 15);
 
@@ -677,6 +707,24 @@ $(document).ready(function() {
 			grid.material.depthWrite = false;
 		}
 	})
+
+	// KEYBOARD EVENTS
+	$(document).on('keypress', function(e) {
+		// console.log('keypress: ' + e.which);
+		if ((e.which == 88 || e.which == 120) || (e.key == 88 || e.key == 120))  // x or X
+		{
+			$('input#delete').click();
+		}
+		else if ((e.which == 100 || e.which == 68) || (e.key == 100 || e.key == 68)) // d or D
+		{
+			$('input#duplicate').click();
+		}
+		else if ((e.which == 97 || e.which == 65) || (e.key == 97 || e.key == 65)) // a or A
+		{
+			$('input#solid-deselection').click();
+		}
+
+	});
 
 
 

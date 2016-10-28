@@ -72,8 +72,8 @@ function init ()
 {
 	// Resolution
 	scene = new THREE.Scene();
-	var WIDTH = window.innerWidth * 0.9,
-		HEIGHT = window.innerHeight * 0.9;
+	var WIDTH = window.innerWidth - 10,
+		HEIGHT = window.innerHeight - 10;
 
 
 	// Creates renderer
@@ -94,8 +94,9 @@ function init ()
 	*/
 	HUD.create(WIDTH, HEIGHT);
 
+	var windowWidth = 220;
 	var w = new HUD.Window('Primitives',
-		{id: 'window1', width:200, height:800, resizable: true});
+		{id: 'window1', width:windowWidth, height:HEIGHT, resizable: false});
 	w.append(new HUD.Button('New Cube', {id: 'new-cube'}));
 	w.append(new HUD.Button('New Sphere', {id: 'new-sphere'}));
 	w.append(new HUD.Button('New Cone', {id: 'new-cone'}));
@@ -109,7 +110,7 @@ function init ()
 	w.append(new HUD.Button('Delete Solid', {id: 'delete'}));
 
 	window_solids = new HUD.Window('Solids in the Scene',
-		{id:'window-solids', width:200, height:700, left: (WIDTH-50)+'px', resizable: true});
+		{id:'window-solids', width:140, height:HEIGHT, left: windowWidth+'px', resizable: false});
 	window_solids.append(new HUD.Label('Click to select:', null, null));
 	window_solids.append(new HUD.Button(
 			'     Deselect     ', {id: 'solid-deselection'}
@@ -128,8 +129,7 @@ function init ()
 
 	// Camera
 	camera = new THREE.PerspectiveCamera (45, WIDTH / HEIGHT, 0.1, 20000);
-	camera.position.set(0,6,0);
-	camera.position.z = 10;
+	camera.position.set(0,6,10);
 	scene.add(camera);
 
 
@@ -178,17 +178,17 @@ function init ()
 	};
 
 	// Testing CSG
-	var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
-	var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
-	var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
+	// var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
+	// var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
+	// var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
 
-	var test_dif1 = new CSG.NodeDifference(null, test_cub, test_sph);
-	var test_dif2 = new CSG.NodeDifference(null, test_dif1, test_cyl);
+	// var test_dif1 = new CSG.NodeDifference(null, test_cub, test_sph);
+	// var test_dif2 = new CSG.NodeDifference(null, test_dif1, test_cyl);
 
-	var material = new THREE.MeshPhongMaterial (test_mat);
-	var mesh = new THREE.Mesh(test_dif2.geometry(), material);
-	if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	scene.add(mesh);
+	// var material = new THREE.MeshPhongMaterial (test_mat);
+	// var mesh = new THREE.Mesh(test_dif2.geometry(), material);
+	// if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	// scene.add(mesh);
 
 
 	// world = new Primitives.Solid({x:0,y:0,z:0});

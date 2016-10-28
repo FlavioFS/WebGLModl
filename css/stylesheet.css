@@ -4,6 +4,7 @@ body
 	background-color: #222233;
 	margin: 0px;
 	padding: 0px;
+	font-size: 10pt;
 }
 
 .glcanvas
@@ -52,6 +53,7 @@ div.window {
 	background-color: #AAAAAA;
 	top: 0px;
 	left: 0px;
+	overflow-y: scroll;
 }
 div.window input[type=button] {
 	display: block;
@@ -88,7 +90,7 @@ div.window div.label:first-child {
 }
 
 div.window div.draggable {
-	cursor: move;
+	/*cursor: move;*/
 }
 
 div#window-solids div {
@@ -103,6 +105,11 @@ div#window-solids input[type=button] {
 
 div#window-solids input[type=button]#solid-deselection {
 	display: block;
+}
+
+
+input[type=color] {
+	width: 20px;
 }
 
 /* Regarding the signal lamp */

@@ -2,145 +2,52 @@ $(document).ready(function() {
 	init();
 	animate();
 
-	// $('div').draggable({handle: '.draggable'});
-	// $('.resizable').resizable();
 
 	// avoid double clicking
 	$("*").dblclick(function(e){
 		e.preventDefault();
 	});
 
-	// It is possible to exist only one form for each 'new' button
-	// if it exists already, it is deleted (like 'toggle')
+	$('body').after(`
+	<div class="window" id="window1" style="width: 220px; height: 969px; top: 0px; left: 0px;">
+		<div class="label draggable">
+			<select id="modelType" style="font-size: 18pt; text-align: center;">
+				<option value="0">Octree</option>
+				<option value="1" selected>CSG</option>
+			</select>
+		</div>
+		<div id='content'>` + csgHtml + `</div>
+	</div>
+	<div class="window" id="window-solids" style="width: 160px; height: 969px; top: 0px; left: 220px;"><div class="label draggable">Solids in the Scene</div><div class="label">Click to select:</div><input type="button" value="     Deselect     " id="solid-deselection"></div>
+	`)
 
-	/** CUBE **/
-	$('#new-cube').click(function() {
-		if ($('#cube-form').length)
-			return $('#cube-form').remove();
+	$('#window1 div:first').html(`
+		<select id="modelType" style='font-size: 18pt;'>
+			<option value="0">Octree</option>
+			<option value="1" selected>CSG</option>
+	`)
 
-		$(this).after(`
-			<form id='cube-form' action='#'>
-				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-				<br />
-				<label>Edge: <input type='text' name='edge' size='4' value='2' /></label><br />
-				<input type='submit' value='Create' />
-			</form>
-			`);
-	});
+	$('#modelType').change(function(){
+		modelType = $(this).val();
+		if (modelType == OCTREE_MODEL)
+			$('#content').html(octreeHtml)
+		else if (modelType == CSG_MODEL)
+			$('#content').html(csgHtml)
 
-	/** SPHERE **/
-	$('#new-sphere').click(function() {
-		if ($('#sphere-form').length)
-			return $('#sphere-form').remove();
+		$('#content').find('.toggle-form-area form').hide(0); // initially
+	})
 
-		$(this).after(`
-			<form id='sphere-form' action='#'>
-				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-				<br />
-				<label>Radius: <input type='text' name='radius' size='4' value='1' /></label><br />
-				<label for='precision'>Precision</label>
-				<select name="precision" id="minbeds">
-					<option>1</option>
-					<option>2</option>
-					<option selected>3</option>
-					<option>4</option>
-					<option>5</option>
-				</select><br />
-				<label><input type='checkbox' name='render-inside' checked /> Render inside?<label><br />
-				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
-				<input type='submit' value='Create' />
-			</form>
-			`);
-	});
+	
+	// HIDING AND SHOWING PRIMITIVE FORMS
+	$(document).on('click', 'input.button-toggle-form', function() {
+		$(this).next().toggle()
+	})
 
+	$('#content').find('.toggle-form-area form').hide(0); // initially
 
-	/** CONE **/
-	$('#new-cone').click(function() {
-		if ($('#cone-form').length)
-			return $('#cone-form').remove();
-
-		$(this).after(`
-			<form id='cone-form' action='#'>
-				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-				<br />
-				<label>Radius: <input type='text' name='radius' size='4' value='1' /></label><br />
-				<label>Height: <input type='text' name='height' size='4' value='1' /></label><br />
-				<label for='precision'>Precision</label>
-				<select name="precision" id="minbeds">
-					<option>1</option>
-					<option>2</option>
-					<option selected>3</option>
-					<option>4</option>
-					<option>5</option>
-				</select><br />
-				<label><input type='checkbox' name='render-inside' checked /> Render inside?</label><br />
-				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
-				<input type='submit' value='Create' />
-			</form>
-			`);
-	});
-
-	/** Cylinder **/
-	$('#new-cylinder').click(function() {
-		if ($('#cylinder-form').length)
-			return $('#cylinder-form').remove();
-
-		$(this).after(`
-			<form id='cylinder-form' action='#'>
-				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-				<br />
-				<label>Radius: <input type='text' name='radius' size='4' value='1' /></label><br />
-				<label>Height: <input type='text' name='height' size='4' value='1' /></label><br />
-				<label for='precision'>Precision</label>
-				<select name="precision">
-					<option>1</option>
-					<option>2</option>
-					<option selected>3</option>
-					<option>4</option>
-					<option>5</option>
-				</select><br />
-				<label><input type='checkbox' name='render-inside' checked /> Render inside?<label><br />
-				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
-				<input type='submit' value='Create' />
-			</form>
-			`);
-	});
-
-	/** TORUS **/
-	$('#new-torus').click(function() {
-		if ($('#torus-form').length)
-			return $('#torus-form').remove();
-
-		$(this).after(`
-			<form id='torus-form' action='#'>
-				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-				<br />
-				<label>Radius: <input type='text' name='radius' size='4' value='1' /></label><br />
-				<label>Tube Radius: <input type='text' name='tubeRadius' size='4' value='1' /></label><br />
-				<label for='precision'>Precision</label>
-				<select name="precision">
-					<option>1</option>
-					<option>2</option>
-					<option selected>3</option>
-					<option>4</option>
-					<option>5</option>
-				</select><br />
-				<label><input type='checkbox' name='render-inside' checked /> Render inside?<label><br />
-				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
-				<input type='submit' value='Create' />
-			</form>
-			`);
-	});
+	/************************
+	************************* OCTREE
+	*/
 
 	// #cube-form
 	$(document).on('submit', 'form#cube-form', function() {
@@ -161,18 +68,31 @@ $(document).ready(function() {
 
 			// reason to use timeout: a solid would be calculated BEFORE showing a loading
 			setTimeout(function() {
-				var solid = new Primitives.SolidSphere(pos, e/2, true);
-				solid.calcOctree(1);
-				
-				addSolid(solid);
 
-				this_elem.remove();
+				var solid;
 
-				loading.endTimer().hide(5000);
+				if (modelType == OCTREE_MODEL)
+				{
+					solid = new Primitives.SolidSphere(pos, e/2, true);
+					solid.calcOctree(1);
+					
+					addSolid(solid);
+				}
+				else if (modelType == CSG_MODEL)
+				{
+					solid = new Primitives.SolidCube(Utils.Vector.ZERO, e)
+					addCsgSolid(solid);
+				}
+
+					this_elem.toggle();
+
+					loading.endTimer().hide(3000);
 			}, 15);
+
+			return false;
 	});
 
-	$(document).on('submit', 'form', function() {
+	$(document).on('submit', 'form.new-primitive-form', function() {
 		var pos, r, h, t, precision, renderInside, boolAddColored = false;
 
 		var this_id = $(this).attr('id'),
@@ -209,34 +129,49 @@ $(document).ready(function() {
 
 			// reason to use timeout: a solid would be calculated BEFORE showing a loading
 			setTimeout(function() {
-
-				if (boolAddColored)
-					renderInside = true;
-
 				var solid;
+				if (modelType == OCTREE_MODEL)
+				{
+					if (boolAddColored)
+						renderInside = true;
 
-				if (this_id == 'sphere-form')
-					solid = new Primitives.SolidSphere(pos, r, renderInside);
-				else if (this_id == 'cone-form')
-					solid = new Primitives.SolidCone(pos, r, h, renderInside);
-				else if (this_id == 'cylinder-form')
-					solid = new Primitives.SolidCylinder(pos, r, h, renderInside);
-				else if (this_id == 'torus-form')
-					solid = new Primitives.SolidTorus(pos, r, t, renderInside);
+					if (this_id == 'sphere-form')
+						solid = new Primitives.SolidSphere(pos, r, renderInside);
+					else if (this_id == 'cone-form')
+						solid = new Primitives.SolidCone(pos, r, h, renderInside);
+					else if (this_id == 'cylinder-form')
+						solid = new Primitives.SolidCylinder(pos, r, h, renderInside);
+					else if (this_id == 'torus-form')
+						solid = new Primitives.SolidTorus(pos, r, t, renderInside);
+						
+
+					solid.calcOctree(precision);
+					console.log('Octree created in ' + loading.getTimer() + 'ms');
 					
+					if (boolAddColored)
+						solid.addToSceneColored(scene, precision, 0);
+					else {
+						addSolid(solid);
+					}
+				}
+				else if (modelType == CSG_MODEL)
+				{
+					console.log(this_id)
+					if (this_id == 'sphere-form')
+						solid = new Primitives.SolidSphere(Utils.Vector.ZERO, r);
+					else if (this_id == 'cone-form')
+						solid = new Primitives.SolidCone(Utils.Vector.ZERO, r, h)
+					else if (this_id == 'cylinder-form')
+						solid = new Primitives.SolidCylinder(Utils.Vector.ZERO, r, h)
+					else if (this_id == 'torus-form')
+						solid = new Primitives.SolidTorus(Utils.Vector.ZERO, r, t)
 
-				solid.calcOctree(precision);
-				console.log('Octree created in ' + loading.getTimer() + 'ms');
-				
-				if (boolAddColored)
-					solid.addToSceneColored(scene, precision, 0);
-				else {
-					addSolid(solid);
+					addCsgSolid(solid);
 				}
 
-				this_elem.remove();
+				this_elem.toggle();
 
-				loading.endTimer().hide(5000);
+				loading.endTimer().hide(3000);
 			}, 15);
 		}
 
@@ -248,15 +183,30 @@ $(document).ready(function() {
 	/***
 	**** SOLID SELECTION
 	*/
+
 	function unhighlightSolid() {
 		if ($('.solid-selection:disabled').length) {
-			var material = scene.getObjectByName('wireframe-'+$('.solid-selection:disabled').data('index')).material;
+			var solidPrefix = '';
+			var bBoxPrefix = '';
+
+			if ($('.solid-selection:disabled').data('model-type') == OCTREE_MODEL)
+			{
+				solidPrefix = 'solid-';
+				bBoxPrefix = 'wireframe-';
+			}
+			else if ($('.solid-selection:disabled').data('model-type') == CSG_MODEL)
+			{
+				solidPrefix = 'csg-solid-';
+				bBoxPrefix = 'csg-bbox-';
+			}
+
+			var material = scene.getObjectByName(bBoxPrefix+$('.solid-selection:disabled').data('index')).material;
 			material.wireframeLinewidth = 1;
 			material.color.set(
-				scene.getObjectByName('solid-'+$('.solid-selection:disabled').data('index')).material.color
+				scene.getObjectByName(solidPrefix+$('.solid-selection:disabled').data('index')).material.color
 			);
 
-			scene.getObjectByName('wireframe-'+$('.solid-selection:disabled').data('index')).material = material;
+			scene.getObjectByName(bBoxPrefix+$('.solid-selection:disabled').data('index')).material = material;
 		}
 	}
 	$(document).on('click', '#solid-deselection', function() {
@@ -273,15 +223,25 @@ $(document).ready(function() {
 		
 		// HIGHLIGHT
 		// show wireframe if it is not showing already
-		var wireframe = $('.show-wireframe[type=checkbox][value='+$(this).data('index')+']');
-		if (!wireframe.is(':checked'))
-			wireframe.click();
+		var prefix;
+		if ($(this).data('model-type') == OCTREE_MODEL) {
+			prefix = 'wireframe-';
+		}
+		else if  ($(this).data('model-type') == CSG_MODEL)
+		{
+			prefix = 'csg-bbox-';
+		}
 
-		var material = scene.getObjectByName('wireframe-'+$(this).data('index')).material;
+		var bbox = $('.show-bbox[type=checkbox][value='+$(this).data('index')+'][data-model-type='+$(this).data('model-type')+']');
+		if (!bbox.is(':checked'))
+			bbox.click();
+
+		var material = scene.getObjectByName(prefix+$(this).data('index')).material;
 		material.wireframeLinewidth = 3;
 		material.color.set('#f4e542');
-		scene.getObjectByName('wireframe-'+$(this).data('index')).material = material;
+		scene.getObjectByName(prefix+$(this).data('index')).material = material;
 	});
+
 
 	/***
 	**** CHANGE SOLID COLOR
@@ -291,12 +251,22 @@ $(document).ready(function() {
 		scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.set($(this).val());
 	});
 
+	$(document).on('change', 'input[type=color].csg-solid-color', function() {
+		scene.getObjectByName('csg-solid-'+$(this).data('index')).material.color.set($(this).val());
+		scene.getObjectByName('csg-bbox-'+$(this).data('index')).material.color.set($(this).val());
+	});
+
 	/***
 	**** SHOWING/HIDING SOLID/WIREFRAME
 	*/
 	$(document).on('change', '.show-solid[type=checkbox]', function() {
 		
-		var obj = scene.getObjectByName('solid-'+$(this).val());
+		var obj;
+		if ($(this).data('model-type') == OCTREE_MODEL)
+			obj = scene.getObjectByName('solid-'+$(this).val());
+		else if ($(this).data('model-type') == CSG_MODEL)
+			obj = scene.getObjectByName('csg-solid-'+$(this).val());
+
 		var material = obj.material;
 
 		if ($(this).is(':checked')) {
@@ -310,9 +280,14 @@ $(document).ready(function() {
 		obj.material = material;
 	});
 
-	$(document).on('change', '.show-wireframe[type=checkbox]', function() {
+	$(document).on('change', '.show-bbox[type=checkbox]', function() {
 		
-		var obj = scene.getObjectByName('wireframe-'+$(this).val());
+		var obj;
+		if ($(this).data('model-type') == OCTREE_MODEL)
+			obj = scene.getObjectByName('wireframe-'+$(this).val());
+		else if ($(this).data('model-type') == CSG_MODEL)
+			obj = scene.getObjectByName('csg-bbox-'+$(this).val());
+
 		var material = obj.material;
 
 		// obj.visible = true/false is not working for wireframes. It causes freezing
@@ -341,33 +316,24 @@ $(document).ready(function() {
 		return parseInt($('.solid-selection:disabled').data('index'))
 	};
 
+	var getSelectedSolidModelType = function() {
+		return parseInt($('.solid-selection:disabled').data('model-type'))
+	};
+
 	// gets index (int) of a selected solid, then solids[index].toString()
 	$(document).on('click', '#export', function() {
-		try {
-			console.log(
-				solids[getSelectedSolidIndex()].toString());
-		} catch(e) {
-			alert('Select a solid!');
+		if (getSelectedSolidModelType() == OCTREE_MODEL) {
+			try {
+				console.log(
+					solids[getSelectedSolidIndex()].toString());
+			} catch(e) {
+				alert('Select a solid!');
+			}
 		}
-	});
-
-	$(document).on('click', '#import', function() {
-		if ($('#import-form').length)
-			return $('#import-form').remove();
-
-		$(this).after(`
-			<form id='import-form' action='#'>
-				<label>Bounding box edge: <input type='text' name='bBoxEdge' size='4' value='4' /></label><br />
-				<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-				<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-				<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-				<br />
-				<label for='code'>Code:</label>
-				<textarea name="code" height='20' size='30'>(bw(bwwwwwwwwbwww</textarea><br />
-				<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
-				<input type='submit' value='Import solid' />
-			</form>
-		`);
+		else if (getSelectedSolidModelType() == CSG_MODEL)
+		{
+			// TODO
+		}
 	});
 
 	$(document).on('submit', '#import-form', function() {
@@ -402,9 +368,9 @@ $(document).ready(function() {
 				addSolid(solid);
 			}
 
-			this_elem.remove();
+			this_elem.toggle();
 
-			loading.endTimer().hide(5000);
+			loading.endTimer().hide(3000);
 		}, 15);
 
 	});
@@ -415,66 +381,81 @@ $(document).ready(function() {
 	// gets index (int) of a selected solid, then solids[index].toString()
 	$(document).on('click', '#duplicate', function() {
 		if(!isNaN(getSelectedSolidIndex())) {
-			var original = [
-				scene.getObjectByName('solid-'+getSelectedSolidIndex()),
-				scene.getObjectByName('wireframe-'+getSelectedSolidIndex())
-			];
-
-			var oldSolid = solids[getSelectedSolidIndex()];
-			var newSolid = new Primitives.Solid({
-				x: oldSolid.center.x,
-				y: oldSolid.center.y,
-				z: oldSolid.center.z,
-			});
-			newSolid.duplicateFrom(oldSolid);
-
-			var newIndex = solids.push(newSolid) - 1;
-
-			var duplicatedMesh = new THREE.Mesh(
-				original[0].geometry,
-				new THREE.MeshPhongMaterial({
-					color: original[0].material.color,
-					specular: 0xFFDDDD,
-					shininess: 2,
-					shading: THREE.FlatShading,
-					wireframe: false,
-					transparent: true,
-					opacity: 1.0
-				})
-			);
-			duplicatedMesh.name = 'solid-'+newIndex;
-
-			scene.add(duplicatedMesh);
-
-			var duplicatedWireframe = new THREE.Mesh(
-				original[1].geometry,
-				new THREE.MeshBasicMaterial ({
-					color: duplicatedMesh.material.color,
-					shading: THREE.FlatShading,
-					side: THREE.DoubleSide,
-					depthWrite: false,
-					// depthTest: false,
-					wireframe: true,
-				})
-			);
-			duplicatedWireframe.name = 'wireframe-'+newIndex;
-			scene.add(duplicatedWireframe);
-
-			$('input[type=color][data-index="'+newIndex+'"].solid-color')[0]
-				.value = '#'+duplicatedMesh.material.color.getHex().toString(16)
+			if (getSelectedSolidModelType() == OCTREE_MODEL) {
 			
+				var original = [
+					scene.getObjectByName('solid-'+getSelectedSolidIndex()),
+					scene.getObjectByName('wireframe-'+getSelectedSolidIndex())
+				];
+
+				var oldSolid = solids[getSelectedSolidIndex()];
+				var newSolid = new Primitives.Solid({
+					x: oldSolid.center.x,
+					y: oldSolid.center.y,
+					z: oldSolid.center.z,
+				});
+				newSolid.duplicateFrom(oldSolid);
+
+				var newIndex = solids.push(newSolid) - 1;
+
+				var duplicatedMesh = new THREE.Mesh(
+					original[0].geometry,
+					new THREE.MeshPhongMaterial({
+						color: original[0].material.color,
+						specular: 0xFFDDDD,
+						shininess: 2,
+						shading: THREE.FlatShading,
+						wireframe: false,
+						transparent: true,
+						opacity: 1.0
+					})
+				);
+				duplicatedMesh.name = 'solid-'+newIndex;
+
+				scene.add(duplicatedMesh);
+
+				var duplicatedWireframe = new THREE.Mesh(
+					original[1].geometry,
+					new THREE.MeshBasicMaterial ({
+						color: duplicatedMesh.material.color,
+						shading: THREE.FlatShading,
+						side: THREE.DoubleSide,
+						depthWrite: false,
+						// depthTest: false,
+						wireframe: true,
+					})
+				);
+				duplicatedWireframe.name = 'wireframe-'+newIndex;
+				scene.add(duplicatedWireframe);
+
+				$('input[type=color][data-index="'+newIndex+'"].solid-color')[0]
+					.value = '#'+duplicatedMesh.material.color.getHex().toString(16)
+			}
+			else if (getSelectedSolidModelType() == CSG_MODEL)
+			{
+				// TODO
+			}
 		} else {
 			alert('Select a solid!');
 		}
 	});
 
-	function destroySolid(index) {
+	function destroySolid(index, modelType) {
 		solids[getSelectedSolidIndex()] = null;
 
 		scene.remove(scene.getObjectByName('solid-'+index));
 		scene.remove(scene.getObjectByName('wireframe-'+index));
 
-		$('#window-solids div[data-index="'+index+'"]').remove()
+		$('#window-solids div[data-index="'+index+'"][data-model-type="'+modelType+'"]').remove()
+	}
+
+	function destroyCsgSolid(index, modelType) {
+		csg_solids[getSelectedSolidIndex()] = null;
+
+		scene.remove(scene.getObjectByName('csg-solid-'+index));
+		scene.remove(scene.getObjectByName('csg-bbox-'+index));
+
+		$('#window-solids div[data-index="'+index+'"][data-model-type="'+modelType+'"]').remove()
 	}
 
 	$(document).on('click', '#delete', function() {
@@ -482,44 +463,12 @@ $(document).ready(function() {
 
 		if(!isNaN(index)) {
 			if (confirm("Delete?")) {
-				destroySolid(index);
+				destroySolid(index, OCTREE_MODEL);
 			}
 		} else {
 			alert('Select a solid!');
 		}
 	});
-
-	/*****
-	****** TRANSLATE AND SCALE
-	*/
-	$('#window1').append(`
-		<form id='translate-form' class='transform-form' action='#'>
-			<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-			<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-			<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-			<input type='submit' value='Translate' />
-		</form>
-	`);
-
-	$('#window1').append(`
-		<form id='scale-form' class='transform-form' action='#'>
-			<label>Factor: <input type='text' name='factor' size='4' value='1' /></label>
-			<input style='display: inline' type='button' class='scale-octree' value='Scale Octree' /><br /><br />
-			<label>X: <input type='text' name='x' size='4' value='1' /></label> |
-			<label>Y: <input type='text' name='y' size='4' value='1' /></label> |
-			<label>Z: <input type='text' name='z' size='4' value='1' /></label>
-			<input type='submit' value='Scale Mesh' />
-		</form>
-	`);
-
-	$('#window1').append(`
-		<form id='rotate-form' class='transform-form' action='#'>
-			<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-			<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-			<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-			<input type='submit' value='Rotate Mesh' />
-		</form>
-	`);
 
 	$(document).on('submit', '.transform-form', function() {
 		var op, defaultValue;
@@ -600,10 +549,12 @@ $(document).ready(function() {
 
 			// $(this).find('input[name=x]').val(0)
 
-			loading.endTimer().hide(5000);
+			loading.endTimer().hide(3000);
 
 
 		}, 15);
+
+		return false;
 	});
 
 	$(document).on('click', '.scale-octree', function() {
@@ -637,34 +588,21 @@ $(document).ready(function() {
 	/*****
 	****** BOOLEAN OPERATIONS
 	*/
-	$('#window1').append(`
-		<form id='boolean-form' action='#'>
-			<label>Obj1: <input type='text' name='a' size='4' value='1' /></label> -
-			<label>Obj2: <input type='text' name='b' size='4' value='2' /></label><br />
-			<input class='submit-button' type='button' value='Union' />
-			<input class='submit-button' type='button' value='Intersection' />
-			<input class='submit-button' type='button' value='Difference' /><br />
-			Destroy original objects:<br /> 
-			<label>First <input type='checkbox' name='destroy-first' checked /> <label><br />
-			<label>Second <input type='checkbox' name='destroy-second' checked /> <label><br />
-
-		</form>
-	`);
-
 	$(document).on('click', '#boolean-form .submit-button', function() {
 		var
-			a = parseInt($('body').find('#boolean-form input[name=a]').val()) - 1,
-			b = parseInt($('body').find('#boolean-form input[name=b]').val()) - 1;
+			a = parseInt($(this).parent().find('input[name=a]').val()) - 1,
+			b = parseInt($(this).parent().find('input[name=b]').val()) - 1;
 
 			
-
 		// var loading = new HUD.Loading(
 		// 	'Importing solid...')
 		// 	.show();
 
 		// reason to use timeout: a solid would be calculated BEFORE showing a loading
 		// setTimeout(function() {
+		var solid;
 
+		if (modelType == OCTREE_MODEL) {
 			solid = new Primitives.Solid({x:0,y:0,z:0});
 
 			if ($(this).val() == 'Union')
@@ -676,25 +614,42 @@ $(document).ready(function() {
 
 			addSolid(solid);
 
-			if ($('#boolean-form input[name=destroy-first]').is(':checked'))
-				destroySolid(a)
+			if ($(this).parent().find('input[name=destroy-first]').is(':checked'))
+				destroySolid(a, OCTREE_MODEL)
 
-			if ($('#boolean-form input[name=destroy-second]').is(':checked'))
-				destroySolid(b)
+			if ($(this).parent().find('input[name=destroy-second]').is(':checked'))
+				destroySolid(b, OCTREE_MODEL)
+		}
+		else if (modelType = CSG_MODEL)
+		{
+			if ($(this).val() == 'Union')
+				solid = new CSG.NodeUnion(csg_solids[a], csg_solids[b]);
+			else if ($(this).val() == 'Intersection')
+				solid = new CSG.NodeIntersection(csg_solids[a], csg_solids[b]);
+			else if ($(this).val() == 'Difference')
+				solid = new CSG.NodeDifference(csg_solids[a], csg_solids[b]);
 
-		// 	loading.endTimer().hide(5000);
+			addCsgSolid(solid);
+
+			if ($(this).parent().find('input[name=destroy-first]').is(':checked'))
+				destroyCsgSolid(a, CSG_MODEL)
+
+			if ($(this).parent().find('input[name=destroy-second]').is(':checked'))
+				destroyCsgSolid(b, CSG_MODEL)
+		}
+
+		// 	loading.endTimer().hide(3000);
 		// }, 15);
 
 	});
 
+	/************************
+	************************* CSG
+	*/
+
 	
 	////// MISC
-
-	$('#window1').append(`
-		<label><input id='show-grid' type='checkbox' name='show-grid' checked /> Show Grid<label><br />
-	`);
-
-	$('#show-grid').change(function() {
+	$(document).on('change', '#show-grid', function() {
 		if ($(this).is(':checked')) {
 			// grid.visible = true;
 			grid.material.transparent = false;
@@ -706,7 +661,7 @@ $(document).ready(function() {
 			grid.material.opacity = 0;
 			grid.material.depthWrite = false;
 		}
-	})
+	});
 
 	// KEYBOARD EVENTS
 	$(document).on('keypress', function(e) {

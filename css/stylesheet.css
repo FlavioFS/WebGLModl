@@ -22,6 +22,10 @@ body
 	margin-top: 20px;
 }
 
+#content {
+	font-size: 10pt !important;
+}
+
 .shader-container th
 {
 	height: 30px;

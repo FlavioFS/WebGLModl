@@ -156,7 +156,6 @@ $(document).ready(function() {
 				}
 				else if (modelType == CSG_MODEL)
 				{
-					console.log(this_id)
 					if (this_id == 'sphere-form')
 						solid = new Primitives.SolidSphere(Utils.Vector.ZERO, r);
 					else if (this_id == 'cone-form')
@@ -209,6 +208,19 @@ $(document).ready(function() {
 			scene.getObjectByName(bBoxPrefix+$('.solid-selection:disabled').data('index')).material = material;
 		}
 	}
+
+	function highlightCsgSolid(index) {
+		var material = scene.getObjectByName('csg-bbox-'+index).material;
+		material.wireframeLinewidth = 3;
+		material.color.set('#f4e542');
+		material.transparent = false;
+		material.opacity = 1;
+		material.wireframe = true;
+		material.depthWrite = true;
+		scene.getObjectByName('csg-bbox-'+index).material = material;
+		$('.show-bbox[type=checkbox][value='+index+'][data-model-type='+CSG_MODEL+']').prop('checked', true);
+	}
+
 	$(document).on('click', '#solid-deselection', function() {
 		unhighlightSolid();
 		$('.solid-selection:disabled').prop('disabled', false)
@@ -433,29 +445,29 @@ $(document).ready(function() {
 			}
 			else if (getSelectedSolidModelType() == CSG_MODEL)
 			{
-				// TODO
+				addCsgSolid(csg_solids[getSelectedSolidIndex()]);
 			}
 		} else {
 			alert('Select a solid!');
 		}
 	});
 
-	function destroySolid(index, modelType) {
+	function destroyOctreeSolid(index) {
 		solids[getSelectedSolidIndex()] = null;
 
 		scene.remove(scene.getObjectByName('solid-'+index));
 		scene.remove(scene.getObjectByName('wireframe-'+index));
 
-		$('#window-solids div[data-index="'+index+'"][data-model-type="'+modelType+'"]').remove()
+		$('#window-solids div[data-index="'+index+'"][data-model-type="'+OCTREE_MODEL+'"]').remove()
 	}
 
-	function destroyCsgSolid(index, modelType) {
+	function destroyCsgSolid(index) {
 		csg_solids[getSelectedSolidIndex()] = null;
 
 		scene.remove(scene.getObjectByName('csg-solid-'+index));
 		scene.remove(scene.getObjectByName('csg-bbox-'+index));
 
-		$('#window-solids div[data-index="'+index+'"][data-model-type="'+modelType+'"]').remove()
+		$('#window-solids div[data-index="'+index+'"][data-model-type="'+CSG_MODEL+'"]').remove()
 	}
 
 	$(document).on('click', '#delete', function() {
@@ -463,7 +475,10 @@ $(document).ready(function() {
 
 		if(!isNaN(index)) {
 			if (confirm("Delete?")) {
-				destroySolid(index, OCTREE_MODEL);
+				if (getSelectedSolidModelType() == OCTREE_MODEL)
+					destroyOctreeSolid(index);
+				else if (getSelectedSolidModelType() == CSG_MODEL)
+					destroyCsgSolid(index)
 			}
 		} else {
 			alert('Select a solid!');
@@ -493,59 +508,84 @@ $(document).ready(function() {
 			z: $(this).find('input[name=z]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=z]').val())
 		};
 
-		if (pos.x == '')
-			pos.x = 0;
-		if (pos.y == '')
-			pos.y = 0;
-		if (pos.z == '')
-			pos.z = 0;
-
 		var i = getSelectedSolidIndex();
+		var type = getSelectedSolidModelType();
 
-		if (isNaN(i))
-			return alert('Select a solid!');
+		if (isNaN(i)) {
+			alert('Select a solid!');
+			return false;
+		}
+
+		if(modelType != type) {
+			if (modelType == OCTREE_MODEL)
+				alert('Change to CSG Window to be able to transform this solid');
+			else if (modelType == CSG_MODEL)
+				alert('Change to OCTREE Window to be able to transform this solid');
+
+			return false;
+		}
 
 		var loading = new HUD.Loading(
 		op+'...')
 		.show();
 
+		var obj, wire;
+
 		setTimeout(function() {
+
+			this_elem.find('input[type=text]').val(defaultValue) // reset
 			
-			solids[i].translate(pos);
+			if (type == OCTREE_MODEL) {
+				obj = scene.getObjectByName('solid-'+i);
+				wire = scene.getObjectByName('wireframe-'+i);
 
-			// scene.getObjectByName('solid-'+i).translateX(pos.x).translateY(pos.y).translateZ(pos.z)
-			// scene.getObjectByName('wireframe-'+i).translateX(pos.x).translateY(pos.y).translateZ(pos.z)
-			var obj = scene.getObjectByName('solid-'+i);
-			var wire = scene.getObjectByName('wireframe-'+i);
 
-			this_elem.find('input[type=text]').val(defaultValue)
-			if (op == 'Translating') {
-				
-				var model = solids[i].model();
+				if (op == 'Translating') {
+					
+					var model = solids[i].model();
 
-				// UPDATES ON THREE.JS
-				if (model) { 
-					obj.geometry = generateMesh(model).geometry;
-					wire.geometry = generateWireframeBBox(solids[i]).geometry;
+					// UPDATES ON THREE.JS
+					if (model) { 
+						obj.geometry = generateMesh(model).geometry;
+						wire.geometry = generateWireframeBBox(solids[i]).geometry;
+					}
+					else console.log("Empty model!!");
 				}
-				else console.log("Empty model!!");
+				else if (op == 'Scaling')
+				{
+					obj.scale.set(pos.x, pos.y, pos.z);
+					wire.scale.set(pos.x, pos.y, pos.z);
+				}
+				else if (op == 'Rotating')
+				{
+					obj.rotateX(pos.x/180 * Math.PI);
+					obj.rotateY(pos.y/180 * Math.PI);
+					obj.rotateZ(pos.z/180 * Math.PI);
+					wire.rotateX(pos.x/180 * Math.PI);
+					wire.rotateY(pos.y/180 * Math.PI);
+					wire.rotateZ(pos.z/180 * Math.PI)
+				}
 			}
-			else if (op == 'Scaling')
+			else if (type == CSG_MODEL)
 			{
-				obj.scale.set(pos.x, pos.y, pos.z);
-				wire.scale.set(pos.x, pos.y, pos.z);
-			}
-			else if (op == 'Rotating')
-			{
-				obj.rotateX(pos.x/180 * Math.PI);
-				obj.rotateY(pos.y/180 * Math.PI);
-				obj.rotateZ(pos.z/180 * Math.PI);
-				wire.rotateX(pos.x/180 * Math.PI);
-				wire.rotateY(pos.y/180 * Math.PI);
-				wire.rotateZ(pos.z/180 * Math.PI)
-			}
+				// var solid = new CSG.NodeTranslate(csg_solids[i], pos);
 
-			
+				scene.remove(scene.getObjectByName('csg-solid-'+i));
+				scene.remove(scene.getObjectByName('csg-bbox-'+i));
+
+				if (op == 'Translating')
+					csg_solids[i] = new CSG.NodeTranslate(csg_solids[i], pos);
+				else if (op == 'Scaling')
+					csg_solids[i] = new CSG.NodeScale(csg_solids[i], pos);
+				else if (op == 'Rotating')
+					csg_solids[i] = new CSG.NodeRotate(csg_solids[i], pos);
+
+				console.log(op)
+				console.log(pos)
+
+				addCsgSolidToScene(csg_solids[i].geometry(), i);
+				highlightCsgSolid(i);
+			}
 
 			// $(this).find('input[name=x]').val(0)
 
@@ -615,37 +655,33 @@ $(document).ready(function() {
 			addSolid(solid);
 
 			if ($(this).parent().find('input[name=destroy-first]').is(':checked'))
-				destroySolid(a, OCTREE_MODEL)
+				destroyOctreeSolid(a)
 
 			if ($(this).parent().find('input[name=destroy-second]').is(':checked'))
-				destroySolid(b, OCTREE_MODEL)
+				destroyOctreeSolid(b)
 		}
 		else if (modelType = CSG_MODEL)
 		{
 			if ($(this).val() == 'Union')
 				solid = new CSG.NodeUnion(csg_solids[a], csg_solids[b]);
 			else if ($(this).val() == 'Intersection')
-				solid = new CSG.NodeIntersection(csg_solids[a], csg_solids[b]);
+				solid = new CSG.NodeIntersect(csg_solids[a], csg_solids[b]);
 			else if ($(this).val() == 'Difference')
 				solid = new CSG.NodeDifference(csg_solids[a], csg_solids[b]);
 
 			addCsgSolid(solid);
 
 			if ($(this).parent().find('input[name=destroy-first]').is(':checked'))
-				destroyCsgSolid(a, CSG_MODEL)
+				destroyCsgSolid(a)
 
 			if ($(this).parent().find('input[name=destroy-second]').is(':checked'))
-				destroyCsgSolid(b, CSG_MODEL)
+				destroyCsgSolid(b)
 		}
 
 		// 	loading.endTimer().hide(3000);
 		// }, 15);
 
 	});
-
-	/************************
-	************************* CSG
-	*/
 
 	
 	////// MISC

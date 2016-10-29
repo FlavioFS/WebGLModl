@@ -264,7 +264,7 @@ function addSolid(solid) {
 	}
 }
 
-function addCsgSolid(solid)
+function addCsgSolidToScene(geometry, index)
 {
 	var test_mat = {
 		color: 0xFF0000,
@@ -277,9 +277,6 @@ function addCsgSolid(solid)
 		opacity: 1.0
 	};
 
-	var index = csg_solids.push(solid) - 1;
-
-	var geometry = solid.geometry();
 	var material = new THREE.MeshPhongMaterial (test_mat);
 	var mesh = new THREE.Mesh(geometry, material);
 	mesh.name = 'csg-solid-' + index;
@@ -299,7 +296,13 @@ function addCsgSolid(solid)
 	material.wireframe = false;
 	material.depthWrite = false;
 
-	
 	scene.add(bBox);
+}
+
+function addCsgSolid(solid)
+{
+	var index = csg_solids.push(solid) - 1;
+
+	addCsgSolidToScene(solid.geometry(), index);
 
 }

@@ -154,8 +154,8 @@ var octreeHtml = `
 		<input class="submit-button" type="button" value="Intersection">
 		<input class="submit-button" type="button" value="Difference"><br>
 		Destroy original solids:<br> 
-		<label>First <input type="checkbox" name="destroy-first" checked=""> </label><br>
-		<label>Second <input type="checkbox" name="destroy-second" checked=""> </label><br>
+		<label>First <input type="checkbox" name="destroy-first"> </label><br>
+		<label>Second <input type="checkbox" name="destroy-second"> </label><br>
 	</form>
 
 	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br>

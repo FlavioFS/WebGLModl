@@ -402,13 +402,12 @@ $(document).ready(function() {
 
 			else if (output != null && output.type == 'Solids')
 			{
-				for (i = 0; i < output.octree.length; i++)
-					addSolid(output.octree[i], color);
+				for (var j = 0; j < output.octree.length; j++)
+					addSolid(output.octree[j], color);
 
-				// for (i = 0; i < output.csg.length; i++)
-				// 	if (output.csg[i] != null) {
-				// 		addCsgSolid(output.csg[i], color);
-				// 	}
+				for (var j = 0; j < output.csg.length; j++)
+					if (output.csg[j] != null)
+						addCsgSolid(output.csg[j], color);
 
 				color = null;
 			}

@@ -233,9 +233,9 @@ function generateWireframeBBox(solid, offset=0, visible=false) {
 }
 
 // [3]
-function addToScene (model, id, color=null, offset=0) {
-	var mesh = generateMesh(model, id, offset);
-	mesh.name = 'solid-' + id;
+function addToScene (model, index, color=null, offset=0) {
+	var mesh = generateMesh(model, index, offset);
+	mesh.name = 'solid-' + index;
 	scene.add(mesh);
 
 	// change color
@@ -251,9 +251,9 @@ function addToScene (model, id, color=null, offset=0) {
 
 
 
-function addWireframeBBOxToScene(solid, id, offset=0, visible=true) {
+function addWireframeBBOxToScene(solid, index, offset=0, visible=true) {
 	var mesh = generateWireframeBBox(solid, offset);
-	mesh.name = 'wireframe-' + id;
+	mesh.name = 'wireframe-' + index;
 	mesh.visible = visible;
 	scene.add(mesh);
 }

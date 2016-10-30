@@ -96,16 +96,61 @@ function init ()
 
 
 	// CSG Test
-	var test_mat = {
-		color: 0xFF0000,
-		specular: 0xFFDDDD,
-		shininess: 2,
-		shading: THREE.FlatShading,
-		wireframe: false,
-		transparent: true,
-		opacity: 1.0
-	};
 
+<<<<<<< HEAD
+=======
+	// Testing CSG
+	// var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
+	// var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
+	// var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
+
+	// Functional CSG tree geometry test
+	var result_geo = new CSG.NodeDifference(
+
+		new CSG.NodeDifference (
+
+			new CSG.NodeLeaf(
+				new Primitives.SolidCube(Utils.Vector.ZERO, 4)
+			),
+
+			new CSG.NodeTranslate(
+				new CSG.NodeScale(
+					new CSG.NodeLeaf(
+						new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
+					),
+					{x:2, y:2, z:2}
+				),
+				{x:1, y:1, z:1}
+			)
+
+		),
+
+		new CSG.NodeTranslate(
+			new CSG.NodeLeaf(
+				new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
+			),
+			{x:-1, y:-1, z:-1}
+		)
+
+	).geometry();
+
+	// var test_dif1 = new CSG.NodeDifference(test_cub, test_sph);
+	// var test_dif2 = new CSG.NodeDifference(test_dif1, test_cyl);
+
+	var material = new THREE.MeshPhongMaterial (CSG.MATERIAL);
+	var mesh = new THREE.Mesh(result_geo, material);
+	if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	scene.add(mesh);
+
+
+	var mergedList = CSG.Node.sortedMerge(list1, list2);
+	console.log(mergedList);
+
+	// world = new Primitives.Solid({x:0,y:0,z:0});
+	// world.createWorldOctree(16, 5);
+	// console.log(world.toString())
+
+>>>>>>> (Backup) Done, but NOT TESTED. Probably BROKEN. This is just for BACKUP purposes.
 }
 
 // [2]

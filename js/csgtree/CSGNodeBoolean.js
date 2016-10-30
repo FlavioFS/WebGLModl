@@ -30,4 +30,9 @@ CSG.NodeBoolean = class extends CSG.Node
         console.error(new Error ("Call to abstract method 'geometry' of CSG.NodeBoolean."));
         return false;
     }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        console.error(new Error ("Call to abstract method 'setMembershipRaycast' of CSG.NodeBoolean."));
+        return false;
+    }
 };

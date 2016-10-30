@@ -5,11 +5,6 @@
 // Namespace
 var CSG = CSG || {};
 
-// Constants
-CSG.UNION = 0;
-CSG.INTERSECTION = 1;
-CSG.DIFFERENCE = 2;
-
 // CSG tree generic node
 CSG.Node = class
 {
@@ -34,4 +29,11 @@ CSG.Node = class
         console.error(new Error ("Call to abstract method 'geometry' of CSG.Node."));
         return false;
     }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        console.error(new Error ("Call to abstract method 'setMembershipRaycast' of CSG.Node."));
+        return false;
+    }
+
+
 };

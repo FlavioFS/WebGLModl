@@ -52,4 +52,13 @@ CSG.NodeRotate = class extends CSG.NodeTransform
 
         return rv;
     }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        var rv;
+
+        transformStack.push( {operation: CSG.ROTATE, param: this.param} );
+        rv = this.child.setMembershipRaycast(originPoint, rayVector, transformStack);
+
+        return rv;
+    }
 };

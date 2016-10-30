@@ -24,4 +24,13 @@ CSG.NodeTranslate = class extends CSG.NodeTransform
 
         return rv;
     }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        var rv;
+
+        transformStack.push( {operation: CSG.TRANSLATE, param: this.param} );
+        rv = this.child.setMembershipRaycast(originPoint, rayVector, transformStack);
+
+        return rv;
+    }
 };

@@ -20,10 +20,16 @@ CSG.NodeRotate = class extends CSG.NodeTransform
 
         var rotation_mtx = new THREE.Matrix4();
         rotation_mtx.setRotationFromEuler( new THREE.Vector3(this.param.x, this.param.y, this.param.z) );
-        // if (this.param.x != 0) rotation_mtx.rotateX(this.param.x);
-        // if (this.param.y != 0) rotation_mtx.rotateY(this.param.y);
-        // if (this.param.z != 0) rotation_mtx.rotateZ(this.param.z);
         rv.applyMatrix(rotation_mtx);
+
+        return rv;
+    }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        var rv;
+
+        transformStack.push( {operation: CSG.ROTATE, param: this.param} );
+        rv = this.child.setMembershipRaycast(originPoint, rayVector, transformStack);
 
         return rv;
     }

@@ -29,4 +29,9 @@ CSG.NodeTransform = class extends CSG.Node
     geometry () {
         return this.child.geometry();
     }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        console.error(new Error ("Call to abstract method 'setMembershipRaycast' of CSG.Transform."));
+        return false;
+    }
 };

@@ -24,4 +24,13 @@ CSG.NodeScale = class extends CSG.NodeTransform
 
         return rv;
     }
+
+    setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
+        var rv;
+
+        transformStack.push( {operation: CSG.SCALE, param: this.param} );
+        rv = this.child.setMembershipRaycast(originPoint, rayVector, transformStack);
+
+        return rv;
+    }
 };

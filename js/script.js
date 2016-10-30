@@ -114,15 +114,6 @@ function init ()
 
 
 	// CSG Test
-	var test_mat = {
-		color: 0xFF0000,
-		specular: 0xFFDDDD,
-		shininess: 2,
-		shading: THREE.FlatShading,
-		wireframe: false,
-		transparent: true,
-		opacity: 1.0
-	};
 
 	// Testing CSG
 	// var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
@@ -162,11 +153,14 @@ function init ()
 	// var test_dif1 = new CSG.NodeDifference(test_cub, test_sph);
 	// var test_dif2 = new CSG.NodeDifference(test_dif1, test_cyl);
 
-	var material = new THREE.MeshPhongMaterial (test_mat);
+	var material = new THREE.MeshPhongMaterial (CSG.MATERIAL);
 	var mesh = new THREE.Mesh(result_geo, material);
 	if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
 	scene.add(mesh);
 
+
+	var mergedList = CSG.Node.sortedMerge(list1, list2);
+	console.log(mergedList);
 
 	// world = new Primitives.Solid({x:0,y:0,z:0});
 	// world.createWorldOctree(16, 5);

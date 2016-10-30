@@ -69,15 +69,12 @@ var csgHtml = `
 
 	<div class='toggle-form-area'>
 		<input type="button" value="Import" id="import" class="button-toggle-form">
-		<form id='import-form' action='#'>
-			<label>Bounding box edge: <input type='text' name='bBoxEdge' size='4' value='4' /></label><br />
-			<label>X: <input type='text' name='x' size='4' value='0' /></label> |
-			<label>Y: <input type='text' name='y' size='4' value='0' /></label> |
-			<label>Z: <input type='text' name='z' size='4' value='0' /></label>
-			<br />
+		<form id='csg-import-form' action='#'>
 			<label for='code'>Code:</label>
-			<textarea name="code" height='20' size='30'>(bw(bwwwwwwwwbwww</textarea><br />
-			<label><input type='checkbox' name='render-colored' /> Render colored?</label><br />
+			<textarea name="code" height='20' size='30'># Aqui está o boneco de neve.
+#c 0.5 0.5 0.5
+S 0 0 0 2 S 0 0 0 1 t 0 2.5 0 u B -0.5 -0.5 -0.5 1 1 1 t 0 3.5 0 u
+O 0 0 0 1 (bbbbwwww</textarea><br />
 			<input type='submit' value='Import solid' />
 		</form>
 	</div>

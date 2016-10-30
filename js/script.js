@@ -133,6 +133,8 @@ function init ()
 
 	// ).geometry();
 
+	// importing CSG
+
 	// // var test_dif1 = new CSG.NodeDifference(test_cub, test_sph);
 	// // var test_dif2 = new CSG.NodeDifference(test_dif1, test_cyl);
 
@@ -140,11 +142,6 @@ function init ()
 	// var mesh = new THREE.Mesh(result_geo, material);
 	// if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
 	// scene.add(mesh);
-
-
-	// world = new Primitives.Solid({x:0,y:0,z:0});
-	// world.createWorldOctree(16, 5);
-	// console.log(world.toString())
 
 }
 
@@ -236,10 +233,20 @@ function generateWireframeBBox(solid, offset=0, visible=false) {
 }
 
 // [3]
-function addToScene (model, id, offset=0) {
+function addToScene (model, id, color=null, offset=0) {
 	var mesh = generateMesh(model, id, offset);
 	mesh.name = 'solid-' + id;
 	scene.add(mesh);
+
+	// change color
+	if (color != null) {
+		// console.log('aqui')
+		color = new THREE.Color(color.r, color.g, color.b).getHex().toString(16);
+
+		$(document).ready(function() {
+			$('.solid-color[data-index='+index+']').val('#'+color).change();
+		});
+	}
 }
 
 
@@ -251,11 +258,11 @@ function addWireframeBBOxToScene(solid, id, offset=0, visible=true) {
 	scene.add(mesh);
 }
 
-function addSolid(solid) {
+function addSolid(solid, color=null) {
 	var model = solid.model();
 	if (model) {
 		var index = solids.push(solid) - 1;	
-		addToScene(model, index);
+		addToScene(model, index, color);
 		addWireframeBBOxToScene(solids[index], index)
 	}
 	else
@@ -278,6 +285,7 @@ function addCsgSolidToScene(geometry, index)
 	};
 
 	var material = new THREE.MeshPhongMaterial (test_mat);
+
 	var mesh = new THREE.Mesh(geometry, material);
 	mesh.name = 'csg-solid-' + index;
 
@@ -299,10 +307,188 @@ function addCsgSolidToScene(geometry, index)
 	scene.add(bBox);
 }
 
-function addCsgSolid(solid)
+function addCsgSolid(solid, color=null)
 {
 	var index = csg_solids.push(solid) - 1;
 
 	addCsgSolidToScene(solid.geometry(), index);
 
+	// change color
+	if (color != null) {
+		color = new THREE.Color(color.r, color.g, color.b).getHex().toString(16);
+
+		$(document).ready(function() {
+			$('.csg-solid-color[data-index='+index+']').val('#'+color).change();
+		});
+	}
+
+}
+
+// Analyse if a string contains a CSG, Octree or Color
+function importString(input) {
+	input = input.split(' ');
+	var i = 0;
+
+	var csgStack = [],
+		octreeStack = [];
+	var stackI = 0,
+		octreeStackI = 0;
+	
+	// parseFloat if possible
+	for (i = 0; i < input.length; i++)
+		if (!isNaN(parseFloat(input[i])))
+			input[i] = parseFloat(input[i]);
+
+	i = 0;
+	console.log(input)
+
+	var avoidInfiniteLoop = 0;
+
+	while (i < input.length && avoidInfiniteLoop++ < 1000)
+	{
+		// primitives
+		switch(input[i])
+		{
+			// comment
+			case '#':
+				// just comment
+				return null;
+
+			// comment-funcionalities 
+			case '#c':
+					return {type: 'Color', rgb: {r: input[++i], g: input[++i], b: input[++i]} };
+
+			// Octree only
+			case 'O':
+				var center = {
+					x: input[++i],
+					y: input[++i],
+					z: input[++i],
+				}
+				var bBoxEdge = input[++i];
+				var code = input[++i];
+
+				octreeStack[octreeStackI] = new Primitives.Solid(center);
+				octreeStack[octreeStackI].fromString(code, bBoxEdge);
+
+				octreeStackI++;
+
+				i++;
+				break;
+
+			// CSG primitives
+			case 'S':
+				csgStack[stackI++] = new Primitives.SolidSphere({
+					x: input[++i],
+					y: input[++i],
+					z: input[++i],
+				}, input[++i]);
+				
+				i++;
+				break;
+
+			case 'C':
+				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],};
+				var r = input[++i];
+				var h = input[++i];
+
+				csgStack[stackI++] = new Primitives.SolidCylinder({
+					x: minorVertex.x,
+					y: (minorVertex.y + h)/2,
+					z: minorVertex.z,
+				}, r, h);
+
+				i++;
+				break;
+
+			case 'B':
+				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],};
+				var w = input[++i];
+				var h = input[++i];
+				var d = input[++i];
+				var majorVertex = {
+					x: minorVertex.x + w,
+					y: minorVertex.y + h,
+					z: minorVertex.z + d,
+				}
+
+				csgStack[stackI++] = new Primitives.SolidCube({
+						x: (minorVertex.x + majorVertex.x)/2,
+						y: (minorVertex.y + majorVertex.y)/2,
+						z: (minorVertex.z + majorVertex.z)/2,
+					}, 1);
+
+				// scale if needed
+				if (w != 1 || h != 1 || d != 1)
+					csgStack[stackI-1] = new CSG.NodeScale(csgStack[stackI-1], {x: w, y: h, z: d})
+				
+				i++;
+				break;
+
+			// transformations
+			case 't':
+				csgStack[stackI-1] = new CSG.NodeTranslate(csgStack[stackI-1], {
+											x: input[++i],
+											y: input[++i],
+											z: input[++i],
+										})
+				
+				i++;
+				break;
+
+			case 's':
+				csgStack[stackI-1] = new CSG.NodeScale(csgStack[stackI-1], {
+											x: input[++i],
+											y: input[++i],
+											z: input[++i],
+										})
+				
+				i++;
+				break;
+
+			case 'r':
+				csgStack[stackI-1] = new CSG.NodeRotate(csgStack[stackI-1], {
+											x: input[++i],
+											y: input[++i],
+											z: input[++i],
+										})
+				i++; //  ignores the last argument - TODO
+				
+				i++;
+				break;
+
+			// case boolean operations
+			case 'u':
+				csgStack[stackI-2] = new CSG.NodeUnion(csgStack[stackI-2], csgStack[stackI-1]);
+				csgStack[stackI-1] = null;
+				stackI--;
+				
+				i++;
+				break;
+
+			case 'i':
+				csgStack[stackI-2] = new CSG.NodeIntersect(csgStack[stackI-2], csgStack[stackI-1]);
+				csgStack[stackI-1] = null;
+				stackI--;
+				
+				i++;
+				break;
+
+			case 'd':
+				csgStack[stackI-2] = new CSG.NodeDifference(csgStack[stackI-2], csgStack[stackI-1]);
+				csgStack[stackI-1] = null;
+				stackI--;
+				
+				i++;
+				break;
+
+			// just ignores something else
+			default:
+				i++;
+
+		}
+		
+	}
+
+	return {type: 'Solids', csg: csgStack, octree: octreeStack};
 }

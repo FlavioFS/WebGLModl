@@ -80,7 +80,7 @@ $(document).ready(function() {
 				}
 				else if (modelType == CSG_MODEL)
 				{
-					solid = new Primitives.SolidCube(Utils.Vector.ZERO, e)
+					solid = new Primitives.SolidCube(pos, e);
 					addCsgSolid(solid);
 				}
 
@@ -157,13 +157,13 @@ $(document).ready(function() {
 				else if (modelType == CSG_MODEL)
 				{
 					if (this_id == 'sphere-form')
-						solid = new Primitives.SolidSphere(Utils.Vector.ZERO, r);
+						solid = new Primitives.SolidSphere(pos, r);
 					else if (this_id == 'cone-form')
-						solid = new Primitives.SolidCone(Utils.Vector.ZERO, r, h)
+						solid = new Primitives.SolidCone(pos, r, h)
 					else if (this_id == 'cylinder-form')
-						solid = new Primitives.SolidCylinder(Utils.Vector.ZERO, r, h)
+						solid = new Primitives.SolidCylinder(pos, r, h)
 					else if (this_id == 'torus-form')
-						solid = new Primitives.SolidTorus(Utils.Vector.ZERO, r, t)
+						solid = new Primitives.SolidTorus(pos, r, t)
 
 					addCsgSolid(solid);
 				}
@@ -387,6 +387,46 @@ $(document).ready(function() {
 
 	});
 
+	$(document).on('submit', '#csg-import-form', function() {
+		var input = $(this).find('textarea[name=code]').val()
+		input = input.split('\n');
+
+		var color = null;
+		for (var i = 0; i < input.length; i++)
+		{
+			var output = importString(input[i].trim());
+			console.log(output)
+
+			if (output != null && output.type == 'Color')
+				color = output.rgb;
+
+			else if (output != null && output.type == 'Solids')
+			{
+				for (i = 0; i < output.octree.length; i++)
+					addSolid(output.octree[i], color);
+
+				// for (i = 0; i < output.csg.length; i++)
+				// 	if (output.csg[i] != null) {
+				// 		addCsgSolid(output.csg[i], color);
+				// 	}
+
+				color = null;
+			}
+
+			
+		}
+
+		// var csgStack = getCsgStackFromString(input);
+
+		// for (i = 0; i < csgStack.length; i++)
+		// {
+		// 	if (csgStack[i] != null)
+		// 		addCsgSolid(csgStack[i]);
+		// }
+
+		return false;
+	});
+
 	/*******
 	******** DUPLICATE AND DELETE
 	*/
@@ -579,9 +619,6 @@ $(document).ready(function() {
 					csg_solids[i] = new CSG.NodeScale(csg_solids[i], pos);
 				else if (op == 'Rotating')
 					csg_solids[i] = new CSG.NodeRotate(csg_solids[i], pos);
-
-				console.log(op)
-				console.log(pos)
 
 				addCsgSolidToScene(csg_solids[i].geometry(), i);
 				highlightCsgSolid(i);

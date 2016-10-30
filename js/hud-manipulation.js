@@ -16,7 +16,7 @@ $(document).ready(function() {
 				<option value="1" selected>CSG</option>
 			</select>
 		</div>
-		<div id='content'>` + csgHtml + `</div>
+		<div id='content'></div>
 	</div>
 	<div class="window" id="window-solids" style="width: 160px; height: 969px; top: 0px; left: 220px;"><div class="label draggable">Solids in the Scene</div><div class="label">Click to select:</div><input type="button" value="     Deselect     " id="solid-deselection"></div>
 	`)
@@ -36,6 +36,8 @@ $(document).ready(function() {
 
 		$('#content').find('.toggle-form-area form').hide(0); // initially
 	})
+
+	$('#modelType').val(CSG_MODEL).change();
 
 	
 	// HIDING AND SHOWING PRIMITIVE FORMS
@@ -258,12 +260,12 @@ $(document).ready(function() {
 	/***
 	**** CHANGE SOLID COLOR
 	*/
-	$(document).on('change', 'input[type=color].solid-color', function() {
+	$(document).on('change', '.solid-color[data-model-type='+OCTREE_MODEL+']', function() {
 		scene.getObjectByName('solid-'+$(this).data('index')).material.color.set($(this).val());
 		scene.getObjectByName('wireframe-'+$(this).data('index')).material.color.set($(this).val());
 	});
 
-	$(document).on('change', 'input[type=color].csg-solid-color', function() {
+	$(document).on('change', '.solid-color[data-model-type='+CSG_MODEL+']', function() {
 		scene.getObjectByName('csg-solid-'+$(this).data('index')).material.color.set($(this).val());
 		scene.getObjectByName('csg-bbox-'+$(this).data('index')).material.color.set($(this).val());
 	});
@@ -332,20 +334,58 @@ $(document).ready(function() {
 		return parseInt($('.solid-selection:disabled').data('model-type'))
 	};
 
-	// gets index (int) of a selected solid, then solids[index].toString()
+	// export all solids
 	$(document).on('click', '#export', function() {
-		if (getSelectedSolidModelType() == OCTREE_MODEL) {
-			try {
-				console.log(
-					solids[getSelectedSolidIndex()].toString());
-			} catch(e) {
-				alert('Select a solid!');
+		var output, i;
+
+		for (i = 0; i < solids.length; i++)
+		{
+			if (solids[i] != null) {
+				// minor vertex
+				output = [
+					'O',
+					// minor vertex
+					solids[i].center.x - solids[i]._octree.boundingBox.edge/2,
+					solids[i].center.y - solids[i]._octree.boundingBox.edge/2,
+					solids[i].center.z - solids[i]._octree.boundingBox.edge/2,
+
+					solids[i]._octree.boundingBox.edge,
+					solids[i].toString()
+				]
+				console.log(output.join(' '))
 			}
 		}
-		else if (getSelectedSolidModelType() == CSG_MODEL)
+
+		for (i = 0; i < csg_solids.length; i++)
 		{
-			// TODO
+			// if (csg_solids[i] != null) {
+			// 	// minor vertex
+			// 	output = [
+			// 		'O',
+			// 		// minor vertex
+			// 		solids[i].center.x - solids[i]._octree.boundingBox.edge/2,
+			// 		solids[i].center.y - solids[i]._octree.boundingBox.edge/2,
+			// 		solids[i].center.z - solids[i]._octree.boundingBox.edge/2,
+					
+			// 		solids[i].toString()
+			// 	]
+			// 	console.log(output.join(' '))
+			// }
 		}
+
+		// if (getSelectedSolidModelType() == OCTREE_MODEL) {
+
+		// 	// try {
+		// 	// 	console.log(
+		// 	// 		solids[getSelectedSolidIndex()].toString());
+		// 	// } catch(e) {
+		// 	// 	alert('Select a solid!');
+		// 	// }
+		// }
+		// else if (getSelectedSolidModelType() == CSG_MODEL)
+		// {
+		// 	// TODO
+		// }
 	});
 
 	$(document).on('submit', '#import-form', function() {
@@ -354,41 +394,37 @@ $(document).ready(function() {
 		var this_id = $(this).attr('id'),
 			this_elem = $(this);
 
-		pos = {
-			x: parseFloat($(this).find('input[name=x]').val()),
-			y: parseFloat($(this).find('input[name=y]').val()),
-			z: parseFloat($(this).find('input[name=z]').val())
-		};
-		bBoxEdge = parseFloat($(this).find('input[name=bBoxEdge]').val());
-		code = $(this).find('textarea[name=code]').val()
-		boolAddColored = $(this).find('input[name=render-colored]').prop('checked');
+		var input = $(this).find('textarea[name=code]').val();
+		input = input.split('\n');
+		console.log(input);
 
-		// rendering
-		var loading = new HUD.Loading(
-			'Importing solid...')
-			.show();
+		// // rendering
+		// var loading = new HUD.Loading(
+		// 	'Importing solid(s)...')
+		// 	.show();
+
 
 		// reason to use timeout: a solid would be calculated BEFORE showing a loading
-		setTimeout(function() {
+		// setTimeout(function() {
 
-			var solid = new Primitives.Solid(pos);
-			solid.fromString(code, bBoxEdge);
+			var color = null;
+			for (var i = 0; i < input.length; i++)
+			{
+				importOnlyOctreeFromString(input[i].trim());
 
-			if (boolAddColored)
-				solid.addToSceneColored(scene, 0, 0);
-			else {
-				addSolid(solid);
 			}
 
-			this_elem.toggle();
+		return false;
 
-			loading.endTimer().hide(3000);
-		}, 15);
+		// 	this_elem.toggle();
+
+		// 	loading.endTimer().hide(3000);
+		// }, 15);
 
 	});
 
 	$(document).on('submit', '#csg-import-form', function() {
-		var input = $(this).find('textarea[name=code]').val()
+		var input = $(this).find('textarea[name=code]').val();
 		input = input.split('\n');
 
 		var color = null;
@@ -447,7 +483,8 @@ $(document).ready(function() {
 				});
 				newSolid.duplicateFrom(oldSolid);
 
-				var newIndex = solids.push(newSolid) - 1;
+				solids.push(newSolid)
+				var newIndex = solids.length - 1;
 
 				var duplicatedMesh = new THREE.Mesh(
 					original[0].geometry,
@@ -479,12 +516,17 @@ $(document).ready(function() {
 				duplicatedWireframe.name = 'wireframe-'+newIndex;
 				scene.add(duplicatedWireframe);
 
-				$('input[type=color][data-index="'+newIndex+'"].solid-color')[0]
-					.value = '#'+duplicatedMesh.material.color.getHex().toString(16)
+				// pass the color from the duplicated solid
+
+				addSelectionSolidButton(newIndex, OCTREE_MODEL,
+					'#'+duplicatedMesh.material.color.getHex().toString(16)
+				);
 			}
 			else if (getSelectedSolidModelType() == CSG_MODEL)
 			{
-				addCsgSolid(csg_solids[getSelectedSolidIndex()]);
+				// pass the color from the duplicated solid
+				color = scene.getObjectByName('csg-solid-'+getSelectedSolidIndex()).material.color;
+				addCsgSolid(csg_solids[getSelectedSolidIndex()], color);
 			}
 		} else {
 			alert('Select a solid!');
@@ -580,7 +622,8 @@ $(document).ready(function() {
 
 
 				if (op == 'Translating') {
-					
+					solids[i].translate(pos);
+
 					var model = solids[i].model();
 
 					// UPDATES ON THREE.JS
@@ -607,8 +650,6 @@ $(document).ready(function() {
 			}
 			else if (type == CSG_MODEL)
 			{
-				// var solid = new CSG.NodeTranslate(csg_solids[i], pos);
-
 				scene.remove(scene.getObjectByName('csg-solid-'+i));
 				scene.remove(scene.getObjectByName('csg-bbox-'+i));
 

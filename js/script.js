@@ -9,14 +9,7 @@ var world = null;
 
 var OCTREE_MODEL = 0;
 var CSG_MODEL = 1;
-var modelType = CSG_MODEL;
-
-// Utilities
-
-// Makes some array trigger a callback function when pushed by overriding push()
-
-// appends to the 'Solids in the Scene' window buttons for selection
-// and checkboxes for showing solid/wireframe
+var modelType = OCTREE_MODEL;
 
 
 // [1]
@@ -145,48 +138,6 @@ function init ()
 
 }
 
-
-// custom push() for solids[]
-var afterPushingTo = function(arr, callback) {
-	arr.push = function(elem) {
-		Array.prototype.push.call(arr, elem);
-		callback();
-		return arr.length;
-	}
-};
-
-afterPushingTo(solids, function() {
-	$(document).ready(function() {
-		var index = solids.length-1;
-
-		$('#window-solids').append(" \
-			<div data-index='"+index+"' data-model-type='"+OCTREE_MODEL+"'> \
-				<input type='button' class='solid-selection' value='OCTREE "+(index+1)+"' data-index='"+index+"' data-model-type='"+OCTREE_MODEL+"'> \
-				<input type='color' class='solid-color' data-index='"+index+"' value='#FF0000'> \
-				<input type='checkbox' class='show-solid' checked='checked' value='"+index+"' data-model-type='"+OCTREE_MODEL+"'> \
-				<input type='checkbox' class='show-bbox' value='"+index+"' data-model-type='"+OCTREE_MODEL+"'> \
-				<br> \
-			</div> \
-		");
-	});
-});
-
-afterPushingTo(csg_solids, function() {
-	$(document).ready(function() {
-		var index = csg_solids.length-1;
-
-		$('#window-solids').append(" \
-			<div data-index='"+index+"' data-model-type='"+CSG_MODEL+"'> \
-				<input type='button' class='solid-selection' value='CSG "+(index+1)+"' data-index='"+index+"' data-model-type='"+CSG_MODEL+"'> \
-				<input type='color' class='csg-solid-color' data-index='"+index+"' value='#FF0000'> \
-				<input type='checkbox' class='show-solid' checked='checked' value='"+index+"' data-model-type='"+CSG_MODEL+"'> \
-				<input type='checkbox' class='show-bbox' value='"+index+"' data-model-type='"+CSG_MODEL+"'> \
-				<br> \
-			</div> \
-		");
-	});
-});
-
 // [2]
 function animate ()
 {
@@ -244,7 +195,8 @@ function addToScene (model, index, color=null, offset=0) {
 		color = new THREE.Color(color.r, color.g, color.b).getHex().toString(16);
 
 		$(document).ready(function() {
-			$('.solid-color[data-index='+index+']').val('#'+color).change();
+			$('.solid-color[data-index='+index+'][data-model-type='+OCTREE_MODEL+']')
+				.val('#'+color).change();
 		});
 	}
 }
@@ -258,12 +210,18 @@ function addWireframeBBOxToScene(solid, index, offset=0, visible=true) {
 	scene.add(mesh);
 }
 
-function addSolid(solid, color=null) {
+function addSolid(solid, color=null, solidsIndex=null) {
 	var model = solid.model();
+	var index;
+
 	if (model) {
-		var index = solids.push(solid) - 1;	
+		solids.push(solid);
+		
+		index = solids.length-1;
 		addToScene(model, index, color);
 		addWireframeBBOxToScene(solids[index], index)
+
+		addSelectionSolidButton(index, OCTREE_MODEL);
 	}
 	else
 	{
@@ -309,22 +267,79 @@ function addCsgSolidToScene(geometry, index)
 
 function addCsgSolid(solid, color=null)
 {
-	var index = csg_solids.push(solid) - 1;
+	csg_solids.push(solid);
+	var index = csg_solids.length-1;
 
 	addCsgSolidToScene(solid.geometry(), index);
+
+	addSelectionSolidButton(index, CSG_MODEL);
 
 	// change color
 	if (color != null) {
 		color = new THREE.Color(color.r, color.g, color.b).getHex().toString(16);
 
 		$(document).ready(function() {
-			$('.csg-solid-color[data-index='+index+']').val('#'+color).change();
+			$('.solid-color[data-index='+index+'][data-model-type='+CSG_MODEL+']').val('#'+color).change();
 		});
 	}
 
 }
 
-// Analyse if a string contains a CSG, Octree or Color
+// add a select button for the last added solid
+function addSelectionSolidButton(index, model, color=null) {
+	$(document).ready(function() {
+		var prefix = (model == OCTREE_MODEL) ? 'OCTREE ' : 'CSG ';
+
+		if (color == null)
+			color = '#FF0000';
+
+		$('#window-solids').append(" \
+			<div data-index='"+index+"' data-model-type='"+model+"'> \
+				<input type='button' class='solid-selection' value='"+prefix+(index+1)+"' data-index='"+index+"' data-model-type='"+model+"'> \
+				<input type='color' class='solid-color' data-index='"+index+"' value='"+color+"' data-model-type='"+model+"'> \
+				<input type='checkbox' class='show-solid' checked='checked' value='"+index+"' data-model-type='"+model+"'> \
+				<input type='checkbox' class='show-bbox' value='"+index+"' data-model-type='"+model+"'> \
+				<br> \
+			</div> \
+		");
+
+		$('.solid-color[data-index='+index+'][data-model-type='+model+']')
+			.val(color).change();
+	});
+}
+
+
+// IMPORT
+
+function importOnlyOctreeFromString(input, solidsIndex=null)
+{
+	input = input.split(' ');
+
+	var i = 0;
+
+	// parseFloat if possible
+	for (i = 0; i < input.length; i++)
+		if (!isNaN(parseFloat(input[i])))
+			input[i] = parseFloat(input[i]);
+
+	i = -1;
+
+	var center = {
+		x: input[++i],
+		y: input[++i],
+		z: input[++i],
+	}
+	var bBoxEdge = input[++i];
+	var code = input[++i];
+
+	var solid = new Primitives.Solid(center);
+	solid.fromString(code, bBoxEdge);
+	addSolid(solid, solidsIndex);
+
+	return solid;
+
+}
+// Analyse if a string contains a CSG, Octree or Color and import it
 function importString(input) {
 	input = input.split(' ');
 	var i = 0;
@@ -341,6 +356,7 @@ function importString(input) {
 
 	i = 0;
 	console.log(input)
+
 
 	var avoidInfiniteLoop = 0;
 
@@ -360,7 +376,7 @@ function importString(input) {
 
 			// Octree only
 			case 'O':
-				var center = {
+				var minorVertex = {
 					x: input[++i],
 					y: input[++i],
 					z: input[++i],
@@ -368,7 +384,11 @@ function importString(input) {
 				var bBoxEdge = input[++i];
 				var code = input[++i];
 
-				octreeStack[octreeStackI] = new Primitives.Solid(center);
+				octreeStack[octreeStackI] = new Primitives.Solid({
+					x: minorVertex.x + bBoxEdge/2,
+					y: minorVertex.y + bBoxEdge/2,
+					z: minorVertex.z + bBoxEdge/2,
+				});
 				octreeStack[octreeStackI].fromString(code, bBoxEdge);
 
 				octreeStackI++;
@@ -491,4 +511,9 @@ function importString(input) {
 	}
 
 	return {type: 'Solids', csg: csgStack, octree: octreeStack};
+}
+
+function exportCsg()
+{
+	
 }

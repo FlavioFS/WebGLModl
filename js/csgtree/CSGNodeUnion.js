@@ -53,7 +53,7 @@ CSG.NodeUnion = class extends CSG.NodeBoolean
             // Should be always true
             if (Ltstart == Rtstart && Ltend == Rtend) {
                 rv_itype = CSG.InOnOut.unionInOnOut(Litype, Ritype);
-                rv.push({tstart: Lstart, tend: Lend, itype: rv_itype});
+                rv.push({tstart: Ltstart, tend: Ltend, itype: rv_itype});
             }
             else {
                 // TODO Remove this debug message once its working

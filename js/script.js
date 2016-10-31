@@ -99,22 +99,35 @@ function init ()
      *  CSG DEMO
      * ===================================================================================================== */
 	// Functional CSG tree geometry test
-	var result_tree = new CSG.NodeDifference(
+	var result_tree =
+	new CSG.NodeUnion (
+		new CSG.NodeDifference(
+			new CSG.NodeDifference (
 
-		new CSG.NodeDifference (
+				new CSG.NodeLeaf(
+					new Primitives.SolidCube(Utils.Vector.ZERO, 4)
+				),
 
-			new CSG.NodeLeaf(
-				new Primitives.SolidCube(Utils.Vector.ZERO, 4)
+				new CSG.NodeTranslate(
+					new CSG.NodeScale(
+						new CSG.NodeLeaf(
+							new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
+						),
+						{x:1.5, y:1.5, z:1.5}
+					),
+					{x:1, y:1, z:1}
+				)
+
 			),
 
 			new CSG.NodeTranslate(
-				new CSG.NodeScale(
+				new CSG.NodeRotate(
 					new CSG.NodeLeaf(
-						new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
+						new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
 					),
-					{x:1.5, y:1.5, z:1.5}
+					{x:0, y:0, z:45}
 				),
-				{x:1, y:1, z:1}
+				{x:-1, y:-1, z:-1}
 			)
 
 		),
@@ -122,14 +135,13 @@ function init ()
 		new CSG.NodeTranslate(
 			new CSG.NodeRotate(
 				new CSG.NodeLeaf(
-					new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
+					new Primitives.SolidTorus(Utils.Vector.ZERO, 1, 0.5)
 				),
-				{x:0, y:0, z:45}
+				{x:20, y:0, z:30} // Rotation in degrees
 			),
-			{x:-1, y:-1, z:-1}
+			{x:-2.7, y:-2, z:-1}
 		)
-
-	);
+	)
 
 	var material = new THREE.MeshPhongMaterial (CSG.MATERIAL);
 	var mesh = new THREE.Mesh(result_tree.geometry(), material);
@@ -143,7 +155,7 @@ function init ()
     // Note: THREE.js's Raycast is slightly bugged, some intersections return wrong.
     // Example: origin = (-2, -1, -1)
 	var ray_origin = new THREE.Vector3 (3, 4, 3);
-	var ray_direction = new THREE.Vector3 (-1.4, -1.6, -1).normalize();
+	var ray_direction = new THREE.Vector3 (-1.4, -1.6, -1.1).normalize();
     var intervalList = result_tree.setMembershipRaycast(ray_origin, ray_direction);
     var raycastLineGroup = CSG.rayLineObjectGroup(ray_origin, ray_direction, intervalList);
     scene.add(raycastLineGroup);

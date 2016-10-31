@@ -236,9 +236,9 @@ CSG.InOnOut.matchIntervals = function (intervals_left, intervals_right) {
  */
 CSG.InOnOut.removeUnnecessaryPoints = function (intervalList) {
     for (let i=0; i < intervalList.length-1; i++) {
-        while (intervalList[i].itype == intervalList[i+1].itype && i < intervalList.length-1 ) {
-            intervalList[i].tend = intervalList[i+1].tend;
-            intervalList.splice(i+1, 1);    // Removes interval - This operation shortens list (length changes)
+        while ( i < intervalList.length-1 && intervalList[i].itype == intervalList[i+1].itype ) {
+            intervalList[i+1].tstart = intervalList[i].tstart;
+            intervalList.splice(i, 1);    // Removes interval - This operation shortens list (length changes)
         }
 
         // Never starts with CSG.OUT

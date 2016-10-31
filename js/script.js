@@ -120,8 +120,11 @@ function init ()
 		),
 
 		new CSG.NodeTranslate(
-			new CSG.NodeLeaf(
-				new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
+			new CSG.NodeRotate(
+				new CSG.NodeLeaf(
+					new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
+				),
+				{x:0, y:0, z:45}
 			),
 			{x:-1, y:-1, z:-1}
 		)
@@ -140,7 +143,7 @@ function init ()
     // Note: THREE.js's Raycast is slightly bugged, some intersections return wrong.
     // Example: origin = (-2, -1, -1)
 	var ray_origin = new THREE.Vector3 (3, 4, 3);
-	var ray_direction = new THREE.Vector3 (-1.42, -1.5, -1).normalize();
+	var ray_direction = new THREE.Vector3 (-1.4, -1.6, -1).normalize();
     var intervalList = result_tree.setMembershipRaycast(ray_origin, ray_direction);
     var raycastLineGroup = CSG.rayLineObjectGroup(ray_origin, ray_direction, intervalList);
     scene.add(raycastLineGroup);

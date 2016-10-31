@@ -45,7 +45,16 @@ CSG.NodeLeaf = class extends CSG.Node
                     break;
 
                 case CSG.ROTATE:
-                    transform_mtx.setRotationFromEuler( param_vec );
+                    var rotationX = new THREE.Matrix4();
+                    var rotationY = new THREE.Matrix4();
+                    var rotationZ = new THREE.Matrix4();
+
+                    if (param_vec.x != 0) rotationX.makeRotationX(param_vec.x/180*Math.PI);
+                    if (param_vec.y != 0) rotationY.makeRotationY(param_vec.y/180*Math.PI);
+                    if (param_vec.z != 0) rotationZ.makeRotationZ(param_vec.z/180*Math.PI);
+
+                    transform_mtx.multiplyMatrices(rotationX, rotationY);
+                    transform_mtx.multiply(rotationZ);
                     break;
 
                 case CSG.SCALE:

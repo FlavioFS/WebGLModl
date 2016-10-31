@@ -26,9 +26,9 @@ CSG.NodeRotate = class extends CSG.NodeTransform
         var rotationY = new THREE.Matrix4();
         var rotationZ = new THREE.Matrix4();
 
-        rotationX.makeRotationX(this.param.x/180*Math.PI);
-        rotationY.makeRotationY(this.param.y/180*Math.PI);
-        rotationZ.makeRotationZ(this.param.z/180*Math.PI);
+        if (this.param.x != 0) rotationX.makeRotationX(this.param.x/180*Math.PI);
+        if (this.param.y != 0) rotationY.makeRotationY(this.param.y/180*Math.PI);
+        if (this.param.z != 0) rotationZ.makeRotationZ(this.param.z/180*Math.PI);
 
         rotation_mtx.multiplyMatrices(rotationX, rotationY);
         rotation_mtx.multiply(rotationZ);

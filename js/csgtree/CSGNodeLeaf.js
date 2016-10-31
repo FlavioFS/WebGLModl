@@ -60,15 +60,27 @@ CSG.NodeLeaf = class extends CSG.Node
         var raycaster = new THREE.Raycaster(originPoint, rayVector, CSG.NEAR, CSG.FAR);
         var node_mesh = new THREE.Mesh(geo, CSG.MATERIAL);
 
-        // Casts the ray and returns the result
+        // Casts the ray
+        node_mesh.updateMatrixWorld();
         var intersects = raycaster.intersectObject(node_mesh, false);
         let intCount = 0;
         var rv = [];
         let ts = 0, te = 0, type = CSG.IN;
 
+        // Remove repetitions
+        for (var i=0; i < intersects.length-1; i++) {
+            for (var j=i+1; j < intersects.length; j++) {
+                if (Math.abs(intersects[i].distance - intersects[j].distance) < 0.01) {
+                    intersects.splice(j, 1);
+                    j--;
+                }
+            }
+        }
+
+        // Calculates result
         for (let i=0; i < intersects.length-1; i++) {
-            ts = (intersects[i].point.x - origin.x) / rayVector.x;
-            te = (intersects[i+1].point.x - origin.x) / rayVector.x;
+            ts = (intersects[i].point.x - originPoint.x) / rayVector.x;
+            te = (intersects[i+1].point.x - originPoint.x) / rayVector.x;
 
             if (intCount % 2 == 0)
                 type = CSG.IN;

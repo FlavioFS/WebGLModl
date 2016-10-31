@@ -17,21 +17,19 @@ CSG.SCALE = -6;
 
 // Raycast near and far
 CSG.NEAR = 0.01;
-CSG.FAR = 500;
-
-// Raycast classifiers
-CSG.IN  = 0;
-CSG.ON  = 1;
-CSG.OUT = 2;
+CSG.FAR = 15;
 
 // Default material
 CSG.MATERIAL =
 {
-    color: 0xFF0000,
-    specular: 0xFFDDDD,
+    color: 0x00FF00,
+    specular: 0x00FFDD,
     shininess: 2,
     shading: THREE.FlatShading,
     wireframe: false,
     transparent: true,
-    opacity: 1.0
+    opacity: 0.3,
+    side: THREE.DoubleSide
 };
+
+// Draws Ray

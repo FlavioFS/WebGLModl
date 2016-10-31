@@ -4,6 +4,16 @@
 
 // Namespace
 var CSG = CSG || {};
+CSG.InOnOut = CSG.InOnOut || {};
+
+// Raycast classifiers
+CSG.IN  = 0;
+CSG.ON  = 1;
+CSG.OUT = 2;
+
+// Colors
+CSG.InOnOut.LINE_IN_MAT = new THREE.LineBasicMaterial({color: 0xFFFFFF});
+CSG.InOnOut.LINE_OUT_MAT = new THREE.LineBasicMaterial({color: 0xFF0000});
 
 // Answers
 CSG.InOnOut._inOnOutU = [
@@ -27,17 +37,19 @@ CSG.InOnOut._inOnOutD = [
 /* =====================================================================================================
  *  Static methods
  * ===================================================================================================== */
-// In, on, out classifier functions
-CSG.InOnOut.unionInOnOut = function (class1, class2) {
-    return CSG.InOnOut._inOnOutU[class1][class2];
+/**
+ * In, on, out classifier functions
+ */
+CSG.InOnOut.unionInOnOut = function (itype1, itype2) {
+    return CSG.InOnOut._inOnOutU[itype1][itype2];
 };
 
-CSG.InOnOut.intersectionInOnOut = function (class1, class2) {
-    return CSG.InOnOut._inOnOutI[class1][class2];
+CSG.InOnOut.intersectionInOnOut = function (itype1, itype2) {
+    return CSG.InOnOut._inOnOutI[itype1][itype2];
 };
 
-CSG.InOnOut.differenceInOnOut = function (class1, class2) {
-    return CSG.InOnOut._inOnOutD[class1][class2];
+CSG.InOnOut.differenceInOnOut = function (itype1, itype2) {
+    return CSG.InOnOut._inOnOutD[itype1][itype2];
 };
 
 /**
@@ -111,7 +123,12 @@ CSG.InOnOut.belongsTo = function(t, interval)
 CSG.InOnOut.splitInterval = function (newPoint, intervalList, position)
 {
     // Splits interval into 2 intervals, using the new point
-    intervalList.splice(position, 0, intervalList[position]);
+    let ts = intervalList[position].tstart;
+    let te = intervalList[position].tend;
+    let it = intervalList[position].itype;
+    var new_interval = { tstart: ts, tend: te, itype: it};
+
+    intervalList.splice(position, 0, new_interval);
     intervalList[position].tend = newPoint;
     intervalList[position+1].tstart = newPoint;
 };
@@ -127,39 +144,32 @@ CSG.InOnOut.stretchIntervalLists = function (intervals_left, intervals_right)
     // Left starts first, stretches Right interval until it matches the Left one
     let Lfirst = intervals_left[0].tstart;
     let Rfirst = intervals_right[0].tstart;
+    var new_interval;
     if (Lfirst < Rfirst) {
-        intervals_right.splice(0, 0, intervals_right[0]);   // Duplicates FIRST element
-        intervals_right[0].tstart = Lfirst;                 // Continues from last point
-        intervals_right[0].tend = Rfirst;                   // Until the shortest value
-        intervals_right.itype = CSG.OUT;                    // Doesn't belong to the solid
+        new_interval = { tstart: Lfirst, tend: Rfirst, itype: CSG.OUT };
+        intervals_right.splice(0, 0, new_interval);   // Duplicates FIRST element
     }
 
     // Right starts first, same logic as above
     else if (Lfirst > Rfirst) {
-        intervals_left.splice(0, 0, intervals_left[0]);
-        intervals_left[0].tstart = Rfirst;
-        intervals_left[0].tend = Lfirst;
-        intervals_left.itype = CSG.OUT;
+        new_interval = { tstart: Rfirst, tend: Lfirst, itype: CSG.OUT };
+        intervals_left.splice(0, 0, new_interval);
     }
 
     // Repeating the previous steps to the ends of these lists
-    let Llast = intervals_left[intervals_left.length-1].tstart;
-    let Rlast = intervals_right[intervals_right.length-1].tstart;
+    let Llast = intervals_left[intervals_left.length-1].tend;
+    let Rlast = intervals_right[intervals_right.length-1].tend;
     let Lsize = intervals_left.length;
     let Rsize = intervals_right.length;
     if (Llast > Rlast) {
-        intervals_right.splice(Rsize, 0, intervals_right[Rsize]);   // Duplicates LAST element
-        intervals_right[Rsize].tstart = Rlast;                      // Continues from last point
-        intervals_right[Rsize].tend = Llast;                        // Until the largest value
-        intervals_right.itype = CSG.OUT;                            // Doesn't belong to the solid
+        new_interval = { tstart: Rlast, tend: Llast, itype: CSG.OUT };
+        intervals_right.splice(Rsize, 0, new_interval);   // Duplicates LAST element
     }
 
     // Right starts first, same logic as above
-    else if (intervals_left[0].tstart > intervals_right[0].tstart) {
-        intervals_left.splice(Lsize, 0, intervals_left[Lsize]);
-        intervals_left[Lsize].tstart = Llast;
-        intervals_left[Lsize].tend = Rlast;
-        intervals_left.itype = CSG.OUT;
+    else if (Llast < Rlast) {
+        new_interval = { tstart: Llast, tend: Rlast, itype: CSG.OUT };
+        intervals_left.splice(Lsize, 0, new_interval);
     }
 };
 
@@ -181,13 +191,13 @@ CSG.InOnOut.matchIntervals = function (intervals_left, intervals_right) {
 
             // If the right point belongs to interval (strictly inside),
             // splits the interval using the point
-            if ( belongsTo(intervals_right[j].tstart, intervals_left[i]) ) {
+            if ( CSG.InOnOut.belongsTo(intervals_right[j].tstart, intervals_left[i]) ) {
                 CSG.InOnOut.splitInterval(intervals_right[j].tstart, intervals_left, i);
                 i++;
             }
 
             // Same for the end point
-            if ( belongsTo(intervals_right[j].tend, intervals_left[i]) ) {
+            if ( CSG.InOnOut.belongsTo(intervals_right[j].tend, intervals_left[i]) ) {
                 CSG.InOnOut.splitInterval(intervals_right[j].tend, intervals_left, i);
                 i++;
             }
@@ -206,13 +216,13 @@ CSG.InOnOut.matchIntervals = function (intervals_left, intervals_right) {
 
             // If the right point belongs to interval (strictly inside),
             // splits the interval using the point
-            if ( belongsTo(intervals_left[j].tstart, intervals_right[i]) ) {
+            if ( CSG.InOnOut.belongsTo(intervals_left[j].tstart, intervals_right[i]) ) {
                 CSG.InOnOut.splitInterval(intervals_left[j].tstart, intervals_right, i);
                 i++;    // Steps forward, since length of interval was just increased through splitting
             }
 
             // Same for the end point
-            if ( belongsTo(intervals_left[j].tend, intervals_right[i]) ) {
+            if ( CSG.InOnOut.belongsTo(intervals_left[j].tend, intervals_right[i]) ) {
                 CSG.InOnOut.splitInterval(intervals_left[j].tend, intervals_right, i);
                 i++;
             }
@@ -230,5 +240,102 @@ CSG.InOnOut.removeUnnecessaryPoints = function (intervalList) {
             intervalList[i].tend = intervalList[i+1].tend;
             intervalList.splice(i+1, 1);    // Removes interval - This operation shortens list (length changes)
         }
+
+        // Never starts with CSG.OUT
+        if (intervalList.length > 0 && intervalList[0].itype == CSG.OUT)
+            intervalList.splice(0, 1);
+
+        // Never ends with CSG.OUT
+        if (intervalList.length > 0 && intervalList[intervalList.length-1].itype == CSG.OUT)
+            intervalList.splice(intervalList.length-1, 1);
     }
+};
+
+CSG.rayLineObjectGroup = function (rayOrigin, rayDirection, intervalList) {
+    // This group will gather the lines and be added to the scene
+    var rv = new THREE.Object3D();
+    rv.name = "Raycast";
+    var segment_geo;
+    var line, mat;
+    let t, xt, yt, zt;
+
+    // Empty Set
+    if (intervalList.length == 0) {
+        segment_geo = new THREE.Geometry();
+        segment_geo.vertices.push(rayOrigin);
+
+        t = CSG.FAR;
+        xt = rayOrigin.x + t * rayDirection.x;
+        yt = rayOrigin.y + t * rayDirection.y;
+        zt = rayOrigin.z + t * rayDirection.z;
+        segment_geo.vertices.push(new THREE.Vector3 (xt, yt, zt));
+
+        line = new THREE.Line(segment_geo, CSG.InOnOut.LINE_OUT_MAT);
+        rv.add(line);
+
+        return rv;
+    }
+
+
+    // First interval is OUT
+    if (intervalList[0].tstart > 0) {
+        segment_geo = new THREE.Geometry();
+        segment_geo.vertices.push(rayOrigin);
+
+        t = intervalList[0].tstart;
+        xt = rayOrigin.x + t * rayDirection.x;
+        yt = rayOrigin.y + t * rayDirection.y;
+        zt = rayOrigin.z + t * rayDirection.z;
+        segment_geo.vertices.push(new THREE.Vector3 (xt, yt, zt));
+
+
+        line = new THREE.Line(segment_geo, CSG.InOnOut.LINE_OUT_MAT);
+        rv.add(line);
+    }
+
+    for (let i=0; i<intervalList.length; i++) {
+        segment_geo = new THREE.Geometry();
+
+        t = intervalList[i].tstart;
+        xt = rayOrigin.x + t * rayDirection.x;
+        yt = rayOrigin.y + t * rayDirection.y;
+        zt = rayOrigin.z + t * rayDirection.z;
+        segment_geo.vertices.push(new THREE.Vector3 (xt, yt, zt));
+
+        t = intervalList[i].tend;
+        xt = rayOrigin.x + t * rayDirection.x;
+        yt = rayOrigin.y + t * rayDirection.y;
+        zt = rayOrigin.z + t * rayDirection.z;
+        segment_geo.vertices.push(new THREE.Vector3 (xt, yt, zt));
+
+        if (intervalList[i].itype == CSG.IN)
+            line = new THREE.Line(segment_geo, CSG.InOnOut.LINE_IN_MAT);
+        else if (intervalList[i].itype == CSG.OUT)
+            line = new THREE.Line(segment_geo, CSG.InOnOut.LINE_OUT_MAT);
+
+        rv.add(line);
+    }
+
+    // Last part
+    t = intervalList[intervalList.length-1].tend;
+    if (t < CSG.FAR) {
+        segment_geo = new THREE.Geometry();
+
+        xt = rayOrigin.x + t * rayDirection.x;
+        yt = rayOrigin.y + t * rayDirection.y;
+        zt = rayOrigin.z + t * rayDirection.z;
+        segment_geo.vertices.push(new THREE.Vector3 (xt, yt, zt));
+
+        t = CSG.FAR;
+        xt = rayOrigin.x + t * rayDirection.x;
+        yt = rayOrigin.y + t * rayDirection.y;
+        zt = rayOrigin.z + t * rayDirection.z;
+        segment_geo.vertices.push(new THREE.Vector3 (xt, yt, zt));
+
+        line = new THREE.Line(segment_geo, CSG.InOnOut.LINE_OUT_MAT);
+        rv.add(line);
+    }
+
+
+    return rv;
 };

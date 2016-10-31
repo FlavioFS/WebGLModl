@@ -113,15 +113,11 @@ function init ()
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 
-	// CSG Test
-
-	// Testing CSG
-	// var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
-	// var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
-	// var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
-
+    /* =====================================================================================================
+     *  CSG DEMO
+     * ===================================================================================================== */
 	// Functional CSG tree geometry test
-	var result_geo = new CSG.NodeDifference(
+	var result_tree = new CSG.NodeDifference(
 
 		new CSG.NodeDifference (
 
@@ -134,7 +130,7 @@ function init ()
 					new CSG.NodeLeaf(
 						new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
 					),
-					{x:2, y:2, z:2}
+					{x:1.5, y:1.5, z:1.5}
 				),
 				{x:1, y:1, z:1}
 			)
@@ -148,19 +144,27 @@ function init ()
 			{x:-1, y:-1, z:-1}
 		)
 
-	).geometry();
-
-	// var test_dif1 = new CSG.NodeDifference(test_cub, test_sph);
-	// var test_dif2 = new CSG.NodeDifference(test_dif1, test_cyl);
+	);
 
 	var material = new THREE.MeshPhongMaterial (CSG.MATERIAL);
-	var mesh = new THREE.Mesh(result_geo, material);
-	if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
+	var mesh = new THREE.Mesh(result_tree.geometry(), material);
+	if (material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
 	scene.add(mesh);
 
 
-	var mergedList = CSG.Node.sortedMerge(list1, list2);
-	console.log(mergedList);
+    /* =====================================================================================================
+     *  RAYCAST DEMO
+     * ===================================================================================================== */
+    // Note: THREE.js's Raycast is slightly bugged, some intersections return wrong.
+    // Example: origin = (-2, -1, -1)
+	var ray_origin = new THREE.Vector3 (3, 4, 3);
+	var ray_direction = new THREE.Vector3 (-1.42, -1.5, -1).normalize();
+    var intervalList = result_tree.setMembershipRaycast(ray_origin, ray_direction);
+    var raycastLineGroup = CSG.rayLineObjectGroup(ray_origin, ray_direction, intervalList);
+    scene.add(raycastLineGroup);
+    console.log(intervalList);
+
+
 
 	// world = new Primitives.Solid({x:0,y:0,z:0});
 	// world.createWorldOctree(16, 5);

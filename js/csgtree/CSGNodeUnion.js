@@ -26,11 +26,10 @@ CSG.NodeUnion = class extends CSG.NodeBoolean
     setMembershipRaycast (originPoint, rayVector, transformStack=[]) {
         var intervals_left  = this.left.setMembershipRaycast(originPoint, rayVector);
         var intervals_right = this.right.setMembershipRaycast(originPoint, rayVector);
-        // var sortedIntervals = sortedMerge(intervals_left, intervals_right);
 
-        // Creates detailed list 1
-        var detailed_left = [];
-        let ts = 0, te = 0;
+        // Bad ray
+        if (intervals_left.length == 0) return intervals_right;
+        if (intervals_right.length == 0) return intervals_left;
 
         //// In this section, both lists will be completed
         // Lists are now inside of same interval

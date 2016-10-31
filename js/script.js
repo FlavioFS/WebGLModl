@@ -11,8 +11,8 @@ var OCTREE_MODEL = 0;
 var CSG_MODEL = 1;
 var modelType = OCTREE_MODEL;
 
+// TODO Move this to Utils/UtilsStatic.js
 // utils
-
 function rgbToHex(r, g, b, multiplyTimes255=true) {
 	if (multiplyTimes255)
 	{

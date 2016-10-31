@@ -33,6 +33,7 @@ CSG.NodeRotate = class extends CSG.NodeTransform
         rotation_mtx.multiplyMatrices(rotationX, rotationY);
         rotation_mtx.multiply(rotationZ);
 
+        // TODO Remove this
         // the commment code below does not work
         // rv.applyMatrix(rotation);
         // var rotation_mtx = new THREE.Matrix4();

@@ -95,21 +95,9 @@ function init ()
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 
-<<<<<<< HEAD
-	// CSG Test
-
-<<<<<<< HEAD
-=======
-	// Testing CSG
-	// var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
-	// var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
-	// var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
-
-=======
     /* =====================================================================================================
      *  CSG DEMO
      * ===================================================================================================== */
->>>>>>> (New) Set Membership Raycast completed and tested. Note: THREE.js's raycast is bugged and returns wrong intersections sometimes.
 	// Functional CSG tree geometry test
 	var result_tree = new CSG.NodeDifference(
 
@@ -164,7 +152,6 @@ function init ()
 	// world.createWorldOctree(16, 5);
 	// console.log(world.toString())
 
->>>>>>> (Backup) Done, but NOT TESTED. Probably BROKEN. This is just for BACKUP purposes.
 }
 
 // [2]

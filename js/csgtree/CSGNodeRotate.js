@@ -33,22 +33,6 @@ CSG.NodeRotate = class extends CSG.NodeTransform
         rotation_mtx.multiplyMatrices(rotationX, rotationY);
         rotation_mtx.multiply(rotationZ);
 
-        // TODO Remove this
-        // the commment code below does not work
-        // rv.applyMatrix(rotation);
-        // var rotation_mtx = new THREE.Matrix4();
-        // // makeRotationFromEuler is weirdly not working
-        // console.log(new THREE.Vector3(this.param.x/180*Math.PI, this.param.y/180*Math.PI, this.param.z/180*Math.PI))
-        // rotation_mtx.makeRotationFromEuler(
-        //     new THREE.Vector3(this.param.x/180*Math.PI, this.param.y/180*Math.PI, this.param.z/180*Math.PI)
-        //     );
-        // // if (this.param.x != 0) rotation_mtx.rotateX(this.param.x);
-        // // if (this.param.y != 0) rotation_mtx.rotateY(this.param.y);
-        // // if (this.param.z != 0) rotation_mtx.rotateZ(this.param.z);
-        // rotation_mtx.makeRotationX(this.param.x/180*Math.PI);
-        // rotation_mtx.makeRotationY(this.param.y/180*Math.PI);
-        // rotation_mtx.makeRotationZ(this.param.z/180*Math.PI);
-
         rv.applyMatrix(rotation_mtx);
 
         return rv;

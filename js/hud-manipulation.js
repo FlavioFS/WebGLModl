@@ -83,7 +83,7 @@ $(document).ready(function() {
 				else if (modelType == CSG_MODEL)
 				{
 					solid = new Primitives.SolidCube(pos, e);
-					addCsgSolid(solid);
+					addCsgSolid(new CSG.NodeLeaf(solid));
 				}
 
 					this_elem.toggle();
@@ -167,7 +167,7 @@ $(document).ready(function() {
 					else if (this_id == 'torus-form')
 						solid = new Primitives.SolidTorus(pos, r, t)
 
-					addCsgSolid(solid);
+					addCsgSolid(new CSG.NodeLeaf(solid));
 				}
 
 				this_elem.toggle();
@@ -320,6 +320,20 @@ $(document).ready(function() {
 			material.wireframe = false;
 			material.depthWrite = false;
 			obj.material = material;
+		}
+	});
+
+	/***
+	**** SHOW/HIDE SET MEMBERSHIP RAYCAST
+	*/
+	$(document).on('change', '.show-smc[data-model-type='+CSG_MODEL+']', function() {
+		if ($(this).is(':checked')) {
+			scene.getObjectByName('csg-solid-'+$(this).val()).material.opacity = 0.3;
+
+			setSmcRaycast(csg_solids[$(this).val()], $(this).val());
+		} else {
+			scene.getObjectByName('csg-solid-'+$(this).val()).material.opacity = 1;
+			scene.remove(scene.getObjectByName('smc-raycast-'+$(this).val()));
 		}
 	});
 
@@ -527,7 +541,7 @@ $(document).ready(function() {
 	});
 
 	function destroyOctreeSolid(index) {
-		solids[getSelectedSolidIndex()] = null;
+		solids[index] = null;
 
 		scene.remove(scene.getObjectByName('solid-'+index));
 		scene.remove(scene.getObjectByName('wireframe-'+index));
@@ -536,7 +550,7 @@ $(document).ready(function() {
 	}
 
 	function destroyCsgSolid(index) {
-		csg_solids[getSelectedSolidIndex()] = null;
+		csg_solids[index] = null;
 
 		scene.remove(scene.getObjectByName('csg-solid-'+index));
 		scene.remove(scene.getObjectByName('csg-bbox-'+index));
@@ -654,6 +668,9 @@ $(document).ready(function() {
 					csg_solids[i] = new CSG.NodeScale(csg_solids[i], pos);
 				else if (op == 'Rotating')
 					csg_solids[i] = new CSG.NodeRotate(csg_solids[i], pos);
+
+				
+				// setSmcRaycast(csg_solids[i], i); // update SMC Raycast
 
 				addCsgSolidToScene(csg_solids[i].geometry(), i);
 

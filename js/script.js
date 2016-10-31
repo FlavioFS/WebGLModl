@@ -1,11 +1,12 @@
 var scene, camera, renderer;
 var sceneHUD, cameraHUD;
 
-// contains all solids created in the scene
+
 var grid;
-var solids = [];
+
+// contains all solids created in the scene
+var solids = []; // octree solids
 var csg_solids = [];
-var world = null;
 
 var OCTREE_MODEL = 0;
 var CSG_MODEL = 1;
@@ -94,79 +95,6 @@ function init ()
 	// Controls
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-
-    /* =====================================================================================================
-     *  CSG DEMO
-     * ===================================================================================================== */
-	// Functional CSG tree geometry test
-	var result_tree =
-	new CSG.NodeUnion (
-		new CSG.NodeDifference(
-			new CSG.NodeDifference (
-
-				new CSG.NodeLeaf(
-					new Primitives.SolidCube(Utils.Vector.ZERO, 4)
-				),
-
-				new CSG.NodeTranslate(
-					new CSG.NodeScale(
-						new CSG.NodeLeaf(
-							new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
-						),
-						{x:1.5, y:1.5, z:1.5}
-					),
-					{x:1, y:1, z:1}
-				)
-
-			),
-
-			new CSG.NodeTranslate(
-				new CSG.NodeRotate(
-					new CSG.NodeLeaf(
-						new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
-					),
-					{x:0, y:0, z:45}
-				),
-				{x:-1, y:-1, z:-1}
-			)
-
-		),
-
-		new CSG.NodeTranslate(
-			new CSG.NodeRotate(
-				new CSG.NodeLeaf(
-					new Primitives.SolidTorus(Utils.Vector.ZERO, 1, 0.5)
-				),
-				{x:20, y:0, z:30} // Rotation in degrees
-			),
-			{x:-2.7, y:-2, z:-1}
-		)
-	)
-
-	var material = new THREE.MeshPhongMaterial (CSG.MATERIAL);
-	var mesh = new THREE.Mesh(result_tree.geometry(), material);
-	if (material.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	scene.add(mesh);
-
-
-    /* =====================================================================================================
-     *  RAYCAST DEMO
-     * ===================================================================================================== */
-    // Note: THREE.js's Raycast is slightly bugged, some intersections return wrong.
-    // Example: origin = (-2, -1, -1)
-	var ray_origin = new THREE.Vector3 (3, 4, 3);
-	var ray_direction = new THREE.Vector3 (-1.4, -1.6, -1.1).normalize();
-    var intervalList = result_tree.setMembershipRaycast(ray_origin, ray_direction);
-    var raycastLineGroup = CSG.rayLineObjectGroup(ray_origin, ray_direction, intervalList);
-    scene.add(raycastLineGroup);
-    console.log(intervalList);
-
-
-
-	// world = new Primitives.Solid({x:0,y:0,z:0});
-	// world.createWorldOctree(16, 5);
-	// console.log(world.toString())
-
 }
 
 // [2]
@@ -254,14 +182,14 @@ function addSolid(solid, color=null, solidsIndex=null) {
 function addCsgSolidToScene(geometry, index)
 {
 	var test_mat = {
-		color: 0xFF0000,
+		color: 0x00FF00,
 		specular: 0xFFDDDD,
 		shininess: 2,
 		shading: THREE.FlatShading,
 		side: THREE.DoubleSide,
 		wireframe: false,
 		transparent: true,
-		opacity: 1.0
+		opacity: 1,
 	};
 
 	var material = new THREE.MeshPhongMaterial (test_mat);
@@ -292,6 +220,13 @@ function addCsgSolid(solid, color=null)
 	csg_solids.push(solid);
 	var index = csg_solids.length-1;
 
+	// setSmcRaycast(solid, index);
+
+	// solid may be a nodeLeaf in case of "new primitive"
+	if (solid instanceof CSG.NodeLeaf) {
+		solid = solid.solid;
+	}
+
 	addCsgSolidToScene(solid.geometry(), index);
 
 	addSelectionSolidButton(index, CSG_MODEL);
@@ -300,13 +235,40 @@ function addCsgSolid(solid, color=null)
 
 }
 
+function setSmcRaycast(solid, index, origin=null, direction=null)
+{
+	// remove any previous SMC raycast that this CSG may have
+	scene.remove(scene.getObjectByName('smc-raycast-'+index));
+
+	if (origin == null)
+		origin = new THREE.Vector3(3, 4, 3);
+
+	if (direction == null)
+		direction = new THREE.Vector3(-1.4, -1.6, -1.1);
+	direction = direction.normalize();
+
+
+    var intervalList = solid.setMembershipRaycast(origin, direction);
+    var raycastLineGroup = CSG.rayLineObjectGroup(origin, direction, intervalList);
+    raycastLineGroup.name = 'smc-raycast-'+index;
+    scene.add(raycastLineGroup);
+
+    console.log(intervalList);
+}
+
 // add a select button for the last added solid
 function addSelectionSolidButton(index, model, color=null) {
 	$(document).ready(function() {
 		var prefix = (model == OCTREE_MODEL) ? 'OCT ' : 'CSG ';
 
+		var showSMCButton = '';
+		if (model == CSG_MODEL)
+		{
+			showSMCButton = "<input type='checkbox' class='show-smc' value='"+index+"' data-model-type='"+model+"'>";
+		}
+
 		if (color == null)
-			color = '#FF0000';
+			color = '#00FF00';
 
 		$('#window-solids').append(" \
 			<div data-index='"+index+"' data-model-type='"+model+"'> \
@@ -314,11 +276,10 @@ function addSelectionSolidButton(index, model, color=null) {
 				<input type='color' class='solid-color' data-index='"+index+"' value='"+color+"' data-model-type='"+model+"'> \
 				<input type='checkbox' class='show-solid' checked='checked' value='"+index+"' data-model-type='"+model+"'> \
 				<input type='checkbox' class='show-bbox' value='"+index+"' data-model-type='"+model+"'> \
-				<br> \
+				"+showSMCButton+"<br> \
 			</div> \
 		");
 
-		
 	});
 }
 
@@ -394,7 +355,7 @@ function importString(input) {
 
 			// comment-funcionalities 
 			case '#c':
-					return {type: 'Color', rgb: {r: input[++i], g: input[++i], b: input[++i]} };
+				return {type: 'Color', rgb: {r: input[++i], g: input[++i], b: input[++i]} };
 
 			// Octree only
 			case 'O':
@@ -420,31 +381,56 @@ function importString(input) {
 				break;
 
 			// CSG primitives
-			case 'S':
-				csgStack[stackI++] = new Primitives.SolidSphere({
+
+			case 'S': // Sphere
+				csgStack[stackI++] = new CSG.NodeLeaf(new Primitives.SolidSphere({
 					x: input[++i],
 					y: input[++i],
 					z: input[++i],
-				}, input[++i]);
+				}, input[++i]));
 				
 				i++;
 				break;
 
-			case 'C':
+			case 'C': // Cylinder
 				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],}; //bottom-left vertex
 				var r = input[++i];
 				var h = input[++i];
 
-				csgStack[stackI++] = new Primitives.SolidCylinder({
+				csgStack[stackI++] = new CSG.NodeLeaf(new Primitives.SolidCylinder({
 					x: minorVertex.x,
 					y: (minorVertex.y + h)/2,
 					z: minorVertex.z,
-				}, r, h);
+				}, r, h));
 
 				i++;
 				break;
 
-			case 'B':
+			case 'K': // Cone
+				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],}; //bottom-left vertex
+				var r = input[++i];
+				var h = input[++i];
+
+				csgStack[stackI++] = new CSG.NodeLeaf(new Primitives.SolidCone({
+					x: minorVertex.x,
+					y: (minorVertex.y + h)/2,
+					z: minorVertex.z,
+				}, r, h));
+
+				i++;
+				break;
+
+			case 'T': // Torus
+				csgStack[stackI++] = new CSG.NodeLeaf(new Primitives.SolidTorus({
+					x: input[++i],
+					y: input[++i],
+					z: input[++i],
+				}, input[++i], input[++i]));
+
+				i++;
+				break;
+
+			case 'B': // Box
 				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],};
 				var w = input[++i];
 				var h = input[++i];
@@ -455,11 +441,11 @@ function importString(input) {
 					z: minorVertex.z + d,
 				}
 
-				csgStack[stackI++] = new Primitives.SolidCube({
+				csgStack[stackI++] = new CSG.NodeLeaf(new Primitives.SolidCube({
 						x: (minorVertex.x + majorVertex.x)/2,
 						y: (minorVertex.y + majorVertex.y)/2,
 						z: (minorVertex.z + majorVertex.z)/2,
-					}, 1);
+					}, 1));
 
 				// scale if needed
 				if (w != 1 || h != 1 || d != 1)
@@ -496,7 +482,7 @@ function importString(input) {
 											y: input[++i],
 											z: input[++i],
 										})
-				i++; //  ignores the last argument - TODO
+				// i++; //  ignores the last argument - TODO
 				
 				i++;
 				break;
@@ -532,7 +518,9 @@ function importString(input) {
 				// other unknown primitives
 				if (/[A-Z]/.test(input[i])) {
 					console.log('Unknown CSG Primitive');
-					csgStack[stackI++] = new Primitives.SolidCube({ x: 0.5, y: 0.5, z: 0.5 }, 1);
+					csgStack[stackI++] = new CSG.NodeLeaf(
+						new Primitives.SolidCube({ x: 0.5, y: 0.5, z: 0.5 }, 1)
+					);
 				}
 
 				i++;
@@ -596,8 +584,38 @@ function exportCsg(solid)
 					s.stack[i].height,
 				];
 
-				// var whd = [s.stack[i].edge, s.stack[i].edge, s.stack[i].edge]
 				output += 'C ' + params.join(' ');
+				output += ' ';
+				break;
+
+			case 'Cone':
+				params = [
+					// bottom-left vertex (minor)
+					s.stack[i].center.x, 
+					s.stack[i].center.y - s.stack[i].height/2, 
+					s.stack[i].center.z,
+
+					s.stack[i].radius,
+					s.stack[i].height,
+				];
+
+				output += 'K ' + params.join(' ');
+				output += ' ';
+				break;
+
+			case 'Torus':
+				params = [
+					// bottom-left vertex (minor)
+					s.stack[i].center.x, 
+					s.stack[i].center.y, 
+					s.stack[i].center.z,
+
+					s.stack[i].radius,
+					s.stack[i].tubeRadius,
+				];
+
+				// var whd = [s.stack[i].edge, s.stack[i].edge, s.stack[i].edge]
+				output += 'T ' + params.join(' ');
 				output += ' ';
 				break;
 			
@@ -631,7 +649,7 @@ function exportCsg(solid)
 				break;
 
 			default:
-				output += ' ';
+				output += '';
 		}
 	}
 
@@ -652,4 +670,6 @@ function exportCsgRecursion(node, p)
 	}
 	else if (node.name == 'CSG.NodeTranslate' || node.name == 'CSG.NodeRotate' || node.name == 'CSG.NodeScale')
 		exportCsgRecursion(node.child, p);
+	else if (node.name == 'CSG.NodeLeaf')
+		exportCsgRecursion(node.solid, p);
 }

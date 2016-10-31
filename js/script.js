@@ -11,6 +11,21 @@ var OCTREE_MODEL = 0;
 var CSG_MODEL = 1;
 var modelType = OCTREE_MODEL;
 
+// utils
+
+function rgbToHex(r, g, b, multiplyTimes255=true) {
+	if (multiplyTimes255)
+	{
+		r *= 255;
+		g *= 255;
+		b *= 255;
+	}
+	r = parseInt(r);
+	g = parseInt(g);
+	b = parseInt(b);
+
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
 
 // [1]
 function init ()
@@ -91,51 +106,6 @@ function init ()
 		opacity: 1.0
 	};
 
-	// Testing CSG
-	// var test_cub = new Primitives.SolidCube({x:0, y:0, z:0}, 4);
-	// var test_sph = new Primitives.SolidSphere({x:1, y:1, z:1}, 2);
-	// var test_cyl = new Primitives.SolidCylinder({x:-1, y:-1, z:-1}, 1, 6);
-
-	// Functional CSG tree geometry test
-	// var result_geo = new CSG.NodeDifference(
-
-	// 	new CSG.NodeDifference (
-
-	// 		new CSG.NodeLeaf(
-	// 			new Primitives.SolidCube(Utils.Vector.ZERO, 4)
-	// 		),
-
-	// 		new CSG.NodeTranslate(
-	// 			new CSG.NodeScale(
-	// 				new CSG.NodeLeaf(
-	// 					new Primitives.SolidSphere(Utils.Vector.ZERO, 1)
-	// 				),
-	// 				{x:2, y:2, z:2}
-	// 			),
-	// 			{x:1, y:1, z:1}
-	// 		)
-
-	// 	),
-
-	// 	new CSG.NodeTranslate(
-	// 		new CSG.NodeLeaf(
-	// 			new Primitives.SolidCylinder(Utils.Vector.ZERO, 1, 6)
-	// 		),
-	// 		{x:-1, y:-1, z:-1}
-	// 	)
-
-	// ).geometry();
-
-	// importing CSG
-
-	// // var test_dif1 = new CSG.NodeDifference(test_cub, test_sph);
-	// // var test_dif2 = new CSG.NodeDifference(test_dif1, test_cyl);
-
-	// var material = new THREE.MeshPhongMaterial (test_mat);
-	// var mesh = new THREE.Mesh(result_geo, material);
-	// if (test_mat.shading == THREE.SmoothShading) mesh.geometry.computeVertexNormals();
-	// scene.add(mesh);
-
 }
 
 // [2]
@@ -189,18 +159,7 @@ function addToScene (model, index, color=null, offset=0) {
 	mesh.name = 'solid-' + index;
 	scene.add(mesh);
 
-	// change color
-	if (color != null) {
-		// console.log('aqui')
-		color = new THREE.Color(color.r, color.g, color.b).getHex().toString(16);
-
-		$(document).ready(function() {
-			$('.solid-color[data-index='+index+'][data-model-type='+OCTREE_MODEL+']')
-				.val('#'+color).change();
-		});
-	}
 }
-
 
 
 function addWireframeBBOxToScene(solid, index, offset=0, visible=true) {
@@ -222,6 +181,8 @@ function addSolid(solid, color=null, solidsIndex=null) {
 		addWireframeBBOxToScene(solids[index], index)
 
 		addSelectionSolidButton(index, OCTREE_MODEL);
+
+		updateColor(index, OCTREE_MODEL, color);
 	}
 	else
 	{
@@ -274,21 +235,14 @@ function addCsgSolid(solid, color=null)
 
 	addSelectionSolidButton(index, CSG_MODEL);
 
-	// change color
-	if (color != null) {
-		color = new THREE.Color(color.r, color.g, color.b).getHex().toString(16);
-
-		$(document).ready(function() {
-			$('.solid-color[data-index='+index+'][data-model-type='+CSG_MODEL+']').val('#'+color).change();
-		});
-	}
+	updateColor(index, CSG_MODEL, color);
 
 }
 
 // add a select button for the last added solid
 function addSelectionSolidButton(index, model, color=null) {
 	$(document).ready(function() {
-		var prefix = (model == OCTREE_MODEL) ? 'OCTREE ' : 'CSG ';
+		var prefix = (model == OCTREE_MODEL) ? 'OCT ' : 'CSG ';
 
 		if (color == null)
 			color = '#FF0000';
@@ -303,9 +257,18 @@ function addSelectionSolidButton(index, model, color=null) {
 			</div> \
 		");
 
-		$('.solid-color[data-index='+index+'][data-model-type='+model+']')
-			.val(color).change();
+		
 	});
+}
+
+function updateColor(index, modelType, color=null)
+{
+	if (color != null) {
+		$(document).ready(function() {
+			$('.solid-color[data-index='+index+'][data-model-type='+modelType+']')
+			.val(rgbToHex(color.r, color.g, color.b)).change();
+		});
+	}
 }
 
 
@@ -355,8 +318,6 @@ function importString(input) {
 			input[i] = parseFloat(input[i]);
 
 	i = 0;
-	console.log(input)
-
 
 	var avoidInfiniteLoop = 0;
 
@@ -376,6 +337,7 @@ function importString(input) {
 
 			// Octree only
 			case 'O':
+				// bottom-left vertex
 				var minorVertex = {
 					x: input[++i],
 					y: input[++i],
@@ -408,7 +370,7 @@ function importString(input) {
 				break;
 
 			case 'C':
-				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],};
+				var minorVertex = {x: input[++i], y: input[++i], z: input[++i],}; //bottom-left vertex
 				var r = input[++i];
 				var h = input[++i];
 
@@ -444,6 +406,7 @@ function importString(input) {
 				
 				i++;
 				break;
+
 
 			// transformations
 			case 't':
@@ -504,6 +467,13 @@ function importString(input) {
 
 			// just ignores something else
 			default:
+				
+				// other unknown primitives
+				if (/[A-Z]/.test(input[i])) {
+					console.log('Unknown CSG Primitive');
+					csgStack[stackI++] = new Primitives.SolidCube({ x: 0.5, y: 0.5, z: 0.5 }, 1);
+				}
+
 				i++;
 
 		}
@@ -513,7 +483,112 @@ function importString(input) {
 	return {type: 'Solids', csg: csgStack, octree: octreeStack};
 }
 
-function exportCsg()
+// EXPORT
+
+// Iterate through a CSG Solid and stack its kids (from top to bottom, right to left).
+// Then print the stack from backwards
+function exportCsg(solid)
 {
-	
+	var s = {stack: []}
+
+	exportCsgRecursion(solid, s);
+
+	var output = '';
+
+	var minorVertex;
+
+	for (var i = s.stack.length-1; i >= 0; i--)
+	{
+		switch(s.stack[i].name)
+		{
+			// primitives
+			case 'Sphere':
+				output += ['S', s.stack[i].center.x, s.stack[i].center.y, s.stack[i].center.z, s.stack[i].radius].join(' ');
+				output += ' ';
+				break;
+
+			case 'Cube':
+				params = [
+					// bottom-left vertex
+					s.stack[i].center.x - s.stack[i].edge/2, 
+					s.stack[i].center.y - s.stack[i].edge/2, 
+					s.stack[i].center.z - s.stack[i].edge/2,
+
+					s.stack[i].edge,
+					s.stack[i].edge,
+					s.stack[i].edge,
+				];
+
+				var whd = [s.stack[i].edge, s.stack[i].edge, s.stack[i].edge]
+				output += 'B ' + params.join(' ');
+				output += ' ';
+				break;
+
+			case 'Cylinder':
+				params = [
+					// bottom-left vertex (minor)
+					s.stack[i].center.x, 
+					s.stack[i].center.y - s.stack[i].height/2, 
+					s.stack[i].center.z,
+
+					s.stack[i].radius,
+					s.stack[i].height,
+				];
+
+				// var whd = [s.stack[i].edge, s.stack[i].edge, s.stack[i].edge]
+				output += 'C ' + params.join(' ');
+				output += ' ';
+				break;
+			
+			// boolean operations
+			case 'CSG.NodeUnion':
+				output += 'u ';
+				break;
+
+			case 'CSG.NodeDifference':
+				output += 'd ';
+				break;
+
+			case 'CSG.NodeIntersect':
+				output += 'i ';
+				break;
+
+			// transformations
+			case 'CSG.NodeTranslate':
+				output += 't ' + [s.stack[i].param.x, s.stack[i].param.y, s.stack[i].param.z].join(' ');
+				output += ' ';
+				break;
+
+			case 'CSG.NodeScale':
+				output += 's ' + [s.stack[i].param.x, s.stack[i].param.y, s.stack[i].param.z].join(' ');
+				output += ' ';
+				break;
+
+			case 'CSG.NodeRotate':
+				output += 'r ' + [s.stack[i].param.x, s.stack[i].param.y, s.stack[i].param.z].join(' ');
+				output += ' ';
+				break;
+
+			default:
+				output += ' ';
+		}
+	}
+
+	return output.trim();
+}
+
+function exportCsgRecursion(node, p)
+{
+	if (node == null)
+		return;
+
+	p.stack.push(node);
+
+	if (node.name == 'CSG.NodeUnion' || node.name == 'CSG.NodeDifference' || node.name == 'CSG.NodeIntersect')
+	{
+		exportCsgRecursion(node.right, p);	
+		exportCsgRecursion(node.left, p);
+	}
+	else if (node.name == 'CSG.NodeTranslate' || node.name == 'CSG.NodeRotate' || node.name == 'CSG.NodeScale')
+		exportCsgRecursion(node.child, p);
 }

@@ -336,13 +336,19 @@ $(document).ready(function() {
 
 	// export all solids
 	$(document).on('click', '#export', function() {
-		var output, i;
+		var output, i, color, obj;
+
+		output = '';
 
 		for (i = 0; i < solids.length; i++)
 		{
 			if (solids[i] != null) {
+				color = scene.getObjectByName('solid-'+i).material.color;
+				// console.log(color);
+				output += '#c ' + [color.r, color.g, color.b].join(' ') + '\n';
+
 				// minor vertex
-				output = [
+				obj = [
 					'O',
 					// minor vertex
 					solids[i].center.x - solids[i]._octree.boundingBox.edge/2,
@@ -352,40 +358,23 @@ $(document).ready(function() {
 					solids[i]._octree.boundingBox.edge,
 					solids[i].toString()
 				]
-				console.log(output.join(' '))
+				output += obj.join(' ') + '\n';
 			}
 		}
 
 		for (i = 0; i < csg_solids.length; i++)
 		{
-			// if (csg_solids[i] != null) {
-			// 	// minor vertex
-			// 	output = [
-			// 		'O',
-			// 		// minor vertex
-			// 		solids[i].center.x - solids[i]._octree.boundingBox.edge/2,
-			// 		solids[i].center.y - solids[i]._octree.boundingBox.edge/2,
-			// 		solids[i].center.z - solids[i]._octree.boundingBox.edge/2,
-					
-			// 		solids[i].toString()
-			// 	]
-			// 	console.log(output.join(' '))
-			// }
+			if (csg_solids[i] != null)
+			{
+				color = scene.getObjectByName('csg-solid-'+i).material.color;
+				// console.log(color);
+				output += '#c ' + [color.r, color.g, color.b].join(' ') + '\n';
+				output += exportCsg(csg_solids[i]) + '\n';
+			}
 		}
 
-		// if (getSelectedSolidModelType() == OCTREE_MODEL) {
+		console.log(output);
 
-		// 	// try {
-		// 	// 	console.log(
-		// 	// 		solids[getSelectedSolidIndex()].toString());
-		// 	// } catch(e) {
-		// 	// 	alert('Select a solid!');
-		// 	// }
-		// }
-		// else if (getSelectedSolidModelType() == CSG_MODEL)
-		// {
-		// 	// TODO
-		// }
 	});
 
 	$(document).on('submit', '#import-form', function() {
@@ -398,28 +387,29 @@ $(document).ready(function() {
 		input = input.split('\n');
 		console.log(input);
 
-		// // rendering
-		// var loading = new HUD.Loading(
-		// 	'Importing solid(s)...')
-		// 	.show();
+		// rendering
+		var loading = new HUD.Loading(
+			'Importing solid(s)...')
+			.show();
 
+		var color;
 
 		// reason to use timeout: a solid would be calculated BEFORE showing a loading
-		// setTimeout(function() {
+		setTimeout(function() {
 
-			var color = null;
+			color = null;
 			for (var i = 0; i < input.length; i++)
 			{
 				importOnlyOctreeFromString(input[i].trim());
 
 			}
 
+			this_elem.toggle();
+
+			loading.endTimer().hide(3000);
+		}, 15);
+
 		return false;
-
-		// 	this_elem.toggle();
-
-		// 	loading.endTimer().hide(3000);
-		// }, 15);
 
 	});
 
@@ -427,37 +417,40 @@ $(document).ready(function() {
 		var input = $(this).find('textarea[name=code]').val();
 		input = input.split('\n');
 
-		var color = null;
-		for (var i = 0; i < input.length; i++)
-		{
-			var output = importString(input[i].trim());
-			console.log(output)
+		// rendering
+		var loading = new HUD.Loading(
+			'Importing solid(s)...')
+			.show();
 
-			if (output != null && output.type == 'Color')
-				color = output.rgb;
 
-			else if (output != null && output.type == 'Solids')
+		// reason to use timeout: a solid would be calculated BEFORE showing a loading
+		setTimeout(function() {
+
+			color = null;
+			for (var i = 0; i < input.length; i++)
 			{
-				for (var j = 0; j < output.octree.length; j++)
-					addSolid(output.octree[j], color);
+				var output = importString(input[i].trim());
 
-				for (var j = 0; j < output.csg.length; j++)
-					if (output.csg[j] != null)
-						addCsgSolid(output.csg[j], color);
+				if (output != null && output.type == 'Color')
+					color = output.rgb;
 
-				color = null;
+				else if (output != null && output.type == 'Solids')
+				{
+					for (var j = 0; j < output.octree.length; j++)
+						addSolid(output.octree[j], color);
+
+					for (var j = 0; j < output.csg.length; j++)
+						if (output.csg[j] != null)
+							addCsgSolid(output.csg[j], color);
+
+					color = null;
+				}
+
+				
 			}
 
-			
-		}
-
-		// var csgStack = getCsgStackFromString(input);
-
-		// for (i = 0; i < csgStack.length; i++)
-		// {
-		// 	if (csgStack[i] != null)
-		// 		addCsgSolid(csgStack[i]);
-		// }
+		loading.endTimer().hide(3000);
+		}, 15);
 
 		return false;
 	});
@@ -650,6 +643,8 @@ $(document).ready(function() {
 			}
 			else if (type == CSG_MODEL)
 			{
+				previousColor = scene.getObjectByName('csg-solid-'+i).material.color;
+
 				scene.remove(scene.getObjectByName('csg-solid-'+i));
 				scene.remove(scene.getObjectByName('csg-bbox-'+i));
 
@@ -661,7 +656,12 @@ $(document).ready(function() {
 					csg_solids[i] = new CSG.NodeRotate(csg_solids[i], pos);
 
 				addCsgSolidToScene(csg_solids[i].geometry(), i);
+
+				updateColor(i, CSG_MODEL, previousColor);
+
 				highlightCsgSolid(i);
+
+				
 			}
 
 			// $(this).find('input[name=x]').val(0)

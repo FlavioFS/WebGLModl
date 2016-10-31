@@ -72,8 +72,8 @@ var csgHtml = `
 		<form id='csg-import-form' action='#'>
 			<label for='code'>Code:</label>
 			<textarea name="code" height='20' size='30'># Aqui está o boneco de neve.
-#c 0.5 0.5 0.5
-S 0 0 0 2 S 0 0 0 1 t 0 2.5 0 u B -0.5 -0.5 -0.5 1 1 1 t 0 3.5 0 u
+#c 0 0 1
+Q 0 0 0 S 0 0 0 2 u S 0 0 0 1 t 0 2.5 0 u B -0.5 -0.5 -0.5 1 1 1 t 0 3.5 0 u
 O 0 0 0 1 (bbbbwwww</textarea><br />
 			<input type='submit' value='Import solid' />
 		</form>

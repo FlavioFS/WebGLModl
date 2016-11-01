@@ -128,5 +128,8 @@ O 0 0 0 1 (bbbbwwww</textarea><br />
 	</form>
 	
 
-	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br>
+	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br><br />
+	Rotation Type (I/O):<br />
+	<label><input type="radio" name="rotation-type" value="0" checked>One angle</label> - 
+	<label><input type="radio" name="rotation-type" value="1">Three angles</label><br>
 `;

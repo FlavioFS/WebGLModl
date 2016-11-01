@@ -14,6 +14,11 @@ var modelType = OCTREE_MODEL;
 
 var raycast = {origin: [3, 4, 3], direction: [-1.4, -1.6, -1.1]}
 
+// for import/export rotation 
+var ONE_ANGLE = 0;
+var THREE_ANGLES = 1;
+var rotationType = ONE_ANGLE;
+
 // TODO Move this to Utils/UtilsStatic.js
 // utils
 function rgbToHex(r, g, b, multiplyTimes255=true) {
@@ -482,12 +487,29 @@ function importString(input) {
 				break;
 
 			case 'r':
-				csgStack[stackI-1] = new CSG.NodeRotate(csgStack[stackI-1], {
+				if (rotationType == THREE_ANGLES)
+				{
+					csgStack[stackI-1] = new CSG.NodeRotate(csgStack[stackI-1], {
 											x: input[++i],
 											y: input[++i],
 											z: input[++i],
 										})
-				// i++; //  ignores the last argument - TODO
+				}
+				else if (rotationType == ONE_ANGLE)
+				{
+					var pos = {
+						x: input[++i],
+						y: input[++i],
+						z: input[++i],
+					}
+					var angle = input[++i];
+
+					csgStack[stackI-1] = new CSG.NodeRotate(csgStack[stackI-1], {
+						x: pos.x*angle,
+						y: pos.y*angle,
+						z: pos.z*angle,
+					})
+				}
 				
 				i++;
 				break;
@@ -649,8 +671,17 @@ function exportCsg(solid)
 				break;
 
 			case 'CSG.NodeRotate':
-				output += 'r ' + [s.stack[i].param.x, s.stack[i].param.y, s.stack[i].param.z].join(' ');
-				output += ' ';
+				if (rotationType == THREE_ANGLES)
+				{
+					output += 'r ' + [s.stack[i].param.x, s.stack[i].param.y, s.stack[i].param.z].join(' ');
+					output += ' ';
+				}
+				else if (rotationType == ONE_ANGLE)
+				{
+					output += 'r 1 0 0 ' + s.stack[i].param.x + ' ';
+					output += 'r 0 1 0 ' + s.stack[i].param.y + ' ';
+					output += 'r 0 0 1 ' + s.stack[i].param.z + ' ';
+				}
 				break;
 
 			default:

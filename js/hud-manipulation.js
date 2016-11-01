@@ -799,6 +799,10 @@ $(document).ready(function() {
 
 		return false;
 	});
+
+	$(document).on('change', 'input[name=rotation-type]', function() {
+		rotationType = $(this).val();
+	})
 	
 
 	

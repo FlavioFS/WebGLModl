@@ -18,7 +18,7 @@ $(document).ready(function() {
 		</div>
 		<div id='content'></div>
 	</div>
-	<div class="window" id="window-solids" style="width: 160px; height: 969px; top: 0px; left: 220px;"><div class="label draggable">Solids in the Scene</div><div class="label">Click to select:</div><input type="button" value="     Deselect     " id="solid-deselection"></div>
+	<div class="window" id="window-solids" style="width: 170px; height: 969px; top: 0px; left: 220px;"><div class="label draggable">Solids in the Scene</div><div class="label">Click to select:</div><input type="button" value="     Deselect     " id="solid-deselection"></div>
 	`)
 
 	$('#window1 div:first').html(`

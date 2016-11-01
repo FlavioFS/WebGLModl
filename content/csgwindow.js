@@ -114,6 +114,18 @@ O 0 0 0 1 (bbbbwwww</textarea><br />
 		<label>First <input type="checkbox" name="destroy-first"> </label><br>
 		<label>Second <input type="checkbox" name="destroy-second"> </label><br>
 	</form>
+
+	<form id="raycast-update" class="raycast-form" action="#">
+		Origin:<br />
+		<label>X: <input type="text" name="x" size="4" value="3"></label> |
+		<label>Y: <input type="text" name="y" size="4" value="4"></label> |
+		<label>Z: <input type="text" name="z" size="4" value="3"></label> <br /><br />
+		Direction:<br />
+		<label>X: <input type="text" name="vx" size="4" value="-1.4"></label> |
+		<label>Y: <input type="text" name="vy" size="4" value="-1.6"></label> |
+		<label>Z: <input type="text" name="vz" size="4" value="-1.1"></label> <br />
+		<input type="submit" value="Update Raycast">
+	</form>
 	
 
 	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br>

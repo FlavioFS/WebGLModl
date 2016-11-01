@@ -777,6 +777,30 @@ $(document).ready(function() {
 
 	});
 
+	// update raycast
+	$(document).on('submit', '#raycast-update', function() {
+		var defaultValue = 0;
+		var this_elem = $(this);
+
+
+		raycast.origin = [
+			$(this).find('input[name=x]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=x]').val()),
+			$(this).find('input[name=y]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=y]').val()),
+			$(this).find('input[name=z]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=z]').val())
+		];
+
+		raycast.direction = [
+			$(this).find('input[name=vx]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=vx]').val()),
+			$(this).find('input[name=vy]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=vy]').val()),
+			$(this).find('input[name=vz]').val() == '' ? defaultValue : parseFloat($(this).find('input[name=vz]').val())
+		];
+
+		console.log(raycast);
+
+		return false;
+	});
+	
+
 	
 	////// MISC
 	$(document).on('change', '#show-grid', function() {

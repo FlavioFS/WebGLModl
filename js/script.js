@@ -12,6 +12,8 @@ var OCTREE_MODEL = 0;
 var CSG_MODEL = 1;
 var modelType = OCTREE_MODEL;
 
+var raycast = {origin: [3, 4, 3], direction: [-1.4, -1.6, -1.1]}
+
 // TODO Move this to Utils/UtilsStatic.js
 // utils
 function rgbToHex(r, g, b, multiplyTimes255=true) {
@@ -241,10 +243,10 @@ function setSmcRaycast(solid, index, origin=null, direction=null)
 	scene.remove(scene.getObjectByName('smc-raycast-'+index));
 
 	if (origin == null)
-		origin = new THREE.Vector3(3, 4, 3);
+		origin = new THREE.Vector3().fromArray(raycast.origin);
 
 	if (direction == null)
-		direction = new THREE.Vector3(-1.4, -1.6, -1.1);
+		direction = new THREE.Vector3().fromArray(raycast.direction);
 	direction = direction.normalize();
 
 

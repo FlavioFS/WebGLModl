@@ -268,7 +268,10 @@ function addSelectionSolidButton(index, model, color=null) {
 		}
 
 		if (color == null)
-			color = '#00FF00';
+			if (model == CSG_MODEL)
+				color = '#00FF00';
+			else if (model == OCTREE_MODEL)
+				color = '#FF0000';
 
 		$('#window-solids').append(" \
 			<div data-index='"+index+"' data-model-type='"+model+"'> \

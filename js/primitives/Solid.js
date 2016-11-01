@@ -540,29 +540,29 @@ Primitives.Solid = class
 			&& solid1._octree.boundingBox.center.y == solid2._octree.boundingBox.center.y
 			&& solid1._octree.boundingBox.center.z == solid2._octree.boundingBox.center.z
 		) {
-			console.log('caso 0');
+			// console.log('case 0');
 			return [solid1._octree, solid2._octree];
 		}
 
 		// so solid1 will be totally inside solid2 boundingbox
 		if (solid1._octree.boundingBox.edge*2 <= solid2._octree.boundingBox.edge) {
-			console.log('caso 1');
-			console.log(solid1._octree.boundingBox);
-			console.log(solid2._octree.boundingBox);
+			// console.log('case 1');
+			// console.log(solid1._octree.boundingBox);
+			// console.log(solid2._octree.boundingBox);
 			return [solid1._octree, this.normalizeOneNodeOnly(solid2._octree, solid1._octree)]
 		}
 		
 		// so solid2 will be totally inside solid1 boundingbox
 		else if (solid2._octree.boundingBox.edge*2 <= solid1._octree.boundingBox.edge) {
-			console.log('caso 2');
-			console.log(solid1._octree.boundingBox);
-			console.log(solid2._octree.boundingBox);
+			// console.log('case 2');
+			// console.log(solid1._octree.boundingBox);
+			// console.log(solid2._octree.boundingBox);
 			return [solid1._octree, this.normalizeOneNodeOnly(solid1._octree, solid2._octree)]
 		}
 
-		console.log('caso 3');
-		console.log(this.toStringRecursion(solid1._octree));
-		console.log(this.toStringRecursion(solid2._octree));
+		// console.log('case 3');
+		// console.log(this.toStringRecursion(solid1._octree));
+		// console.log(this.toStringRecursion(solid2._octree));
 		return this.normalizeSolidsBBox(solid1._octree, solid2._octree);
 
 		
@@ -875,8 +875,8 @@ Primitives.Solid = class
 		// once we have the wrapperNode1 (with a double sized boundingBox)
 		// we can calculate wrapperNode2 based on wrapperNode1
 		var wrapperNode2 = this.normalizeOneNodeOnly(wrapperNode1, node2, distance);
-		console.log(this.toStringRecursion(wrapperNode1));
-		console.log(this.toStringRecursion(wrapperNode2));
+		// console.log(this.toStringRecursion(wrapperNode1));
+		// console.log(this.toStringRecursion(wrapperNode2));
 		return [ wrapperNode1, wrapperNode2 ];
 	}
 
@@ -903,7 +903,7 @@ Primitives.Solid = class
 			this.subdivideWrapperNode(wrapperNode2, this.getNodeMaxLevel(node1, {level: -1}));
 		}
 
-		console.log(this.toStringRecursion(wrapperNode2));
+		// console.log(this.toStringRecursion(wrapperNode2));
 		this.copyNodeKidsToWrapperNode(wrapperNode2, node2, false);
 
 		return wrapperNode2;

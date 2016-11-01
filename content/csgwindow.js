@@ -71,10 +71,7 @@ var csgHtml = `
 		<input type="button" value="Import" id="import" class="button-toggle-form">
 		<form id='csg-import-form' action='#'>
 			<label for='code'>Code:</label>
-			<textarea name="code" height='20' size='30'># Aqui está o boneco de neve.
-#c 0 0 1
-Q 0 0 0 S 0 0 0 2 u S 0 0 0 1 t 0 2.5 0 u B -0.5 -0.5 -0.5 1 1 1 t 0 3.5 0 u
-O 0 0 0 1 (bbbbwwww</textarea><br />
+			<textarea name="code" height='20' size='30'># PASTE YOUR CODE HERE</textarea><br />
 			<input type='submit' value='Import solid' />
 		</form>
 	</div>
@@ -130,6 +127,6 @@ O 0 0 0 1 (bbbbwwww</textarea><br />
 
 	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br><br />
 	Rotation Type (I/O):<br />
-	<label><input type="radio" name="rotation-type" value="0" checked>One angle</label> - 
-	<label><input type="radio" name="rotation-type" value="1">Three angles</label><br>
+	<label><input type="radio" name="rotation-type" value="0">One axis</label> - 
+	<label><input type="radio" name="rotation-type" value="1" checked>Three axis</label><br>
 `;

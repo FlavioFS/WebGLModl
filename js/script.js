@@ -15,9 +15,9 @@ var modelType = OCTREE_MODEL;
 var raycast = {origin: [3, 4, 3], direction: [-1.4, -1.6, -1.1]}
 
 // for import/export rotation 
-var ONE_ANGLE = 0;
-var THREE_ANGLES = 1;
-var rotationType = ONE_ANGLE;
+var ONE_AXIS = 0;
+var THREE_AXIS = 1;
+var rotationType = THREE_AXIS;
 
 // TODO Move this to Utils/UtilsStatic.js
 // utils
@@ -487,7 +487,7 @@ function importString(input) {
 				break;
 
 			case 'r':
-				if (rotationType == THREE_ANGLES)
+				if (rotationType == THREE_AXIS)
 				{
 					csgStack[stackI-1] = new CSG.NodeRotate(csgStack[stackI-1], {
 											x: input[++i],
@@ -495,7 +495,7 @@ function importString(input) {
 											z: input[++i],
 										})
 				}
-				else if (rotationType == ONE_ANGLE)
+				else if (rotationType == ONE_AXIS)
 				{
 					var pos = {
 						x: input[++i],
@@ -671,12 +671,12 @@ function exportCsg(solid)
 				break;
 
 			case 'CSG.NodeRotate':
-				if (rotationType == THREE_ANGLES)
+				if (rotationType == THREE_AXIS)
 				{
 					output += 'r ' + [s.stack[i].param.x, s.stack[i].param.y, s.stack[i].param.z].join(' ');
 					output += ' ';
 				}
-				else if (rotationType == ONE_ANGLE)
+				else if (rotationType == ONE_AXIS)
 				{
 					output += 'r 1 0 0 ' + s.stack[i].param.x + ' ';
 					output += 'r 0 1 0 ' + s.stack[i].param.y + ' ';

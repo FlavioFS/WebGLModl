@@ -14,6 +14,14 @@ WingedEdge.Edge = class
 		// vertice references
 		this._sv = sv;
 		this._ev = ev;
+
+		this._pccw = null;
+		this._nccw = null;
+		this._pcw  = null;
+		this._ncw  = null;
+
+		this._lf = null;
+		this._rf = null;
 	}
 
 	get sv() { return this._sv; }
@@ -33,7 +41,25 @@ WingedEdge.Edge = class
 		this.pccw = pccw;
 		this.nccw = nccw;
 		this.pcw = pcw;
-		this.ncw = pcw;
+		this.ncw = ncw;
+	}
+
+	setLeftTraverse(pccw, nccw) {
+		this.pccw = pccw;
+		this.nccw = nccw;
+	}
+
+	setRightTraverse(pcw, ncw) {
+		this.pcw = pcw;
+		this.ncw = ncw;
+	}
+
+	isLeftFaceNull() {
+		return (this.pccw == null && this.nccw == null);
+	}
+
+	isRightFaceNull() {
+		return (this.pcw == null && this.ncw == null);
 	}
 
 	// faces

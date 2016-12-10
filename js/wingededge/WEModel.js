@@ -21,60 +21,172 @@ WingedEdge.Model = class
 	}
 
 	addVertex(pos) {
-		this.vertices.push(new WingedEdge.Vertex(pos));
+		let nv = new WingedEdge.Vertex(pos);
+		this.vertices.push(nv);
+		return nv;
 	}
 
 	// add edges by start/end vertex id
 	addEdge(svId, evId) {
-		this.edges.push(new WingedEdge.Edge(
-			this.vertices[svId], this.vertices[evId])
-		);
+		let ne = new WingedEdge.Edge(this.vertices[svId], this.vertices[evId]);
+		this.edges.push(ne);
+		return ne;
 	}
 
 	addFace(edge) {
-		this.faces.push(new WingedEdge.Face(this.edges[edge]));
+		let nf = new WingedEdge.Face(this.edges[edge]);
+		this.faces.push(nf);
+		return nf;
 	}
 
 	// add pccw, nccw, pcw, ncw edges to `edge`
 	setTraverseEdges(edge, pccw, nccw, pcw, ncw) {
-		this.edges[edge].setTraverseEdges(
-			this.edges[pccw],
-			this.edges[nccw],
-			this.edges[pcw],
-			this.edges[ncw]
+		edge.setTraverseEdges(
+			pccw,
+			nccw,
+			pcw,
+			ncw
 		);
 	}
 
 	// edge has now left and right faces
 	// and left/right face points to edge too
-	setFacesToEdge(edge, lfId, rfId) {
-		let lf = this.faces[lfId];
-		let rf = this.faces[rfId];
+	setFacesToEdge(edge, lf, rf) {
+		edge.setFaces(lf, rf);
 
-		this.edges[edge].setFaces(lf, rf);
+		if (lf != null)
+			lf.isLeftFaceOfEdge(edge);
 
-		lf.isLeftFaceOfEdge(this.edges[edge]);
-		rf.isRightFaceOfEdge(this.edges[edge]);
+		if (rf != null)
+			rf.isRightFaceOfEdge(edge);
+	}
+
+	setLeftFaceTo(edge, face) {
+		if (edge.lf == null) {
+			edge.lf = face;
+			face.isLeftFaceOfEdge(edge);
+		} else {
+			console.log('trying to add again')
+		}
+	}
+
+	setRightFaceTo(edge, face) {
+		if (edge.rf == null) {
+			edge.rf = face;
+			face.isRightFaceOfEdge(edge);
+		} else {
+			console.log('trying to add again')
+		}
 	}
 
 
+	// Euler operators
+
+	flipNormal() {
+
+	}
+
+	mvfs() {
+		let nv = this.addVertex(newVertexPos);
+	}
+
+	kvfs() {
+
+	}
+
+	mev(startVertexId, newVertexPos) {
+		let nv = this.addVertex(newVertexPos);
+		this.addEdge(startVertexId, nv.id);
+	}
+
+	kev() {
+
+	}
+
+	/* create a new edge connecting edge1 and edge2 then create a face connecting those 3 edges.
+		Also create relations between edges.
+		A face must be left face of 1 edge and right one of 2 other edges, or
+			left one of 2 edges and right one of 1 other edge. This is important to set the normal
+			direction.
+		
+		Default: first face to e1's right, first face to e2's left and first face to e2's right
+	*/ 
+	mef(edge1Id, edge2Id) {
+		let e1 = this.edges[edge1Id];
+		let e2 = this.edges[edge2Id];
+		let e3 = this.addEdge(e1.ev.id, e2.ev.id);
+		let nf = this.addFace();
+
+		if (e1.isRightFaceNull()) {
+			e1.setRightTraverse(e2, e3);
+			this.setRightFaceTo(e1, nf);
+		} else if (e1.isLeftFaceNull()) {
+			e1.setLeftTraverse(e2, e3);
+			this.setLeftFaceTo(e1, nf);
+		} else {
+			console.error('Edge is already attached to two faces');
+		}
+
+		if (e2.isLeftFaceNull()) {
+			e2.setLeftTraverse(e3, e1);
+			this.setLeftFaceTo(e2, nf);
+		} else if (e2.isRightFaceNull()) {
+			e2.setRightTraverse(e3, e1);
+			this.setLeftFaceTo(e2, nf);
+		} else {
+			console.error('Edge is already attached to two faces');
+		}
+
+		e3.setRightTraverse(e1, e2);
+		this.setRightFaceTo(e3, nf);
+		
+		// e1.setTraverseEdges(null, null, e2, e3);
+		// e2.setTraverseEdges(null, null, e3, e1);
+		// e3.setTraverseEdges(null, null, e1, e2);
+
+		// if (e1.ncw == null && e1.pcw == null) { // no right face
+		// 	e1.pcw = e2;
+		// 	e1.ncw = e3;
+		// 	this.setFacesToEdge(e1, null, nf);
+		// } else if (e1.nccw == null && e1.pccw == null) { // no left face
+		// 	e1.pccw = e2;
+		// 	e1.nccw = e3;
+		// 	this.setFacesToEdge(e1, nf, null);
+		// } else {
+		// 	console.error('Edge is already attached to two faces');
+		// }
+
+		// if (e2.nccw == null && e2.pccw == null) { // no left face
+		// 	e2.pccw = e3;
+		// 	e2.nccw = e1;
+		// } else if (e2.ncw == null && e2.pcw == null) { // no right face
+		// 	e2.pcw = e3;
+		// 	e2.ncw = e2;
+		// } else {
+		// 	console.error('Edge is already attached to two faces');
+		// }
+
+		// e3.pcw = e1;
+		// e3.ncw = e2;
+
+	}
+
+	kef() {
+
+	}
+
 	// Three JS
-
-
+	
 	get threeJSFaces() {
 		let arr = [];
-		// let visitedFaces = [];
-		// let i = 0;
-
-		// for (let )
 
 		for (let i = 0; i < this.faces.length; i++) {
 			if (this.faces[i].leftFaceOf.length > 0) {
-				console.log('push left face', i, this.faces[i].leftFaceOf[0]);
+				// console.log('push left face', i, this.faces[i].leftFaceOf[0]);
 				arr.push(this.faces[i].getFace3(this.faces[i].leftFaceOf[0], false));
 			}
 			else if (this.faces[i].rightFaceOf.length > 0) {
-				console.log('push right face', i, this.faces[i].rightFaceOf[0]);
+				// console.log('push right face', i, this.faces[i].rightFaceOf[0]);
 				arr.push(this.faces[i].getFace3(this.faces[i].rightFaceOf[0], true));
 			}
 		}

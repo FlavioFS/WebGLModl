@@ -91,38 +91,19 @@ function init ()
 	// tetrahedron: https://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/model/winged-e.html
 	var wem = new WingedEdge.Model();
 
-	wem.addVertex({x: 0, y: 0, z: 0});
-	wem.addVertex({x: 1, y: 0, z: 0});
-	wem.addVertex({x: 0, y: 0, z: 1});
-	wem.addVertex({x: 1, y: 1, z: 0});
+	let nv = wem.addVertex({x: 0, y: 0, z: 0});
 
-	wem.addEdge(0, 1);
-	wem.addEdge(0, 2);
-	wem.addEdge(0, 3);
-	wem.addEdge(1, 2);
-	wem.addEdge(1, 3);
-	wem.addEdge(2, 3);
+	// using euler operators
+	wem.mev(0, {x: 1, y: 0, z: 0});
+	wem.mev(0, {x: 0, y: 0, z: 1});
+	wem.mev(0, {x: 1, y: 1, z: 0});
 
-	wem.setTraverseEdges(0, 4, 2, 1, 3);
-	wem.setTraverseEdges(1, 3, 0, 5, 2);
-	wem.setTraverseEdges(2, 5, 1, 0, 4);
-	wem.setTraverseEdges(3, 5, 4, 0, 1);
-	wem.setTraverseEdges(4, 2, 0, 3, 5);
-	wem.setTraverseEdges(5, 4, 3, 1, 2);
+	wem.mef(0, 1);
+	wem.mef(2, 0);
+	wem.mef(1, 2);
+	wem.mef(4, 3);
+	
 
-	wem.addFace();
-	wem.addFace();
-	wem.addFace();
-	wem.addFace();
-
-	wem.setFacesToEdge(0, 0, 3);
-	wem.setFacesToEdge(1, 3, 2);
-	wem.setFacesToEdge(2, 2, 0);
-	wem.setFacesToEdge(3, 1, 3);
-	wem.setFacesToEdge(4, 0, 1);
-	wem.setFacesToEdge(5, 1, 2);
-
-	console.log(wem.faces);
 	console.log(wem.threeJSFaces);
 
 	var material = new THREE.MeshPhongMaterial ({

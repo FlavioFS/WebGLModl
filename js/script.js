@@ -7,9 +7,12 @@ var grid;
 // contains all solids created in the scene
 var solids = []; // octree solids
 var csg_solids = [];
+var brep_solids = [];
 
 var OCTREE_MODEL = 0;
 var CSG_MODEL = 1;
+var BREP_MODEL = 2;
+
 var modelType = OCTREE_MODEL;
 
 var raycast = {origin: [3, 4, 3], direction: [-1.4, -1.6, -1.1]}
@@ -89,7 +92,7 @@ function init ()
 
 	// TESTING WINGED EDGE DATA STRUCTURE
 	// tetrahedron: https://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/model/winged-e.html
-	var wem = new WingedEdge.Model();
+	// var wem = new WingedEdge.Model();
 
 	
 
@@ -107,37 +110,38 @@ function init ()
 	// wem.mef(4, 3);
 
 	// box
-	console.log(wem.addVertex({x: 0, y: 0, z: 0})); // vertex 0
-	console.log(wem.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
-	console.log(wem.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
-	console.log(wem.mef(0, 1)); // e2
-	console.log(wem.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
-	console.log(wem.mef(1, 3)); // e4
-	console.log(wem.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
-	console.log(wem.mef(5, 0)); // e6
-	console.log(wem.mev(1, {x: 0, y: -1, z: 1})); // e7 v5
-	console.log(wem.mef(7, 6)); // e8
+	// console.log(wem.addVertex({x: 0, y: 0, z: 0})); // vertex 0
+	// console.log(wem.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
+	// console.log(wem.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
+	// console.log(wem.mef(0, 1)); // e2
+	// console.log(wem.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
+	// console.log(wem.mef(1, 3)); // e4
+	// console.log(wem.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
+	// console.log(wem.mef(5, 0)); // e6
+	// console.log(wem.mev(1, {x: 0, y: -1, z: 1})); // e7 v5
+	// console.log(wem.mef(7, 6)); // e8
 
 
-	console.log(wem.threeJSFaces);
+	// console.log(wem.threeJSFaces);
 
-	var material = new THREE.MeshPhongMaterial ({
-		color: 0x00FF00,
-		shading: THREE.FlatShading,
-		depthWrite: false,
-		// depthTest: false,
-		// wireframe: true,
-	});
+	// var material = new THREE.MeshPhongMaterial ({
+	// 	color: 0x00FF00,
+	// 	shading: THREE.FlatShading,
+	// 	depthWrite: false,
+	// 	side: THREE.DoubleSide,
+	// 	// depthTest: false,
+	// 	// wireframe: true,
+	// });
 	
-	var geometry = new THREE.Geometry();
-	geometry.vertices = wem.threeJSVertices;
-	geometry.faces = wem.threeJSFaces;
+	// var geometry = new THREE.Geometry();
+	// geometry.vertices = wem.threeJSVertices;
+	// geometry.faces = wem.threeJSFaces;
 	
 
-	var mesh = new THREE.Mesh(geometry, material);
-	mesh.geometry.computeFaceNormals();
+	// var mesh = new THREE.Mesh(geometry, material);
+	// mesh.geometry.computeFaceNormals();
 
-	scene.add(mesh);
+	// scene.add(mesh);
 }
 
 // [2]

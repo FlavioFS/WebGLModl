@@ -14,6 +14,7 @@ $(document).ready(function() {
 			<select id="modelType" style="font-size: 18pt; text-align: center;">
 				<option value="0">Octree</option>
 				<option value="1" selected>CSG</option>
+				<option value="2">B-REP</option>
 			</select>
 		</div>
 		<div id='content'></div>
@@ -25,6 +26,7 @@ $(document).ready(function() {
 		<select id="modelType" style='font-size: 18pt;'>
 			<option value="0">Octree</option>
 			<option value="1" selected>CSG</option>
+			<option value="2">B-REP</option>
 	`)
 
 	$('#modelType').change(function(){
@@ -33,11 +35,13 @@ $(document).ready(function() {
 			$('#content').html(octreeHtml)
 		else if (modelType == CSG_MODEL)
 			$('#content').html(csgHtml)
+		else if (modelType == BREP_MODEL)
+			$('#content').html(brepHtml)
 
 		$('#content').find('.toggle-form-area form').hide(0); // initially
 	})
 
-	$('#modelType').val(CSG_MODEL).change();
+	$('#modelType').val(BREP_MODEL).change();
 
 	
 	// HIDING AND SHOWING PRIMITIVE FORMS

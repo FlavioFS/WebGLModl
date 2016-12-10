@@ -98,8 +98,8 @@ WingedEdge.Model = class
 		let nv = this.addVertex(newVertexPos);
 		let ne = this.addEdge(startVertexId, nv.id);
 
-		// return created elements id
-		return {edge: ne.id, vertex: nv.id};
+		// return created elements
+		return {edge: ne, vertex: nv};
 	}
 
 	kev() {
@@ -143,8 +143,8 @@ WingedEdge.Model = class
 		e3.setRightTraverse(e1, e2);
 		this.setRightFaceTo(e3, nf);
 
-		// return ids
-		return {edge: e3.id, face: nf.id};
+		// return created elements
+		return {edge: e3, face: nf};
 	}
 
 	kef() {
@@ -165,6 +165,16 @@ WingedEdge.Model = class
 				// console.log('push right face', i, this.faces[i].rightFaceOf[0]);
 				arr.push(this.faces[i].getFace3(this.faces[i].rightFaceOf[0], true));
 			}
+		}
+		return arr;
+	}
+
+	// return an array of edges that will be converted to a pair of vertices later on
+	get threeJSEdges() {
+		let arr = [];
+
+		for (let i = 0; i < this.edges.length; i++) {
+			arr.push({edge: this.edges[i]});
 		}
 		return arr;
 	}

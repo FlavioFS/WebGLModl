@@ -1,10 +1,11 @@
 var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
-raycaster.params.Points.threshold = 0.15;
+raycaster.params.Points.threshold = 0.05;
 
-var edge_material = new THREE.LineBasicMaterial({
-            color: 0xFFFFff
-        });
+var selected_edges = [];
+
+var EDGE_SELECTED_COLOR   = 0xFFCC00;
+var EDGE_DESELECTED_COLOR = 0xFFFFFF;
 
 $(document).ready(function() {
 
@@ -93,25 +94,38 @@ $(document).ready(function() {
 	});
 
 	$(document).on('submit', '#mef', function() {
-		var newEF = brep_solids[0].mef(0, 1);
+		var newEF;
+		console.log(selected_edges);
+		if (selected_edges.length == 2) {
+			newEF = brep_solids[0].mef(
+				selected_edges[0].userData.edgeId,
+				selected_edges[1].userData.edgeId);
 
-		updateBRepMesh();
-		addEdgesToLineGroup([newEF]);
+			updateBRepMesh();
+			addEdgesToLineGroup([newEF]);
+			deselectAllEdges();
+		}
+		else
+			console.error('You must select two edges. You can deselect all edge and start again.');
 
 		return false;
 	});
 
-	// VERTEX SELECTION
+	// VERTEX/EDGE SELECTION
 	$(document).on('mousedown', 'body', function(e){
 		e.preventDefault();
 
 		mouse.x =  ( e.clientX / renderer.domElement.width  ) * 2 - 1;
 		mouse.y = -( e.clientY / renderer.domElement.height ) * 2 + 1;
 		raycaster.setFromCamera( mouse, camera );
+		var intersects;
 
+
+
+		// vertices
 		try {
 			var points = scene.getObjectByName('we-vertices');
-			var intersects = raycaster.intersectObject( points, true );
+			intersects = raycaster.intersectObject( points, true );
 
 			if (intersects.length > 0) {
 				intersects = intersects.sort( function( a, b ) {
@@ -126,8 +140,43 @@ $(document).ready(function() {
 
 				vertex.object.geometry.colors[ vertex.index ].setHex( 0xFF0000);
 				points.geometry.colorsNeedUpdate = true;
-			
+				
+				// return;
 			}
+		} catch(err) {
+			// probably because points dont exist yet
+		}
+
+		// edges
+		// when an edge is clicked, check if is already selected.
+		// If not select it (highlight material) it and add it to selected_edges[]
+		// If already selected, remove it from selected_edges[]
+		try {
+			var lineGroup = scene.getObjectByName('we-edges');
+			intersects = raycaster.intersectObjects(lineGroup.children, true);
+
+			if (intersects.length > 0) {
+				for (var i = 0; i < lineGroup.children.length; i++) {
+					if (intersects[0].object === lineGroup.children[i]) {
+						
+						var index = selected_edges.indexOf(intersects[0].object);
+						if (index === -1) {
+							selected_edges.push(intersects[0].object);
+							intersects[0].object.material.color.setHex(EDGE_SELECTED_COLOR);
+							intersects[0].object.geometry.colorsNeedUpdate = true;
+						}
+						else if (index > -1) {
+							selected_edges.splice(index, 1);
+							intersects[0].object.material.color.setHex(EDGE_DESELECTED_COLOR);
+							intersects[0].object.geometry.colorsNeedUpdate = true;
+						}
+
+						// return;
+						
+					}
+				}
+			}
+
 		} catch(err) {
 			// probably because points dont exist yet
 		}
@@ -168,10 +217,15 @@ function addEdgesToLineGroup(edgeList) {
 	var edgeGroup = scene.getObjectByName('we-edges')
 
 	edgeList.forEach(function(el) {
+
+		var edge_material = new THREE.LineBasicMaterial({ color: EDGE_DESELECTED_COLOR, linewidth: 3 });
+
 		var g = new THREE.Geometry();
 		g.vertices.push(el.edge.ev.vector);
 		g.vertices.push(el.edge.sv.vector);
+
 		var line = new THREE.Line(g, edge_material);
+		line.userData.edgeId = el.edge.id;
 
 		edgeGroup.add(line);
 	})
@@ -207,3 +261,13 @@ function deselectAllVertices() {
 	selected_vertex = null;
 }
 
+function deselectAllEdges() {
+	var lineGroup = scene.getObjectByName('we-edges');
+	
+	for (var i = 0; i < lineGroup.children.length; i++) {
+		lineGroup.children[i].material.color.setHex(EDGE_DESELECTED_COLOR);
+		lineGroup.children[i].geometry.colorsNeedUpdate = true;
+	}
+	
+	selected_edges = [];
+}

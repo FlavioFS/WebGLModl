@@ -89,40 +89,166 @@ function init ()
 
 	// TESTING WINGED EDGE DATA STRUCTURE
 	// tetrahedron: https://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/model/winged-e.html
-	var B = new WingedEdge.Vertex({x: 0, y: 0, z: 0});
-	var C = new WingedEdge.Vertex({x: 1, y: 0, z: 1});
-	var A = new WingedEdge.Vertex({x: 0, y: 1, z: 1});
-	var D = new WingedEdge.Vertex({x: 2, y: 2, z: 2});
+	var wem = new WingedEdge.Model();
 
-	var a = new WingedEdge.Edge(A, D);
-	var b = new WingedEdge.Edge(A, B);
-	var c = new WingedEdge.Edge(B, D);
-	var d = new WingedEdge.Edge(B, C);
-	var e = new WingedEdge.Edge(C, D);
-	var f = new WingedEdge.Edge(A, C);
+	// wem.addVertex({x: 0, y: 0, z: 0});
+	// wem.addVertex({x: 1, y: 0, z: 1});
+	// wem.addVertex({x: 0, y: 1, z: 1});
+	// wem.addVertex({x: 2, y: 2, z: 2});
+	wem.addVertex({x: 0, y: 0, z: 0});
+	wem.addVertex({x: 1, y: 0, z: 0});
+	wem.addVertex({x: 0, y: 0, z: 1});
+	wem.addVertex({x: 1, y: 1, z: 0});
 
-	var F1 = new WingedEdge.Face([a, c, b]);
-	var F2 = new WingedEdge.Face([c, e, d]);
-	var F3 = new WingedEdge.Face([a, f, e]);
-	var F4 = new WingedEdge.Face([b, f, d]);
+	// // console.log(wem.vertices);
+	// // console.log(wem.threeJSVertices);
 
-	a.setFaces(F3, F1);
-	b.setFaces(F1, F4);
-	c.setFaces(F1, F2);
-	d.setFaces(F2, F4);
-	e.setFaces(F2, F3);
-	f.setFaces(F4, F3);
+	wem.addEdge(0, 1);
+	wem.addEdge(0, 2);
+	wem.addEdge(0, 3);
+	wem.addEdge(1, 2);
+	wem.addEdge(1, 3);
+	wem.addEdge(2, 3);
 
-	a.setTraverseEdges(e, f, b, c);
-	b.setTraverseEdges(c, a, f, d);
-	c.setTraverseEdges(a, b, d, e);
-	d.setTraverseEdges(e, c, d, f);
-	e.setTraverseEdges(c, d, f, a);
-	f.setTraverseEdges(d, b, a, e);
+	wem.setTraverseEdges(0, 4, 2, 1, 3);
+	wem.setTraverseEdges(1, 5, 2, 0, 3);
+	wem.setTraverseEdges(2, 5, 1, 0, 4);
+	wem.setTraverseEdges(3, 5, 4, 0, 1);
+	wem.setTraverseEdges(4, 2, 0, 3, 5);
+	wem.setTraverseEdges(5, 4, 3, 1, 2);
 
-	console.log('edge', a);
-	console.log('vertex', A);
-	console.log('face', F1);
+	wem.addFace();
+	wem.addFace();
+	wem.addFace();
+	wem.addFace();
+
+	wem.setFacesToEdge(0, 0, 3);
+	wem.setFacesToEdge(1, 2, 3);
+	wem.setFacesToEdge(2, 2, 0);
+	wem.setFacesToEdge(3, 1, 3);
+	wem.setFacesToEdge(4, 0, 1);
+	wem.setFacesToEdge(5, 1, 2);
+
+	console.log(wem.faces);
+	console.log(wem.threeJSFaces);
+
+	// wem.edges[0].setFaces(0, 3);
+	// wem.edges[1].setFaces(2, 3);
+	// wem.edges[2].setFaces(2, 0);
+	// wem.edges[3].setFaces(1, 3);
+	// wem.edges[4].setFaces(0, 1);
+	// wem.edges[5].setFaces(1, 2);
+
+
+	// backup below
+	// wem.addEdge(2, 3);
+	// wem.addEdge(2, 0);
+	// wem.addEdge(0, 3);
+	// wem.addEdge(0, 1);
+	// wem.addEdge(1, 3);
+	// wem.addEdge(2, 1);
+
+	// // console.log(wem.edges);
+
+	// wem.addFace(0);
+	// wem.addFace(1);
+	// wem.addFace(2);
+	// wem.addFace(3);
+
+	// // after adding vertices, edges and faces
+	// // we need to make relation between them
+	// wem.edges[0].setFaces(2, 0);
+	// wem.edges[1].setFaces(0, 3);
+	// wem.edges[2].setFaces(0, 1);
+	// wem.edges[3].setFaces(1, 3);
+	// wem.edges[4].setFaces(1, 2);
+	// wem.edges[5].setFaces(3, 2);
+
+
+	// wem.setTraverseEdges(0, 4, 5, 1, 2);
+	// wem.setTraverseEdges(1, 2, 0, 5, 3);
+	// wem.setTraverseEdges(2, 0, 1, 3, 4);
+	// wem.setTraverseEdges(3, 4, 2, 3, 5);
+	// wem.setTraverseEdges(4, 2, 3, 5, 0);
+	// wem.setTraverseEdges(5, 3, 1, 0, 4);
+
+	// console.log('faces', wem.faces);
+	// console.log(wem.threeJSFaces);
+	// console.log(wem.threeJSFaceNormals);
+
+	// test
+	// let model = {
+	// 	// 'material': WingedEdge.Material,
+	// 	'vertices': wem.threeJSVertices,
+	// 	'faces': wem.threeJSFaces,
+	// 	'normals': wem.threeJSFaceNormals,
+	// };
+
+	var material = new THREE.MeshPhongMaterial ({
+		color: 0x00FF00,
+		shading: THREE.FlatShading,
+		depthWrite: false,
+		// depthTest: false,
+		// wireframe: true,
+	});
+	
+	var geometry = new THREE.Geometry();
+	geometry.vertices = wem.threeJSVertices;
+	geometry.faces = wem.threeJSFaces;
+	geometry.verticesNeedUpdate = true;
+	geometry.normalsNeedUpdate = true;
+	
+
+	var mesh = new THREE.Mesh(geometry, material);
+	mesh.geometry.computeFaceNormals();
+	mesh.geometry.computeVertexNormals();
+	
+	scene.add(mesh);
+
+	// console.log(geometry);
+
+
+	// var B = new WingedEdge.Vertex({x: 0, y: 0, z: 0});
+	// var C = new WingedEdge.Vertex({x: 1, y: 0, z: 1});
+	// var A = new WingedEdge.Vertex({x: 0, y: 1, z: 1});
+	// var D = new WingedEdge.Vertex({x: 2, y: 2, z: 2});
+
+	// var a = new WingedEdge.Edge(A, D);
+	// var b = new WingedEdge.Edge(A, B);
+	// var c = new WingedEdge.Edge(B, D);
+	// var d = new WingedEdge.Edge(B, C);
+	// var e = new WingedEdge.Edge(C, D);
+	// var f = new WingedEdge.Edge(A, C);
+
+	// // var F1 = new WingedEdge.Face([a, c, b]);
+	// // var F2 = new WingedEdge.Face([c, e, d]);
+	// // var F3 = new WingedEdge.Face([a, f, e]);
+	// // var F4 = new WingedEdge.Face([b, f, d]);
+	// var F1 = new WingedEdge.Face(a);
+	// var F2 = new WingedEdge.Face(c);
+	// var F3 = new WingedEdge.Face(e);
+	// var F4 = new WingedEdge.Face(b);
+
+	// 0.setFaces(F3, F1);
+	// 1.setFaces(F1, F4);
+	// 2.setFa2es(F1, F2);
+	// 3.setFa2es(F2, F4);
+	// 4.s4tFa24s(F2, F3);
+	// 5.s4tFa24s(F4, F3);
+
+	// 0.s4tTr0v4rs4E3g4s(4, 5, 1, 2);
+	// 1.s4tTr0v4rs4E3g4s(2, 0, 5, 3);
+	// 2.s4tTr0v4rs4E3g4s(0, 1, 3, 4);
+	// 3.s4tTr0v4rs4E3g4s(4, 2, 3, 5);
+	// 4.s4tTr0v4rs4E3g4s(2, 3, 5, 0);
+	// 5.s4tTr0v4rs4E3g4s(3, 1, 0, 4);
+
+	// consol4.log('edge', 0);
+	// console.log('vertex', A);
+	// console.log('face', F1);
+
+	// // we pass a initial edge
+	// WingedEdge.Utils.generateThreeeJSMesh(a);
 }
 
 // [2]

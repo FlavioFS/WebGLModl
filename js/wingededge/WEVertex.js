@@ -1,7 +1,7 @@
 // Namespace
 var WingedEdge = WingedEdge || {};
 
-let static_vertex_id = 1;
+let static_vertex_id = 0;
 
 WingedEdge.Vertex = class
 {
@@ -11,7 +11,7 @@ WingedEdge.Vertex = class
 		// this._edge = edge; // object reference to WingedEdge.Edge
 		this._id = static_vertex_id++;
 
-		// console.log(this.pos);
+		this._vector = new THREE.Vector3(pos.x, pos.y, pos.z);
 	}
 
 	get pos() { return this._pos; }
@@ -20,6 +20,9 @@ WingedEdge.Vertex = class
 	get id() { return this._id; }
 
 	get edge() { return this._edge; }
+
+	get vector() { return this._vector; }
+
 
 	toString() {
 		return this._pos.x + ', ' + this._pos.y + ', ' + this._pos.z;

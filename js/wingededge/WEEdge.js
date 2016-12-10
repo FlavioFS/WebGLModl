@@ -24,6 +24,9 @@ WingedEdge.Edge = class
 		this._rf = null;
 	}
 
+	get id() { return this._id; }
+
+	// vertices
 	get sv() { return this._sv; }
 	get ev() { return this._ev; }
 
@@ -37,13 +40,6 @@ WingedEdge.Edge = class
 	get pcw()      { return this._pcw;  }
 	get ncw()      { return this._ncw;  }
 
-	setTraverseEdges(pccw, nccw, pcw, ncw) {
-		this.pccw = pccw;
-		this.nccw = nccw;
-		this.pcw = pcw;
-		this.ncw = ncw;
-	}
-
 	setLeftTraverse(pccw, nccw) {
 		this.pccw = pccw;
 		this.nccw = nccw;
@@ -54,6 +50,11 @@ WingedEdge.Edge = class
 		this.ncw = ncw;
 	}
 
+
+	// faces
+	set lf(lf) { this._lf = lf; } // fccw
+	set rf(rf) { this._rf = rf; } // fcw
+
 	isLeftFaceNull() {
 		return (this.pccw == null && this.nccw == null);
 	}
@@ -62,15 +63,6 @@ WingedEdge.Edge = class
 		return (this.pcw == null && this.ncw == null);
 	}
 
-	// faces
-	set lf(lf) { this._lf = lf; } // fccw
-	set rf(rf) { this._rf = rf; } // fcw
-
-	setFaces(lf, rf) {
-		this.lf = lf;
-		this.rf = rf;
-	}
-
-	get id() { return this._id; }
+	
 
 };

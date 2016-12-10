@@ -91,18 +91,33 @@ function init ()
 	// tetrahedron: https://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/model/winged-e.html
 	var wem = new WingedEdge.Model();
 
-	let nv = wem.addVertex({x: 0, y: 0, z: 0});
+	
 
 	// using euler operators
-	wem.mev(0, {x: 1, y: 0, z: 0});
-	wem.mev(0, {x: 0, y: 0, z: 1});
-	wem.mev(0, {x: 1, y: 1, z: 0});
 
-	wem.mef(0, 1);
-	wem.mef(2, 0);
-	wem.mef(1, 2);
-	wem.mef(4, 3);
-	
+	// tetrahedron
+	// wem.addVertex({x: 0, y: 0, z: 0});
+	// wem.mev(0, {x: 1, y: 0, z: 0});
+	// wem.mev(0, {x: 0, y: 0, z: 1});
+	// wem.mev(0, {x: 1, y: 1, z: 0});
+
+	// wem.mef(0, 1);
+	// wem.mef(2, 0);
+	// wem.mef(1, 2);
+	// wem.mef(4, 3);
+
+	// box
+	console.log(wem.addVertex({x: 0, y: 0, z: 0})); // vertex 0
+	console.log(wem.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
+	console.log(wem.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
+	console.log(wem.mef(0, 1)); // e2
+	console.log(wem.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
+	console.log(wem.mef(1, 3)); // e4
+	console.log(wem.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
+	console.log(wem.mef(5, 0)); // e6
+	console.log(wem.mev(1, {x: 0, y: -1, z: 1})); // e7 v5
+	console.log(wem.mef(7, 6)); // e8
+
 
 	console.log(wem.threeJSFaces);
 

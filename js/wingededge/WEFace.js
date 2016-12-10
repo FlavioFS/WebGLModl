@@ -15,6 +15,8 @@ WingedEdge.Face = class
 		this._rightFaceOf = [];
 	}
 
+	get id() { return this._id; }
+
 	get leftFaceOf()  { return this._leftFaceOf;  }
 	get rightFaceOf() { return this._rightFaceOf; }
 

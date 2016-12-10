@@ -96,7 +96,10 @@ WingedEdge.Model = class
 
 	mev(startVertexId, newVertexPos) {
 		let nv = this.addVertex(newVertexPos);
-		this.addEdge(startVertexId, nv.id);
+		let ne = this.addEdge(startVertexId, nv.id);
+
+		// return created elements id
+		return {edge: ne.id, vertex: nv.id};
 	}
 
 	kev() {
@@ -139,36 +142,9 @@ WingedEdge.Model = class
 
 		e3.setRightTraverse(e1, e2);
 		this.setRightFaceTo(e3, nf);
-		
-		// e1.setTraverseEdges(null, null, e2, e3);
-		// e2.setTraverseEdges(null, null, e3, e1);
-		// e3.setTraverseEdges(null, null, e1, e2);
 
-		// if (e1.ncw == null && e1.pcw == null) { // no right face
-		// 	e1.pcw = e2;
-		// 	e1.ncw = e3;
-		// 	this.setFacesToEdge(e1, null, nf);
-		// } else if (e1.nccw == null && e1.pccw == null) { // no left face
-		// 	e1.pccw = e2;
-		// 	e1.nccw = e3;
-		// 	this.setFacesToEdge(e1, nf, null);
-		// } else {
-		// 	console.error('Edge is already attached to two faces');
-		// }
-
-		// if (e2.nccw == null && e2.pccw == null) { // no left face
-		// 	e2.pccw = e3;
-		// 	e2.nccw = e1;
-		// } else if (e2.ncw == null && e2.pcw == null) { // no right face
-		// 	e2.pcw = e3;
-		// 	e2.ncw = e2;
-		// } else {
-		// 	console.error('Edge is already attached to two faces');
-		// }
-
-		// e3.pcw = e1;
-		// e3.ncw = e2;
-
+		// return ids
+		return {edge: e3.id, face: nf.id};
 	}
 
 	kef() {

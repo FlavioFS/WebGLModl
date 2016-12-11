@@ -168,9 +168,13 @@ $(document).ready(function() {
 		{
 			$('input#mev').click();
 		}
-		else if ((e.which == 65 || e.which == 97) || (e.key == 65 || e.key == 97))  // a/E
+		else if ((e.which == 65 || e.which == 97) || (e.key == 65 || e.key == 97))  // a/A
 		{
 			deselectAllEdges();
+		}
+		else if ((e.which == 70 || e.which == 102) || (e.key == 70 || e.key == 102))  // f/F
+		{
+			$('#mef').submit();
 		}
 
 	});
@@ -181,9 +185,9 @@ function createBRepMesh(vertices, faces) {
 	var material = new THREE.MeshPhongMaterial ({
 		color: FACE_SELECTED_COLOR,
 		shading: THREE.FlatShading,
-		depthWrite: false,
-		// side: THREE.DoubleSide,
-		// depthTest: false,
+		depthWrite: true,
+		side: THREE.DoubleSide,
+		depthTest: true,
 		// wireframe: true,
 	});
 

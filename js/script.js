@@ -34,7 +34,7 @@ function init ()
 	// Creates renderer
 	renderer = new THREE.WebGLRenderer({antialias:true, alpha: true});
 	renderer.setSize(WIDTH, HEIGHT);
-	renderer.setClearColor(0x222233, 1);
+	renderer.setClearColor(0xEEEEEE, 1);
 	renderer.autoClear = false;
 	var glcanvas = renderer.domElement;
 	glcanvas.className = "glcanvas";
@@ -71,16 +71,16 @@ function init ()
 
 
 	// Lights
-	var light = new THREE.PointLight(0xFFFFFF);
-	light.position.set(200,200,200);
+	var light = new THREE.PointLight(0xFFFFFF, 0.6);
+	light.position.set(100,100,100);
 	scene.add(light);
 
-	light = new THREE.PointLight(0xFFFFFF, 0.5);
-	light.position.set(-200,-200,-200);
+	light = new THREE.PointLight(0xFFFFFF, 0.2);
+	light.position.set(-100,-100,-100);
 	scene.add(light);
 
-	light = new THREE.PointLight(0xFFFFFF);
-	light.position.set(-200,0,200);
+	light = new THREE.PointLight(0xFFFFFF, 0.2);
+	light.position.set(-100,0,100);
 	scene.add(light);
 
 	light = new THREE.AmbientLight(0xFFFFFF, 0.1);
@@ -230,8 +230,8 @@ function addCsgSolidToScene(geometry, index)
 {
 	var test_mat = {
 		color: 0x00FF00,
-		specular: 0xFFDDDD,
-		shininess: 2,
+		specular: 0xFFFFFF,
+		shininess: 12,
 		shading: THREE.FlatShading,
 		side: THREE.DoubleSide,
 		wireframe: false,

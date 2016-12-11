@@ -97,8 +97,8 @@ Utils.BoundingBox = class
 			"material":
 			{
 				color: 0xFF0000,
-				specular: 0xFFDDDD,
-				shininess: 2,
+				specular: 0xFFFFFF,
+				shininess: 12,
 				shading: THREE.FlatShading,
 				wireframe: false,
 				transparent: true,

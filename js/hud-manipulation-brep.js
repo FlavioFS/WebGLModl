@@ -18,7 +18,7 @@ $(document).ready(function() {
 		console.log(we.addVertex({x: 0, y: 0, z: 0})); // vertex 0
 		// console.log(we.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
 		// console.log(we.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
-		// console.log(we.mef(0, 1)); // e2
+		// // console.log(we.mef(0, 1)); // e2
 		// console.log(we.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
 		// console.log(we.mef(1, 3)); // e4
 		// console.log(we.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
@@ -88,6 +88,7 @@ $(document).ready(function() {
 
 		updateBRepMesh();
 		addEdgesToLineGroup([newEV]);
+		deselectAllEdges();
 
 		return false;
 
@@ -100,6 +101,8 @@ $(document).ready(function() {
 			newEF = brep_solids[0].mef(
 				selected_edges[0].userData.edgeId,
 				selected_edges[1].userData.edgeId);
+
+			console.log('MEF:', newEF);
 
 			updateBRepMesh();
 			addEdgesToLineGroup([newEF]);
@@ -158,7 +161,7 @@ $(document).ready(function() {
 			if (intersects.length > 0) {
 				for (var i = 0; i < lineGroup.children.length; i++) {
 					if (intersects[0].object === lineGroup.children[i]) {
-						
+						// console.log(intersects[0].object);
 						var index = selected_edges.indexOf(intersects[0].object);
 						if (index === -1) {
 							selected_edges.push(intersects[0].object);
@@ -170,6 +173,8 @@ $(document).ready(function() {
 							intersects[0].object.material.color.setHex(EDGE_DESELECTED_COLOR);
 							intersects[0].object.geometry.colorsNeedUpdate = true;
 						}
+
+						console.log('selected edges', selected_edges)
 
 						// return;
 						
@@ -189,6 +194,10 @@ $(document).ready(function() {
 		{
 			$('input#mev').click();
 		}
+		else if ((e.which == 65 || e.which == 97) || (e.key == 65 || e.key == 97))  // e or E
+		{
+			deselectAllEdges();
+		}
 
 	});
 
@@ -197,6 +206,7 @@ $(document).ready(function() {
 function updateBRepMesh() {
 	var vertices = we.threeJSVertices;
 	var faces = we.threeJSFaces;
+	console.log(faces);
 	// var edge_pairs = we.threeJSEdges;
 
 	var mesh = scene.getObjectByName('we');
@@ -208,7 +218,10 @@ function updateBRepMesh() {
 	mesh.geometry.faces = faces;
 	mesh.geometry.verticesNeedUpdate = true;
 	mesh.geometry.elementsNeedUpdate = true;
+	mesh.geometry.colorsNeedUpdate = true;
 	mesh.geometry.computeBoundingSphere(); // needed to update raycast intersections
+	mesh.geometry.computeFaceNormals();
+	// mesh.geometry.computeVertexNormals();
 
 	generatePoints(mesh.geometry);
 }
@@ -225,9 +238,27 @@ function addEdgesToLineGroup(edgeList) {
 		g.vertices.push(el.edge.sv.vector);
 
 		var line = new THREE.Line(g, edge_material);
+
 		line.userData.edgeId = el.edge.id;
 
 		edgeGroup.add(line);
+
+		// var g = new THREE.Geometry();
+		// g.vertices.push(el.edge.ev.vector);
+		// g.vertices.push(el.edge.sv.vector);
+
+		// var line = new THREE.MeshLine();
+		// line.setGeometry( g );
+
+		// var material = new THREE.MeshLineMaterial( { 
+		// 	useMap: false,
+		// 	color: new THREE.Color( EDGE_DESELECTED_COLOR ),
+		// 	opacity: 1,
+		// 	sizeAttenuation: false,
+		// 	lineWidth: 0.005
+		// });
+		// var mesh = new THREE.Mesh( line.geometry, material ); // this syntax could definitely be improved!
+		// edgeGroup.add( mesh );
 	})
 }
 

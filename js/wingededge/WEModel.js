@@ -124,6 +124,7 @@ WingedEdge.Model = class
 			e1.setRightTraverse(e2, e3);
 			this.setRightFaceTo(e1, nf);
 		} else if (e1.isLeftFaceNull()) {
+			console.log('right face is full');
 			e1.setLeftTraverse(e2, e3);
 			this.setLeftFaceTo(e1, nf);
 		} else {
@@ -134,6 +135,7 @@ WingedEdge.Model = class
 			e2.setLeftTraverse(e3, e1);
 			this.setLeftFaceTo(e2, nf);
 		} else if (e2.isRightFaceNull()) {
+			console.log('left face is full');
 			e2.setRightTraverse(e3, e1);
 			this.setLeftFaceTo(e2, nf);
 		} else {

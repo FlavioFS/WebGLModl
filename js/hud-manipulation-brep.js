@@ -97,8 +97,6 @@ $(document).ready(function() {
 		raycaster.setFromCamera( mouse, camera );
 		var intersects;
 
-
-
 		// vertices
 		try {
 			var points = scene.getObjectByName('we-vertices');
@@ -115,10 +113,15 @@ $(document).ready(function() {
 				console.log('vertex', vertex.index, 'clicked, pos =', points.geometry.vertices[vertex.index]);
 				selected_vertex = vertex.index;
 
-				vertex.object.geometry.colors[ vertex.index ].setHex( 0xFF0000);
-				points.geometry.colorsNeedUpdate = true;
+				console.log(vertex.index);
+
+				// points.geometry.colors[vertex.index].setHex(0xFF0000);
+				// points.geometry.colorsNeedUpdate = true;
+				vertex.object.geometry.colors[ vertex.index ].setHex(VERTEX_SELECTED_COLOR);
+				vertex.object.geometry.colorsNeedUpdate = true;
 				
-				// return;
+				// in case an vertex has been selected, we do NOT allow an edge to be selected at the same time
+				return;
 			}
 		} catch(err) {
 			// probably because points dont exist yet
@@ -170,6 +173,7 @@ $(document).ready(function() {
 		}
 		else if ((e.which == 65 || e.which == 97) || (e.key == 65 || e.key == 97))  // a/A
 		{
+			deselectAllVertices();
 			deselectAllEdges();
 		}
 		else if ((e.which == 70 || e.which == 102) || (e.key == 70 || e.key == 102))  // f/F
@@ -273,11 +277,13 @@ function addEdgesToLineGroup(edgeList) {
 }
 
 function generatePoints(geometry, index=0) {
+
+	geometry = geometry.clone();
+
 	if (scene.getObjectByName('we-vertices'))
 		scene.remove(scene.getObjectByName('we-vertices'));
 
 	var material_points = new THREE.PointsMaterial({
-		// color: 0xffffcc,
 		size: 0.2,
 		vertexColors: THREE.VertexColors,
 	});
@@ -286,7 +292,7 @@ function generatePoints(geometry, index=0) {
 	points.name = 'we-vertices';
 	points.userData.particles = [];
 	geometry.vertices.forEach(function(vertex) {
-		geometry.colors.push(new THREE.Color(VERTEX_SELECTED_COLOR));
+		geometry.colors.push(new THREE.Color(VERTEX_DESELECTED_COLOR));
 		points.userData.particles.push(vertex);
 	});
 	scene.add(points);

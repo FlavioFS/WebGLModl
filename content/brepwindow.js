@@ -16,4 +16,11 @@ var brepHtml = `
 		<input type="submit" value="MEF">
 	</form>
 	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br><br />
+	<br />
+	<hr>
+	<p style="font-size: 12pt !important;">
+	<strong>Hotkeys</strong>:<br >
+	<strong>[A]</strong> Deselect all vertices/edges<br />
+	<strong>[F]</strong> MEF<br />
+	</p>
 `

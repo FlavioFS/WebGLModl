@@ -20,54 +20,24 @@ $(document).ready(function() {
 		
 		we = new WingedEdge.Model();
 		console.log(we.addVertex({x: 0, y: 0, z: 0})); // vertex 0
-		// console.log(we.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
-		// console.log(we.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
-		// // console.log(we.mef(0, 1)); // e2
-		// console.log(we.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
-		// console.log(we.mef(1, 3)); // e4
-		// console.log(we.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
-		// console.log(we.mef(5, 0)); // e6
-		// console.log(we.mev(1, {x: 0, y: -1, z: 1})); // e7 v5
-		// console.log(we.mef(7, 6)); // e8
+		console.log(we.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
+		console.log(we.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
+		console.log(we.mef(0, 1)); // e2
+		console.log(we.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
+		console.log(we.mef(1, 3)); // e4
+		console.log(we.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
+		console.log(we.mef(5, 0)); // e6
+		console.log(we.mev(1, {x: 0, y: -1, z: 1})); // e7 v5
+		console.log(we.mef(7, 6)); // e8
 
 		brep_solids.push(we);
 
-
-		// generate mesh
-		var material = new THREE.MeshPhongMaterial ({
-			color: FACE_SELECTED_COLOR,
-			shading: THREE.FlatShading,
-			depthWrite: false,
-			side: THREE.DoubleSide,
-			// depthTest: false,
-			// wireframe: true,
-		});
-
-		
-		
-		var geometry = new THREE.Geometry();
-		geometry.dynamic = true;
-		geometry.vertices = we.threeJSVertices;
-		geometry.faces = we.threeJSFaces;
-		geometry.verticesNeedUpdate = true;
-		geometry.colorsNeedUpdate = true;
-		geometry.computeFaceNormals();
-		
-		// var edges_geometry = new THREE.Geometry();
-		// edges_geometry.dynamic = true;
-		// edges_geometry.vertices = we.threeJSEdges;
-		// edges_geometry.verticesNeedUpdate = true;
-		// edges_geometry.elementsNeedUpdate = true;
-
-
-		var mesh = new THREE.Mesh(geometry, material);
-		mesh.name = 'we';
+		var geometry = createBRepMesh(we.threeJSVertices, we.threeJSFaces);
 
 
 		var edges = new THREE.Object3D();
 		edges.name = 'we-edges';
 
-		scene.add(mesh);
 		scene.add(edges);
 
 		addEdgesToLineGroup(we.threeJSEdges);
@@ -194,11 +164,11 @@ $(document).ready(function() {
 	// KEYBOARD EVENTS
 	$(document).on('keypress', function(e) {
 		// console.log('keypress: ' + e.which);
-		if ((e.which == 69 || e.which == 101) || (e.key == 69 || e.key == 101))  // e or E
+		if ((e.which == 69 || e.which == 101) || (e.key == 69 || e.key == 101))  // e/E
 		{
 			$('input#mev').click();
 		}
-		else if ((e.which == 65 || e.which == 97) || (e.key == 65 || e.key == 97))  // e or E
+		else if ((e.which == 65 || e.which == 97) || (e.key == 65 || e.key == 97))  // a/E
 		{
 			deselectAllEdges();
 		}
@@ -207,27 +177,59 @@ $(document).ready(function() {
 
 });
 
+function createBRepMesh(vertices, faces) {
+	var material = new THREE.MeshPhongMaterial ({
+		color: FACE_SELECTED_COLOR,
+		shading: THREE.FlatShading,
+		depthWrite: false,
+		side: THREE.DoubleSide,
+		// depthTest: false,
+		// wireframe: true,
+	});
+
+	var geometry = new THREE.Geometry();
+	geometry.dynamic = true;
+	geometry.vertices = vertices;//we.threeJSVertices;
+	geometry.faces = faces;//we.threeJSFaces;
+	geometry.verticesNeedUpdate = true;
+	geometry.colorsNeedUpdate = true;
+	geometry.computeFaceNormals();
+
+	var mesh = new THREE.Mesh(geometry, material);
+	mesh.name = 'we';
+
+	scene.add(mesh);
+
+	return geometry;
+}
+
 function updateBRepMesh() {
 	var vertices = we.threeJSVertices;
 	var faces = we.threeJSFaces;
 	console.log(faces);
 	// var edge_pairs = we.threeJSEdges;
 
-	var mesh = scene.getObjectByName('we');
+	
 	var points = scene.getObjectByName('we-vertices');
 
 	// update geometry
-	mesh.geometry.dynamic = true;
-	mesh.geometry.vertices = vertices;
-	mesh.geometry.faces = faces;
-	mesh.geometry.verticesNeedUpdate = true;
-	mesh.geometry.elementsNeedUpdate = true;
-	mesh.geometry.colorsNeedUpdate = true;
-	mesh.geometry.computeBoundingSphere(); // needed to update raycast intersections
-	mesh.geometry.computeFaceNormals();
-	// mesh.geometry.computeVertexNormals();
+	// var mesh = scene.getObjectByName('we');
+	// mesh.geometry.dynamic = true;
+	// mesh.geometry.vertices = vertices;
+	// mesh.geometry.faces = faces;
+	// mesh.geometry.verticesNeedUpdate = true;
+	// mesh.geometry.elementsNeedUpdate = true;
+	// mesh.geometry.colorsNeedUpdate = true;
+	// mesh.geometry.computeBoundingSphere(); // needed to update raycast intersections
+	// mesh.geometry.computeFaceNormals();
+	// // mesh.geometry.computeVertexNormals(); // this is giving an error
 
-	generatePoints(mesh.geometry);
+	// create new object
+	scene.remove(scene.getObjectByName('we'));
+
+	var geometry = createBRepMesh(vertices, faces);
+
+	generatePoints(geometry);
 }
 
 function addEdgesToLineGroup(edgeList) {

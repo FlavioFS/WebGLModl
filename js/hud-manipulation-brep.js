@@ -182,7 +182,7 @@ function createBRepMesh(vertices, faces) {
 		color: FACE_SELECTED_COLOR,
 		shading: THREE.FlatShading,
 		depthWrite: false,
-		side: THREE.DoubleSide,
+		// side: THREE.DoubleSide,
 		// depthTest: false,
 		// wireframe: true,
 	});

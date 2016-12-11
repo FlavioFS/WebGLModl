@@ -4,8 +4,12 @@ raycaster.params.Points.threshold = 0.05;
 
 var selected_edges = [];
 
-var EDGE_SELECTED_COLOR   = 0xFFCC00;
-var EDGE_DESELECTED_COLOR = 0xFFFFFF;
+var EDGE_SELECTED_COLOR   = 0xF05839;
+var EDGE_DESELECTED_COLOR = 0x6F86B8;
+var VERTEX_SELECTED_COLOR = 0xB7DB76;
+var VERTEX_DESELECTED_COLOR = 0x6F86B8;
+var FACE_SELECTED_COLOR = 0x4B7EF2;
+var FACE_DESELECTED_COLOR = 0x6F86B8;
 
 $(document).ready(function() {
 
@@ -31,7 +35,7 @@ $(document).ready(function() {
 
 		// generate mesh
 		var material = new THREE.MeshPhongMaterial ({
-			color: 0x00FF00,
+			color: FACE_SELECTED_COLOR,
 			shading: THREE.FlatShading,
 			depthWrite: false,
 			side: THREE.DoubleSide,
@@ -174,7 +178,7 @@ $(document).ready(function() {
 							intersects[0].object.geometry.colorsNeedUpdate = true;
 						}
 
-						console.log('selected edges', selected_edges)
+						console.log('selected edges', selected_edges);
 
 						// return;
 						
@@ -227,7 +231,7 @@ function updateBRepMesh() {
 }
 
 function addEdgesToLineGroup(edgeList) {
-	var edgeGroup = scene.getObjectByName('we-edges')
+	var edgeGroup = scene.getObjectByName('we-edges');
 
 	edgeList.forEach(function(el) {
 
@@ -276,9 +280,9 @@ function generatePoints(geometry, index=0) {
 	points.name = 'we-vertices';
 	points.userData.particles = [];
 	geometry.vertices.forEach(function(vertex) {
-		geometry.colors.push(new THREE.Color(0xFFFFFF));
+		geometry.colors.push(new THREE.Color(VERTEX_SELECTED_COLOR));
 		points.userData.particles.push(vertex);
-	})
+	});
 	scene.add(points);
 
 }
@@ -287,7 +291,7 @@ function deselectAllVertices() {
 	var points = scene.getObjectByName('we-vertices');
 	// console.log(points.geometry.colors);
 	for (var i = 0; i < points.geometry.colors.length; i++)
-		points.geometry.colors[i].setHex(0xFFFFFF)
+		points.geometry.colors[i].setHex(VERTEX_DESELECTED_COLOR);
 	points.geometry.colorsNeedUpdate = true;
 	selected_vertex = null;
 }

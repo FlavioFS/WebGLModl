@@ -15,7 +15,7 @@ var BREP_MODEL = 2;
 
 var modelType = OCTREE_MODEL;
 
-var raycast = {origin: [3, 4, 3], direction: [-1.4, -1.6, -1.1]}
+var raycast = {origin: [3, 4, 3], direction: [-1.4, -1.6, -1.1]};
 
 // for import/export rotation 
 var ONE_AXIS = 0;
@@ -40,7 +40,7 @@ function init ()
 	glcanvas.className = "glcanvas";
 	document.body.appendChild(glcanvas);
 
-	grid = new THREE.GridHelper(10, 10);
+	grid = new THREE.GridHelper(10, 10, 0xE4E89D, 0xCCCCCC);
 	scene.add(grid);
 
 
@@ -214,7 +214,7 @@ function addSolid(solid, color=null, solidsIndex=null) {
 		
 		index = solids.length-1;
 		addToScene(model, index, color);
-		addWireframeBBOxToScene(solids[index], index)
+		addWireframeBBOxToScene(solids[index], index);
 
 		addSelectionSolidButton(index, OCTREE_MODEL);
 
@@ -489,7 +489,7 @@ function importString(input) {
 					x: minorVertex.x + w,
 					y: minorVertex.y + h,
 					z: minorVertex.z + d,
-				}
+				};
 
 				csgStack[stackI++] = new CSG.NodeLeaf(new Primitives.SolidCube({
 						x: (minorVertex.x + majorVertex.x)/2,
@@ -541,7 +541,7 @@ function importString(input) {
 						x: input[++i],
 						y: input[++i],
 						z: input[++i],
-					}
+					};
 					var angle = input[++i];
 
 					csgStack[stackI-1] = new CSG.NodeRotate(csgStack[stackI-1], {
@@ -605,7 +605,7 @@ function importString(input) {
 // Then print the stack from backwards
 function exportCsg(solid)
 {
-	var s = {stack: []}
+	var s = {stack: []};
 
 	exportCsgRecursion(solid, s);
 

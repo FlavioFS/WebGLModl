@@ -187,4 +187,4 @@ WingedEdge.Model = class
 			arr.push(this.faces[i].makeFaceNormal());
 		return arr;	
 	}
-}
+};

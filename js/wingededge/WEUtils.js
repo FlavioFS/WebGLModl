@@ -3,13 +3,13 @@ var WingedEdge = WingedEdge || {};
 
 WingedEdge.Material =
 {
-    color: 0x00FF00,
-    specular: 0x00FFDD,
+    color: 0x4B7EF2,
+    specular: 0xFFFFFF,
     shininess: 2,
     shading: THREE.FlatShading,
     wireframe: false,
     transparent: true,
-    opacity: 0.3,
+    opacity: 0.5,
     side: THREE.DoubleSide
 };
 

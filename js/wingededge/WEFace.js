@@ -28,6 +28,7 @@ WingedEdge.Face = class
 		this._rightFaceOf.push(edge);
 	}
 
+	// NOT USED
 	// p1 and p2 are the vertices of this._edge
 	// p3 is the pcw's end vertex.
 	// then u = p2 - 1 and v = p3 - p1, so normal = u x v

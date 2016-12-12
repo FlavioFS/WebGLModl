@@ -177,6 +177,20 @@ WingedEdge.Model = class
 		return adjacentEdges;
 	}
 
+	fe(faceId) {
+		let f = this.faces[faceId];
+		let adjacentEdges = [];
+
+		f.leftFaceOf.forEach(function(edge) {
+			adjacentEdges.push(edge);
+		});
+		f.rightFaceOf.forEach(function(edge) {
+			adjacentEdges.push(edge);
+		})
+
+		return adjacentEdges;
+	}
+
 	// Three JS
 
 	// return a vertex list for ThreeJS
@@ -219,6 +233,22 @@ WingedEdge.Model = class
 		let arr = [];
 		for (let i = 0; i < this.faces.length; i++)
 			arr.push(this.faces[i].makeFaceNormal());
-		return arr;	
+		return arr;
+	}
+
+	calculateTotalArea() {
+		let faces = this.threeJSFaces;
+		let vertices = this.threeJSVertices;
+		let sum = 0;
+
+		let ab, ac;
+
+		faces.forEach(function(face) {
+			ab = vertices[face.a].clone().sub(vertices[face.b]);
+			ac = vertices[face.a].clone().sub(vertices[face.c]);
+			sum += ab.cross(ac).length()/2;
+		})
+
+		return sum;
 	}
 };

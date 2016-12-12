@@ -1,6 +1,6 @@
 var brepHtml = `
 	<div class='toggle-form-area'>
-		<input type="button" value="New Mesh" id="new-mesh">
+		<input type="button" value="MVFS" id="mvfs">
 		<!--<input type="button" value="MEV" id="">-->
 		
 	</div>
@@ -25,14 +25,21 @@ var brepHtml = `
 		<p style="font-size: 12pt !important; text-align:center">Adjacency Operators</p>
 		Select edge(s)<br />
 		<input id="ev" type="button" value="EV"> <input id="ee" type="button" value="EE">
+		<br /><br />
+		Select face: <select id="select-face"></select><br />
+		<input id="fe" type="button" value="FE">
 	</form>
 
-	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br><br />
-	<br />
+	<input id="calculate-brep-area" type="button" value="Calculate Area">
+
+	<hr>
 	<hr>
 	<p style="font-size: 12pt !important;">
 	<strong>Hotkeys</strong>:<br >
 	<strong>[A]</strong> Deselect all vertices/edges<br />
 	<strong>[F]</strong> MEF<br />
 	</p>
+
+	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br><br />
+	<br />
 `

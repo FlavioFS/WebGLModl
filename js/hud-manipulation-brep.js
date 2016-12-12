@@ -8,17 +8,16 @@ var selected_face = null;
 
 var EDGE_SELECTED_COLOR   = 0xF05839;
 var EDGE_DESELECTED_COLOR = 0x6F86B8;
-var ADJACENT_EDGE_SELECTED_COLOR = 0xFFCC00;
 var VERTEX_SELECTED_COLOR = 0xB7DB76;
 var VERTEX_DESELECTED_COLOR = 0x6F86B8;
-var FACE_SELECTED_COLOR = 0x4B7EF2;
-var FACE_DESELECTED_COLOR = 0x6F86B8;
+var FACE_DESELECTED_COLOR = 0x4B7EF2; //0x6F86B8
+var FACE_SELECTED_COLOR = 0xFFFFFF;
 
 $(document).ready(function() {
 
 	
 
-	$(document).on('click', '#new-mesh', function() {
+	$(document).on('click', '#mvfs', function() {
 		
 		we = new WingedEdge.Model();
 		console.log(we.addVertex({x: 0, y: 0, z: 0})); // vertex 0
@@ -171,6 +170,35 @@ $(document).ready(function() {
 		return false;
 	});
 
+	$(document).on('click', '#fe', function() {
+		try {
+			console.log(selected_face);
+			if (selected_face == null) {
+				console.error('You must select one face.');
+				return false;
+			}
+			
+			var adjacentEdges = brep_solids[0].fe(selected_face);
+			adjacentEdges.forEach(function(e) {
+				selectEdge(e.id, false);
+			});
+		} catch(err) {
+			console.error(err);
+		}
+
+		return false;
+	});
+
+	$(document).on('click', '#calculate-brep-area', function() {
+		try {
+			console.log(brep_solids[0].calculateTotalArea());
+		} catch(err) {
+			console.error(err);
+		}
+
+		return false;
+	});
+
 	// VERTEX/EDGE SELECTION
 	$(document).on('mousedown', 'body', function(e){
 		e.preventDefault();
@@ -199,7 +227,7 @@ $(document).ready(function() {
 				return;
 			}
 		} catch(err) {
-			console.error(err);
+			// console.error(err);
 		}
 
 		// edges
@@ -224,15 +252,29 @@ $(document).ready(function() {
 			}
 
 		} catch(err) {
-			console.error(err);
+			// console.error(err);
+		}
+	})
+
+	$(document).on('change', '#select-face', function(){
+		var mesh = scene.getObjectByName('we');
+
+		// deselect everything
+		for (var i = 0; i < mesh.geometry.faces.length; i++) {
+			mesh.geometry.faces[i].color.setHex(FACE_DESELECTED_COLOR);
 		}
 
-		// try {
-			
-		// } catch(err) {
-
-		// }
-	})
+		if ($(this).val() == -1) {// deselect
+			mesh.geometry.faces[selected_face].color.setHex(FACE_DESELECTED_COLOR);
+			selected_face = null;
+		} else { // select
+			selected_face = $(this).val();
+			mesh.geometry.faces[selected_face].color.setHex(FACE_SELECTED_COLOR);
+		}
+		mesh.geometry.colorsNeedUpdate = true;
+		console.log(mesh.geometry);
+		return false;
+	});
 
 	// KEYBOARD EVENTS
 	$(document).on('keypress', function(e) {
@@ -259,11 +301,12 @@ function createBRepMesh(vertices, faces) {
 	console.log(faces);
 	console.log(vertices);
 	var material = new THREE.MeshPhongMaterial ({
-		color: FACE_SELECTED_COLOR,
+		color: FACE_DESELECTED_COLOR,
 		shading: THREE.FlatShading,
 		depthWrite: true,
 		side: THREE.DoubleSide,
 		depthTest: true,
+		vertexColors: THREE.FaceColors,
 		// wireframe: true,
 	});
 
@@ -275,10 +318,24 @@ function createBRepMesh(vertices, faces) {
 	geometry.colorsNeedUpdate = true;
 	geometry.computeFaceNormals();
 
+	for (var i = 0; i < faces.length; i++) {
+		geometry.faces[i].color = new THREE.Color(FACE_DESELECTED_COLOR);
+	}
+
 	var mesh = new THREE.Mesh(geometry, material);
 	mesh.name = 'we';
 
 	scene.add(mesh);
+
+	// update face selector in HTML
+	$(document).ready(function() {
+		var options = "<option value='-1'>---</option>";
+		faces.forEach(function(f, index) {
+			options += "<option value='" + index + "'>" + index + "</option>"
+		});
+		$('#select-face').html(options);
+	});
+	
 
 	return geometry;
 }

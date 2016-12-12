@@ -21,6 +21,36 @@ $(document).ready(function() {
 		
 		we = new WingedEdge.Model();
 		console.log(we.addVertex({x: 0, y: 0, z: 0})); // vertex 0
+		// console.log(we.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
+		// console.log(we.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
+		// console.log(we.mef(0, 1)); // e2
+		// console.log(we.mev(0, {x: 1, y: 0, z: 0})); // e3, v3
+		// console.log(we.mef(1, 3)); // e4
+		// console.log(we.mev(0, {x: 0, y: -1, z: 0})); // e5, v4
+		// console.log(we.mef(5, 0)); // e6
+		// console.log(we.mev(1, {x: 0, y: -1, z: 1})); // e7 v5
+		// console.log(we.mef(7, 6)); // e8
+
+		brep_solids.push(we);
+
+		var geometry = createBRepMesh(we.threeJSVertices, we.threeJSFaces);
+
+
+		var edges = new THREE.Object3D();
+		edges.name = 'we-edges';
+
+		scene.add(edges);
+
+		addEdgesToLineGroup(we.threeJSEdges);
+		
+		generatePoints(geometry);
+		
+	});
+
+	$(document).on('click', '#create-primitive', function() {
+		
+		we = new WingedEdge.Model();
+		console.log(we.addVertex({x: 0, y: 0, z: 0})); // vertex 0
 		console.log(we.mev(0, {x: 0, y: 0, z: 1})); // edge 0, v1
 		console.log(we.mev(0, {x: 1, y: 0, z: 1})); // e1, v2
 		console.log(we.mef(0, 1)); // e2
@@ -191,7 +221,9 @@ $(document).ready(function() {
 
 	$(document).on('click', '#calculate-brep-area', function() {
 		try {
-			console.log(brep_solids[0].calculateTotalArea());
+			let area = brep_solids[0].calculateTotalArea();
+			alert('The area is ' + area + ' units');
+			console.log('The area is ' + area + ' units');
 		} catch(err) {
 			console.error(err);
 		}

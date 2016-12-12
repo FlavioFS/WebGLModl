@@ -1,5 +1,6 @@
 var brepHtml = `
 	<div class='toggle-form-area'>
+		<input type="button" value="Create Primitive " id="create-primitive">
 		<input type="button" value="MVFS" id="mvfs">
 		<!--<input type="button" value="MEV" id="">-->
 		

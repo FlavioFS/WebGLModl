@@ -47,13 +47,40 @@ WingedEdge.Face = class
 		return n;
 	}
 
+	/* Return a valid index for non null vertices. i.e:
+		vertices[0] = {..., id: 0}
+		vertices[1] = null --> deleted vertex
+		vertices[2] = {..., id: 2}
+		So if a face has vertex 0 and 2, it must return 0 and 1 as indexes.
+		*/
+	getVertexArrayIndex(vertices, id) {
+		var index = 0;
+		for (var i = 0; i < vertices.length; i++) {
+			if (vertices[i] != null) {
+				if (vertices[i].id === id)
+					return index;
+				index++;
+			}
+		}
+		console.error('Vertex index not found');
+		return -1;
+	}
+
 	// For Three JS
 	// get this face's vertex list
-	getFace3(edge, rightTraverse=true) {
+	// if must return the WEMode.vertices[index], because a vertex may be deleted (null)
+	getFace3(vertices, edge, rightTraverse=true) {
+
 		if (rightTraverse)
-			return new THREE.Face3(edge.ncw.ev.id, edge.sv.id, edge.ev.id);
+			return new THREE.Face3(
+				this.getVertexArrayIndex(vertices, edge.ncw.ev.id),
+				this.getVertexArrayIndex(vertices, edge.sv.id),
+				this.getVertexArrayIndex(vertices, edge.ev.id));
 		// else // leftTraverse
-		return new THREE.Face3(edge.ev.id, edge.sv.id, edge.nccw.ev.id);
+		return new THREE.Face3(
+			this.getVertexArrayIndex(vertices, edge.ev.id),
+			this.getVertexArrayIndex(vertices, edge.sv.id),
+			this.getVertexArrayIndex(vertices, edge.nccw.ev.id));
 	}
 
 };

@@ -15,6 +15,18 @@ var brepHtml = `
 		Select two edges<br />
 		<input type="submit" value="MEF">
 	</form>
+
+	<!--<form id="kev" action="#">
+		Select one edge which is not connected to any face<br />
+		<input type="submit" value="KEV">
+	</form>-->
+
+	<form action="#">
+		<p style="font-size: 12pt !important; text-align:center">Adjacency Operators</p>
+		Select edge(s)<br />
+		<input id="ev" type="button" value="EV"> <input id="ee" type="button" value="EE">
+	</form>
+
 	<label><input id="show-grid" type="checkbox" name="show-grid" checked=""> Show Grid</label><br><br />
 	<br />
 	<hr>

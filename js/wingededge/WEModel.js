@@ -12,14 +12,6 @@ WingedEdge.Model = class
 	get edges() { return this._edges; }
 	get faces() { return this._faces; }
 
-	// return a vertex list for ThreeJS
-	get threeJSVertices() {
-		let arr = [];
-		for (let i = 0; i < this.vertices.length; i++)
-			arr.push(this.vertices[i].vector);
-		return arr;
-	}
-
 	addVertex(pos) {
 		let nv = new WingedEdge.Vertex(pos);
 		this.vertices.push(nv);
@@ -102,8 +94,17 @@ WingedEdge.Model = class
 		return {edge: ne, vertex: nv};
 	}
 
-	kev() {
-
+	kev(edgeId) {
+		let edge = this.edges[edgeId];
+		console.log(edge);
+		if (edge!= null && edge.rf == null && edge.lf == null) {
+			this.vertices[edge.ev.id] = null;
+			this.edges[edgeId] = null;
+			return edgeId;
+		} else {
+			console.error('This edge is connected to a face.');
+			return -1;
+		}
 	}
 
 	/* create a new edge connecting edge1 and edge2 then create a face connecting those 3 edges.
@@ -153,7 +154,39 @@ WingedEdge.Model = class
 
 	}
 
+	// Adjacency operators
+	ev(edgeId) {
+		let e = this.edges[edgeId];
+		let adjacentVertices = [];
+
+		if (e.sv != null) adjacentVertices.push(e.sv);
+		if (e.ev != null) adjacentVertices.push(e.ev);
+
+		return adjacentVertices;
+	}
+
+	ee(edgeId) {
+		let e = this.edges[edgeId];
+		let adjacentEdges = [];
+
+		if (e.pccw != null) adjacentEdges.push(e.pccw);
+		if (e.nccw != null) adjacentEdges.push(e.nccw);
+		if (e.pcw != null)  adjacentEdges.push(e.pcw);
+		if (e.ncw != null)  adjacentEdges.push(e.ncw);
+
+		return adjacentEdges;
+	}
+
 	// Three JS
+
+	// return a vertex list for ThreeJS
+	get threeJSVertices() {
+		let arr = [];
+		for (let i = 0; i < this.vertices.length; i++)
+			if (this.vertices[i] != null)
+				arr.push(this.vertices[i].vector);
+		return arr;
+	}
 	
 	get threeJSFaces() {
 		let arr = [];
@@ -161,11 +194,11 @@ WingedEdge.Model = class
 		for (let i = 0; i < this.faces.length; i++) {
 			if (this.faces[i].leftFaceOf.length > 0) {
 				// console.log('push left face', i, this.faces[i].leftFaceOf[0]);
-				arr.push(this.faces[i].getFace3(this.faces[i].leftFaceOf[0], false));
+				arr.push(this.faces[i].getFace3(this.vertices, this.faces[i].leftFaceOf[0], false));
 			}
 			else if (this.faces[i].rightFaceOf.length > 0) {
 				// console.log('push right face', i, this.faces[i].rightFaceOf[0]);
-				arr.push(this.faces[i].getFace3(this.faces[i].rightFaceOf[0], true));
+				arr.push(this.faces[i].getFace3(this.vertices, this.faces[i].rightFaceOf[0], true));
 			}
 		}
 		return arr;
@@ -176,7 +209,8 @@ WingedEdge.Model = class
 		let arr = [];
 
 		for (let i = 0; i < this.edges.length; i++) {
-			arr.push({edge: this.edges[i]});
+			if (this.edges[i] != null)
+				arr.push({edge: this.edges[i]});
 		}
 		return arr;
 	}

@@ -63,6 +63,33 @@ WingedEdge.Edge = class
 		return (this.pcw == null && this.ncw == null);
 	}
 
+
+	/* Return a valid index for non null edges. i.e:
+		edges[0] = {..., id: 0}
+		edges[1] = null --> deleted edge
+		edges[2] = {..., id: 2}
+		So if we want edges 0 and 2, it must return 0 and 1 as indexes.
+		*/
+	// Not needed yet
+	// getEdgeArrayIndex(edges, edgeId) {
+	// 	let index = 0;
+	// 	for (let i = 0; i < edges.length; i++) {
+	// 		if (edges[i] != null) {
+	// 			if (edges[i].id === edgeId)
+	// 				return index;
+	// 			index++;
+	// 		}
+	// 	}
+	// 	console.error('Edge index not found');
+	// 	return -1;
+	// }
+
+	// given all edges, look for a edge.id == edgeId and return its neighbors
+	// edgeToEdgeNeighbors(edges, edgeId) {
+	// 	let arr = [];
+	// 	let e = edges[this.getEdgeArrayIndex(edges, edgeId)];
+	// 	console.log('analysing edge', edgeId, e);
+	// }
 	
 
 };

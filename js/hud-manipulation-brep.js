@@ -2,10 +2,13 @@ var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
 raycaster.params.Points.threshold = 0.05;
 
+var selected_vertices = [];
 var selected_edges = [];
+var selected_face = null;
 
 var EDGE_SELECTED_COLOR   = 0xF05839;
 var EDGE_DESELECTED_COLOR = 0x6F86B8;
+var ADJACENT_EDGE_SELECTED_COLOR = 0xFFCC00;
 var VERTEX_SELECTED_COLOR = 0xB7DB76;
 var VERTEX_DESELECTED_COLOR = 0x6F86B8;
 var FACE_SELECTED_COLOR = 0x4B7EF2;
@@ -13,8 +16,7 @@ var FACE_DESELECTED_COLOR = 0x6F86B8;
 
 $(document).ready(function() {
 
-	var selected_vertices = [];
-	var selected_vertex = null;
+	
 
 	$(document).on('click', '#new-mesh', function() {
 		
@@ -47,43 +49,124 @@ $(document).ready(function() {
 	});
 
 	$(document).on('submit', '#mev', function() {
+		try {
+			pos = {
+				x: parseFloat($(this).find('input[name=x]').val()),
+				y: parseFloat($(this).find('input[name=y]').val()),
+				z: parseFloat($(this).find('input[name=z]').val())
+			};
 
-		pos = {
-			x: parseFloat($(this).find('input[name=x]').val()),
-			y: parseFloat($(this).find('input[name=y]').val()),
-			z: parseFloat($(this).find('input[name=z]').val())
-		};
+			var newEV = null;
+			if (selected_vertices.length == 1)
+				newEV = brep_solids[0].mev(selected_vertices[0], pos);
+			else if (selected_vertices.length == 0)
+				newEV = brep_solids[0].mev(0, pos);
+			else {
+				console.error('You must select only one vertex.');
+				return false;
+			}
 
-		var newEV = null;
-		if (selected_vertex)
-			newEV = brep_solids[0].mev(selected_vertex, pos);
-		else
-			newEV = brep_solids[0].mev(0, pos);
 
-		updateBRepMesh();
-		addEdgesToLineGroup([newEV]);
-		deselectAllEdges();
+			updateBRepMesh();
+			addEdgesToLineGroup([newEV]);
+
+			deselectAllVertices();
+			deselectAllEdges();
+
+		} catch(err) {
+			console.error(err);
+		}
 
 		return false;
 
 	});
 
-	$(document).on('submit', '#mef', function() {
-		var newEF;
-		console.log(selected_edges);
-		if (selected_edges.length == 2) {
-			newEF = brep_solids[0].mef(
-				selected_edges[0].userData.edgeId,
-				selected_edges[1].userData.edgeId);
 
-			console.log('MEF:', newEF);
+	$(document).on('submit', '#kev', function() {
+		try {
+			var deletedEdge;
+			console.log(selected_edges);
 
-			updateBRepMesh();
-			addEdgesToLineGroup([newEF]);
-			deselectAllEdges();
+			if (selected_edges.length == 1) {
+				deletedEdge = brep_solids[0].kev(selected_edges[0].userData.edgeId);
+
+				console.log('KEV:', deletedEdge);
+
+				updateBRepMesh();
+				deleteEdgeFromLineGroup(deletedEdge);
+
+				deselectAllVertices();
+				deselectAllEdges();
+			}
+			else
+				console.error('You must select only one edge.');
+		} catch(err) {
+			console.error(err);
 		}
-		else
-			console.error('You must select two edges. You can deselect all edge and start again.');
+
+		return false;
+	});
+
+	$(document).on('submit', '#mef', function() {
+		try {
+			var newEF;
+			console.log(selected_edges);
+			if (selected_edges.length == 2) {
+				newEF = brep_solids[0].mef(
+					selected_edges[0].userData.edgeId,
+					selected_edges[1].userData.edgeId);
+
+				console.log('MEF:', newEF);
+
+				updateBRepMesh();
+				addEdgesToLineGroup([newEF]);
+
+				deselectAllVertices();
+				deselectAllEdges();
+			}
+			else
+				console.error('You must select two edges. You can deselect all edge and start again.');
+		} catch(err) {
+			console.error(err);
+		}
+
+		return false;
+	});
+
+	$(document).on('click', '#ee', function() {
+		try {
+			console.log(selected_edges);
+			var adjacentEdges;
+
+			selected_edges.forEach(function(edge) {
+				adjacentEdges = brep_solids[0].ee(edge.userData.edgeId);
+				adjacentEdges.forEach(function(e) {
+					selectEdge(e.id, false);
+				})
+				
+			})
+		} catch(err) {
+			console.error(err);
+		}
+
+		return false;
+	});
+
+	$(document).on('click', '#ev', function() {
+		try {
+			console.log(selected_edges);
+			var adjacentVertices;
+
+			selected_edges.forEach(function(edge) {
+				adjacentVertices = brep_solids[0].ev(edge.userData.edgeId);
+				adjacentVertices.forEach(function(v) {
+					selectVertex(v.id, false);
+				})
+				
+			})
+		} catch(err) {
+			console.error(err);
+		}
 
 		return false;
 	});
@@ -107,24 +190,16 @@ $(document).ready(function() {
 					return a.distanceToRay - b.distanceToRay;
 				});
 
-				deselectAllVertices();
-
 				var vertex = intersects[0];
 				console.log('vertex', vertex.index, 'clicked, pos =', points.geometry.vertices[vertex.index]);
-				selected_vertex = vertex.index;
 
-				console.log(vertex.index);
-
-				// points.geometry.colors[vertex.index].setHex(0xFF0000);
-				// points.geometry.colorsNeedUpdate = true;
-				vertex.object.geometry.colors[ vertex.index ].setHex(VERTEX_SELECTED_COLOR);
-				vertex.object.geometry.colorsNeedUpdate = true;
+				selectVertex(vertex.index);
 				
-				// in case an vertex has been selected, we do NOT allow an edge to be selected at the same time
+				// in case a vertex has been selected, we do NOT allow an edge to be selected at the same time
 				return;
 			}
 		} catch(err) {
-			// probably because points dont exist yet
+			console.error(err);
 		}
 
 		// edges
@@ -136,32 +211,27 @@ $(document).ready(function() {
 			intersects = raycaster.intersectObjects(lineGroup.children, true);
 
 			if (intersects.length > 0) {
+				// intersects = intersects.sort( function( a, b ) {
+				// 	return a.distanceToRay - b.distanceToRay;
+				// });
+
 				for (var i = 0; i < lineGroup.children.length; i++) {
 					if (intersects[0].object === lineGroup.children[i]) {
-						// console.log(intersects[0].object);
-						var index = selected_edges.indexOf(intersects[0].object);
-						if (index === -1) {
-							selected_edges.push(intersects[0].object);
-							intersects[0].object.material.color.setHex(EDGE_SELECTED_COLOR);
-							intersects[0].object.geometry.colorsNeedUpdate = true;
-						}
-						else if (index > -1) {
-							selected_edges.splice(index, 1);
-							intersects[0].object.material.color.setHex(EDGE_DESELECTED_COLOR);
-							intersects[0].object.geometry.colorsNeedUpdate = true;
-						}
-
-						console.log('selected edges', selected_edges);
-
-						// return;
-						
+						selectEdge(intersects[0].object.userData.edgeId);
+						return;
 					}
 				}
 			}
 
 		} catch(err) {
-			// probably because points dont exist yet
+			console.error(err);
 		}
+
+		// try {
+			
+		// } catch(err) {
+
+		// }
 	})
 
 	// KEYBOARD EVENTS
@@ -186,6 +256,8 @@ $(document).ready(function() {
 });
 
 function createBRepMesh(vertices, faces) {
+	console.log(faces);
+	console.log(vertices);
 	var material = new THREE.MeshPhongMaterial ({
 		color: FACE_SELECTED_COLOR,
 		shading: THREE.FlatShading,
@@ -299,13 +371,49 @@ function generatePoints(geometry, index=0) {
 
 }
 
+function selectVertex(vertexId, deselectAfterSecondClick=true) {
+	var vertices = scene.getObjectByName('we-vertices');
+	var index = selected_vertices.indexOf(vertexId);
+	var color = VERTEX_SELECTED_COLOR;
+
+	if (index === -1) {
+		selected_vertices.push(vertexId);
+		color = VERTEX_SELECTED_COLOR;
+	} else if (deselectAfterSecondClick) {
+		selected_vertices.splice(index, 1);
+		color = VERTEX_DESELECTED_COLOR;
+	}
+
+	vertices.geometry.colors[vertexId].setHex(color);
+	vertices.geometry.colorsNeedUpdate = true;
+	console.log(selected_vertices);
+}
+
 function deselectAllVertices() {
-	var points = scene.getObjectByName('we-vertices');
-	// console.log(points.geometry.colors);
-	for (var i = 0; i < points.geometry.colors.length; i++)
-		points.geometry.colors[i].setHex(VERTEX_DESELECTED_COLOR);
-	points.geometry.colorsNeedUpdate = true;
-	selected_vertex = null;
+	var vertices = scene.getObjectByName('we-vertices');
+	// console.log(vertices.geometry.colors);
+	for (var i = 0; i < vertices.geometry.colors.length; i++)
+		vertices.geometry.colors[i].setHex(VERTEX_DESELECTED_COLOR);
+	vertices.geometry.colorsNeedUpdate = true;
+	selected_vertices = [];
+}
+
+function selectEdge(edgeId, deselectAfterSecondClick=true) {
+	var line = scene.getObjectByName('we-edges').children[edgeId];
+	var index = selected_edges.indexOf(line);
+	var color = EDGE_SELECTED_COLOR;
+
+	if (index === -1) {
+		selected_edges.push(line);
+		color = EDGE_SELECTED_COLOR;
+	} else if (deselectAfterSecondClick) {
+		selected_edges.splice(index, 1);
+		color = EDGE_DESELECTED_COLOR;
+	}
+
+	line.material.color.setHex(color);
+	line.geometry.colorsNeedUpdate = true;
+	console.log(selected_edges);
 }
 
 function deselectAllEdges() {
@@ -318,3 +426,13 @@ function deselectAllEdges() {
 	
 	selected_edges = [];
 }
+
+function deleteEdgeFromLineGroup(edgeId) {
+	var lineGroup = scene.getObjectByName('we-edges');
+
+	for (var i = 0; i < lineGroup.children.length; i++) {
+		if (lineGroup.children[i].userData.edgeId == edgeId)
+			lineGroup.remove(lineGroup.children[i]);
+	}
+}
+

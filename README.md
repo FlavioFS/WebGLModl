@@ -27,7 +27,7 @@ Repo for class assignments.
 | Topic | Details |
 |-------|-----------|
 | Name | WebGLModl |
-| APIs | ThreeJS |
+| APIs | ThreeJS, AngularJS |
 | Language | Javascript ES6 |
 
 ## Instructions

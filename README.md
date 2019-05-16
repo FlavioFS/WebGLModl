@@ -2,7 +2,7 @@
 
 # <a href="https://flaviofs.github.io/WebGLModl/" target="_blank"> Live demo here</a>
 <a href="https://flaviofs.github.io/WebGLModl/" target="_blank">
-  <img src="" >
+  <img src="img/preview.gif" alt="Preview image failed to load">
 </a>
 
 ## :book: Description

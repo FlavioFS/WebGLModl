@@ -15,7 +15,7 @@ Computer Science Bachelor's degree assignments [Winter Class Aug ~ Dec 2017].
 | Supervisor | Prof. Joaquim Bento Cavancalnte |
 | Organization | Universidade Federal do Ceará (UFC) |
 
-## :scroll: Class Schedule
+## :clipboard: Class Schedule
   - [x] Topology x Geometry
   - [x] Manifolds x Non-Manifolds 
   - [x] Spatial Subdivision Models
@@ -36,6 +36,6 @@ Computer Science Bachelor's degree assignments [Winter Class Aug ~ Dec 2017].
 | APIs | ThreeJS, AngularJS |
 | Language | Javascript ES6 |
 
-## :clipboard: Instructions
+## :scroll: Instructions
  1. Download this repo
  2. Run **index.html** from root folder

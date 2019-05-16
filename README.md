@@ -1,6 +1,5 @@
 # :triangular_ruler: WebGLModl
-
-# <a href="https://flaviofs.github.io/WebGLModl/" target="_blank"> Live demo here</a>
+# [:arrow_forward: Live demo](https://flaviofs.github.io/WebGLModl/)
 <a href="https://flaviofs.github.io/WebGLModl/" target="_blank">
   <img src="img/preview.gif" alt="Preview image failed to load">
 </a>

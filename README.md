@@ -27,7 +27,7 @@ Computer Science Bachelor's degree assignments [Winter Class Aug ~ Dec 2017].
   - [x] Surface Mesh
   - [x] Cell Division
 
-## Final Project
+## :microscope: Final Project
 > Simple 3D Modeling Application.
 
 | Topic | Details |

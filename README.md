@@ -1,7 +1,13 @@
-#  :triangular_ruler: WebGLModl
+# :triangular_ruler: WebGLModl
 
-## About
-Repo for class assignments.
+# <a href="https://flaviofs.github.io/WebGLModl/" target="_blank"> Live demo here</a>
+<a href="https://flaviofs.github.io/WebGLModl/" target="_blank">
+  <img src="" >
+</a>
+
+## :book: Description
+Simple WebGL 3D Modelling tool.
+Computer Science Bachelor's degree assignments [Winter Class Aug ~ Dec 2017].
 
 | Topic | Details |
 |-------|-----------|
@@ -9,7 +15,7 @@ Repo for class assignments.
 | Supervisor | Prof. Joaquim Bento Cavancalnte |
 | Organization | Universidade Federal do Ceará (UFC) |
 
-## Class Schedule
+## :scroll: Class Schedule
   - [x] Topology x Geometry
   - [x] Manifolds x Non-Manifolds 
   - [x] Spatial Subdivision Models
@@ -30,6 +36,6 @@ Repo for class assignments.
 | APIs | ThreeJS, AngularJS |
 | Language | Javascript ES6 |
 
-## Instructions
+## :clipboard: Instructions
  1. Download this repo
  2. Run **index.html** from root folder
